@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace TestController
+namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class MvcApplication : System.Web.HttpApplication
     {

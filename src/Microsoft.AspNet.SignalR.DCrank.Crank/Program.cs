@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Crank
+namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     class Program
     {
