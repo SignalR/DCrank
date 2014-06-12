@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.21723.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30423.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crank", "Crank\Crank.csproj", "{C85BF784-D977-45B0-8A08-D49245035F89}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D864C79D-4933-407C-90D6-D6A9BB50603B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestController", "TestController\TestController.csproj", "{FA9DC384-071C-45F5-8F12-50CFD1130EC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.TestController", "src\Microsoft.AspNet.SignalR.DCrank.TestController\Microsoft.AspNet.SignalR.DCrank.TestController.csproj", "{FA9DC384-071C-45F5-8F12-50CFD1130EC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Crank", "src\Microsoft.AspNet.SignalR.DCrank.Crank\Microsoft.AspNet.SignalR.DCrank.Crank.csproj", "{C85BF784-D977-45B0-8A08-D49245035F89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Agent", "src\Microsoft.AspNet.SignalR.DCrank.Agent\Microsoft.AspNet.SignalR.DCrank.Agent.csproj", "{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Worker", "src\Microsoft.AspNet.SignalR.DCrank.Worker\Microsoft.AspNet.SignalR.DCrank.Worker.csproj", "{19598B2E-7761-4DC5-8ABF-A16AA3573B71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +19,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C85BF784-D977-45B0-8A08-D49245035F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C85BF784-D977-45B0-8A08-D49245035F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA9DC384-071C-45F5-8F12-50CFD1130EC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA9DC384-071C-45F5-8F12-50CFD1130EC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA9DC384-071C-45F5-8F12-50CFD1130EC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA9DC384-071C-45F5-8F12-50CFD1130EC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C85BF784-D977-45B0-8A08-D49245035F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C85BF784-D977-45B0-8A08-D49245035F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
