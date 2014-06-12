@@ -9,10 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Crank", "src\Microsoft.AspNet.SignalR.DCrank.Crank\Microsoft.AspNet.SignalR.DCrank.Crank.csproj", "{C85BF784-D977-45B0-8A08-D49245035F89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Agent", "src\Microsoft.AspNet.SignalR.DCrank.Agent\Microsoft.AspNet.SignalR.DCrank.Agent.csproj", "{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Worker", "src\Microsoft.AspNet.SignalR.DCrank.Worker\Microsoft.AspNet.SignalR.DCrank.Worker.csproj", "{19598B2E-7761-4DC5-8ABF-A16AA3573B71}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,14 +23,6 @@ Global
 		{C85BF784-D977-45B0-8A08-D49245035F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C85BF784-D977-45B0-8A08-D49245035F89}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1176D79-5BF0-464B-84F7-4AB3EA76B91C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19598B2E-7761-4DC5-8ABF-A16AA3573B71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

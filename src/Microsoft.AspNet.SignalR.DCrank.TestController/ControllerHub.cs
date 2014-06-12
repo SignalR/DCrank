@@ -20,7 +20,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.ping(value);
         }
 
-        public void AgentAlive(int value)
+        public void Pong(int value)
         {
             Clients.Group(uiGroup).pongResponse(Context.ConnectionId, value);
         }

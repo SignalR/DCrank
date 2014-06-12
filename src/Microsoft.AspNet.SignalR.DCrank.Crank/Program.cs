@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -10,6 +6,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     {
         static void Main(string[] args)
         {
+            if (args.Length > 0 && string.Equals(args[0], "agent", StringComparison.OrdinalIgnoreCase))
+            {
+                var agent = new Agent();
+                agent.Run().Wait();
+            }
+            else
+            {
+                var worker = new Worker();
+                worker.Run().Wait();
+            }
         }
     }
 }
