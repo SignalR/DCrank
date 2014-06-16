@@ -141,6 +141,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Infrastructure\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
