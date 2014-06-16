@@ -3,16 +3,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class ControllerHub : Hub
     {
-        private string _message = "";
         public void Hello()
         {
             Clients.All.hello();
         }
 
         // Call the broadcastMessage method to the UI with the appropriate message.
-        public void Send()
+        public void Send( string connectionId)
         {
-            Clients.All.broadcastMessage(_message + "has connected");
+            Clients.All.broadcastMessage(connectionId + "has connected");
         }
 
         public void AgentsAlive(int x)
@@ -27,9 +26,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         }
 
         //Allows you to broadcast to a specific client on the hub - future method not yet used
-        public void RespondToClient(string conId)
+        public void RespondToClient(string connectionId)
         {
-            GetClients(conId).Send();
+            GetClients(connectionId).Send();
         }
 
         //Establishes a way to identify a specific client on the hub - future method not yet used
@@ -47,8 +46,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         //Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
         public void AgentHeartbeat(string connectionId)
         {
-            _message = connectionId;//The agent passes us their id when they connect so it is a neccessary parameter to establish unique identifiers
-            Send();
+            Send(connectionId);
         }
     }
 }
