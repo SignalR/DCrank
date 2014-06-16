@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNet.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Microsoft.AspNet.SignalR;
 
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class ControllerHub : Hub
     {
         private string _message = "has connected";
-        private int _recieved;
         public void Hello()
         {
             Clients.All.hello();
@@ -18,7 +17,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         public void Send()
         {
             // Call the broadcastMessage method to the UI with the appropriate message.
-            string message = this.GetMessage();
+            var message = GetMessage();
             Clients.All.broadcastMessage(message);
         }
 
@@ -26,21 +25,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         {
             Clients.All.ping(x);
         }
-
+        //A test to see if there is end to end communication - see if the int you send is actually received
         public void Pong(int x)
         {
-            _recieved = x;
-            Clients.All.broadcastMessage(_recieved);
-
+            Clients.All.broadcastMessage(x);
         }
-        //Returns the message
+        //Returns the message to the UI
         public string GetMessage()
         {
-            string message = _message;
-            return message;
+            return _message;
         }
 
-        //Want to use this to recieve messages from the Agent
+        //Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
         public void AgentHeartbeat(string connectionId)
         {
             _message = connectionId + _message;
