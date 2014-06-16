@@ -1,45 +1,53 @@
-﻿using Microsoft.AspNet.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
+﻿
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class ControllerHub : Hub
     {
-        private string _message = "has connected";
+        private string _message = "";
         public void Hello()
         {
             Clients.All.hello();
         }
 
+        // Call the broadcastMessage method to the UI with the appropriate message.
         public void Send()
         {
-            // Call the broadcastMessage method to the UI with the appropriate message.
-            var message = GetMessage();
-            Clients.All.broadcastMessage(message);
+            Clients.All.broadcastMessage(_message + "has connected");
         }
 
         public void AgentsAlive(int x)
         {
-            Clients.All.ping(x);
+            Clients.All.pong(x);
         }
+
         //A test to see if there is end to end communication - see if the int you send is actually received
-        public void Pong(int x)
+        public void Ping(int x)
         {
             Clients.All.broadcastMessage(x);
         }
-        //Returns the message to the UI
-        public string GetMessage()
+
+        //Allows you to broadcast to a specific client on the hub - future method not yet used
+        public void RespondToClient(string conId)
         {
-            return _message;
+            GetClients(conId).Send();
+        }
+
+        //Establishes a way to identify a specific client on the hub - future method not yet used
+        private dynamic GetClients(string conId = "")
+        {
+            var clients = GlobalHost.ConnectionManager.GetHubContext<ControllerHub>().Clients;
+            if (conId == "")
+            {
+                return clients;
+            }
+
+            return clients.User(conId);
         }
 
         //Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
         public void AgentHeartbeat(string connectionId)
         {
-            _message = connectionId + _message;
+            _message = connectionId;//The agent passes us their id when they connect so it is a neccessary parameter to establish unique identifiers
             Send();
         }
     }
