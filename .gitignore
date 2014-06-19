@@ -27,4 +27,6 @@ PublishProfiles/
 *.log
 *.vspx
 *.log.txt
+jquery.signalR.js
+jquery.signalR.min.js
 /DCrank.sln.ide
