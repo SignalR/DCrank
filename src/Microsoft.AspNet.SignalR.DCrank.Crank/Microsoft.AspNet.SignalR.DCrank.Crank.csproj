@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent.cs" />
-    <Compile Include="ControllerClient.cs" />
+    <Compile Include="Message.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

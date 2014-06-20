@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -8,10 +10,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public async Task Run()
         {
-            while (true)
+            await Task.Factory.StartNew(() =>
             {
-                await Task.Delay(1000);
-            }
+                var serializer = new JsonSerializer();
+                while (true)
+                {
+                    var message = serializer.Deserialize<Message>(new JsonTextReader(Console.In));
+                    if (string.Equals(message.Command, "ping"))
+                    {
+                        serializer.Serialize(new JsonTextWriter(Console.Out), new Message(){ Command = "pong", Value = message.Value });
+                    }
+                }
+            });
         }
     }
 }
