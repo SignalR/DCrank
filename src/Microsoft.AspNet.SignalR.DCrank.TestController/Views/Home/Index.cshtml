@@ -2,13 +2,32 @@
     ViewBag.Title = "Dashboard";
 }
 
-<h2>Hud</h2>
+<h1>Hud</h1>
 
-<div class="jumbotron">
-    <ul id="agentOutput"></ul>
+<h3>Remote Control</h3>
+
+<div class="jumbotron" style="max-height:400px; overflow:auto; min-width:800px;">
+    <table id="uiView" style="width:100%; font-size:1em">
+        <thead>
+            <tr>
+                <th width="20%">Agent Id</th>
+                <th width="20%">Workers Id</th>
+                <th width="25%">Worker Status</th>
+                <th width="20%">Ping Worker</th>
+                <th width="15%">Start Worker</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
-<button id="ping">Refresh</button>
+<button id="pingAgent">Ping All Agents</button>
+
+<h3>Ouptput Area</h3>
+
+<div class="jumbotron" style="max-height:400px; overflow:auto;min-width: 800px;">
+    <ul id="uiOutput"></ul>
+</div>
 
 @section scripts
 {
@@ -19,17 +38,82 @@
 
     <script>
         var controller = $.connection.controllerHub;
-        controller.client.agentConnected = function (id) {
-            $('#agentOutput').prepend('<li> ' + id + 'has connected' + '</li>');
+        var _agentId;
+        var _processId;
+
+        // Activates when an agent connects and updates the UI
+        controller.client.agentConnected = function (agentId) {
+            _agentId = agentId;
+            var rows = $('#uiView tbody tr');
+            var oldAgent = false;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].cell[0].innerHtml() == agentId) {
+                    oldAgent = true;
+                }
+            }
+            if (!oldAgent) {
+                $('#uiView tbody').append(
+                    '<tr>' +
+                    '<td>' + agentId + '</td>' +
+                    '<td>N/A</td>' +
+                    '<td>Unknown</td>' +
+                    '<td><button id="PingWorker" onclick= "PingWorker()">Ping</button></td>' +
+                    '<td><button id="StartWorker"  onclick= "StartWorker()">Start Worker</button></td>' +
+                    '</tr>');
+                $('#uiOutput').prepend('<li> ' + agentId + ' has connected' + '</li>');
+            }
+            else {
+                $('#uiOutput').prepend('<li> ' + agentId + ' is an old agent... something clearly went wrong' + '</li>');
+            }
         };
-        controller.client.pongResponse = function (id, value) {
-            $('#agentOutput').prepend('<li> ' + id + 'has responded to the ping with' + value + '</li>');
+
+        // Activates when a worker connects and updates the UI
+        controller.client.workerConnected = function (agentId, workerId) {
+            _processId = workerId;
+            var rows = $('#uiView tbody tr');
+            var agentsRow;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].cells[0].innerHTML == agentId) {
+                    agentsRow = rows[i];
+                }
+            }
+
+            agentsRow.cells[1].innerHTML = workerId;
+            agentsRow.cells[2].innerHTML = 'Alive';
+            $('#uiOutput').prepend('<li> ' + workerId + ' has connected to agent: ' + agentId + '</li>');
+
         };
+
+        // Activates when a pong response is received from the agent
+        controller.client.agentPongResponse = function (agentId, value) {
+            $('#uiOutput').prepend('<li> ' + agentId + ' has responded to the ping with ' + value + '</li>');
+        };
+
+        // Activates when a pong response is received from the worker
+        controller.client.workerPongResponse = function (agentId, workerId, value) {
+            $('#uiOutput').prepend('<li> Worker with id: ' + workerId + ' under' +
+                ' agent:' + agentId + ' has responded to the ping with ' + value + '</li>');
+        };
+
+        // Established a group for the UI so that it can be identified by the hub
         $.connection.hub.qs = { UI: 1 };
         $.connection.hub.start().done(function () {
-            $('#ping').click(function () {
-                controller.server.ping(5);
+            $('#pingAgent').click(function () {
+                controller.server.pingAgent(5);
             });
         });
+
+        function PingWorker() {
+            if (_processId == "N/A") {
+                $('#uiOutput').prepend('<li> ' + agentId + ' has no worker !*#$%^& </li>');
+            }
+            else {
+                controller.server.pingWorker(_processId, 7)
+            }
+        };
+
+        function StartWorker() {
+            controller.server.startWorker(_agentId);
+        };
     </script>
 }

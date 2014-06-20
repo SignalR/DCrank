@@ -4,31 +4,54 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class ControllerHub : Hub
     {
-        private readonly string uiGroup = "Dashboard";
+        private readonly string _uiGroup = "Dashboard";
+
         public override async Task OnConnected()
         {
             var isDashboard = Context.Request.QueryString["UI"] == "1";
             if (isDashboard)
             {
-                await Groups.Add(Context.ConnectionId, uiGroup);
+                await Groups.Add(Context.ConnectionId, _uiGroup);
             }
         }
 
-        //A test to see if there is end to end communication - see if the int you send is actually received
-        public void Ping(int value)
+        // A test to see if there is end to end communication - see if the int you send is actually received
+        public void PingAgent(int value)
         {
-            Clients.All.ping(value);
+            Clients.All.pingAgent(value);
         }
 
-        public void Pong(int value)
+        public void PingWorker(int workerId, int value)
         {
-            Clients.Group(uiGroup).pongResponse(Context.ConnectionId, value);
+            Clients.All.pingWorker(workerId, value);
         }
 
-        //Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
+        public void PongAgent(int value)
+        {
+            Clients.Group(_uiGroup).agentPongResponse(Context.ConnectionId, value);
+        }
+
+        public void PongWorker(int workerId, int value)
+        {
+            Clients.Group(_uiGroup).workerPongResponse(Context.ConnectionId, workerId, value);
+        }
+
+        // Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
         public void AgentHeartbeat()
         {
-            Clients.Group(uiGroup).agentConnected(Context.ConnectionId);
+            Clients.Group(_uiGroup).agentConnected(Context.ConnectionId);
         }
+
+        public void WorkerHeartbeat(int workerId)
+        {
+            Clients.Group(_uiGroup).workerConnected(Context.ConnectionId, workerId);
+        }
+
+        // Starts a worker process via the ui on the given agent
+        public void StartWorker(string connectionId)
+        {
+            Clients.Client(connectionId).StartWorker();
+        }
+
     }
 }
