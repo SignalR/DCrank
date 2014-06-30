@@ -26,13 +26,13 @@
                     <th>{{agent.numberOfWorkers}}</th>
                     <th>
                         <form>
-                            Number of Workers to Start: <input type="text"> <input type="submit" value="Start Workers" data-ng-click="startWorkers()">
+                            Number of Workers to Start: <input type="text" maxlength="5" size="5"> <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
                         </form>
                     </th>
                     <th>
                         <div data-ng-repeat="worker in agent.workers">
                             <div style="width:40%;">{{worker.id}}</div>
-                            <button style="width:40%;" data-ng-click="pingWorker()">Ping</button>
+                            <button class="button" style="width:40%;" data-ng-click="pingWorker()">Ping</button>
                         </div>
                     </th>
                 </tr>
@@ -40,7 +40,7 @@
         </table>
     </div>
 
-    <button id="pingAgent">Ping All Agents</button>
+    <button class="button" id="pingAgent">Ping All Agents</button>
 
     <div data-ng-repeat="agent in agents">
         <div data-ng-repeat="worker in agent.workers">
