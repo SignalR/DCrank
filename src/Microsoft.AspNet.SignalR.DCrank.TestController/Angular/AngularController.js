@@ -65,8 +65,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.$parent.$on("agentConnected", function (e, agentId) {
         $scope.$apply(function () {
             var newAgent = true;
-            for (var currentAgents in $scope.agents) {
-                if (currentAgents.id == agentId) {
+            for (var i = 0; i < $scope.agents.length; i++) {
+                if ($scope.agent[i].id == agentId) {
                     newAgent = false;
                 };
             };
