@@ -36,18 +36,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.Group(_uiGroup).workerPongResponse(Context.ConnectionId, workerId, value);
         }
 
-        // Want to use this to recieve messages from the Agent - has to be called from the agent - A test of end to end connectivity
         public void AgentHeartbeat()
         {
-            Clients.Group(_uiGroup).agentConnected(Context.ConnectionId);
+            Clients.All.agentConnected(Context.ConnectionId);
         }
 
         public void WorkerHeartbeat(int workerId)
         {
-            Clients.Group(_uiGroup).workerConnected(Context.ConnectionId, workerId);
+            Clients.All.workerConnected(Context.ConnectionId, workerId);
         }
 
-        // Starts a worker process via the ui on the given agent
         public void StartWorker(string connectionId)
         {
             Clients.Client(connectionId).StartWorker();
