@@ -21,9 +21,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.pingAgent(value);
         }
 
-        public void PingWorker(int workerId, int value)
+        public void PingWorker(string agentid, int workerId, int value)
         {
-            Clients.All.pingWorker(workerId, value);
+            Clients.Client(agentid).pingWorker(workerId, value);
         }
 
         public void PongAgent(int value)
@@ -36,19 +36,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.workerPongResponse(Context.ConnectionId, workerId, value);
         }
 
-        public void AgentHeartbeat()
+        public void AgentHeartbeat(object heartbeatInformation)
         {
-            Clients.All.agentConnected(Context.ConnectionId);
+            Clients.All.agentConnected(Context.ConnectionId, heartbeatInformation);
         }
 
-        public void WorkerHeartbeat(int workerId)
+        public void StartWorker(string connectionId, int numberOfWorkersToStart)
         {
-            Clients.All.workerConnected(Context.ConnectionId, workerId);
+            Clients.Client(connectionId).startWorker(numberOfWorkersToStart);
         }
 
-        public void StartWorker(string connectionId)
+        public void KillWorker(string agentId, int workerId)
         {
-            Clients.Client(connectionId).StartWorker();
+            Clients.Client(agentId).killWorker(workerId);
         }
 
         public void LogAgent(string message)

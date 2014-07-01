@@ -45,8 +45,8 @@ angularModule.service('signalRSvc', function ($rootScope) {
         }
     };
 
-    var pingWorker = function (workerId) {
-        this.proxy.invoke('pingWorker', workerId, 7);
+    var pingWorker = function (agentId, workerId) {
+        this.proxy.invoke('pingWorker', agentId, workerId, 7);
     };
 
     return {
@@ -87,8 +87,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     }
 
     $scope.pingWorker = function () {
+        var agentId = this.parent.agent.id;
         var workerId = this.worker.id;
-        signalRSvc.pingWorker(workerId);
+        signalRSvc.pingWorker(agentId, workerId);
     }
 
     $scope.showLogging = function () {
