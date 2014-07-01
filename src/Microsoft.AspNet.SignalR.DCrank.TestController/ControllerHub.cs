@@ -28,12 +28,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void PongAgent(int value)
         {
-            Clients.Group(_uiGroup).agentPongResponse(Context.ConnectionId, value);
+            Clients.All.agentPongResponse(Context.ConnectionId, value);
         }
 
         public void PongWorker(int workerId, int value)
         {
-            Clients.Group(_uiGroup).workerPongResponse(Context.ConnectionId, workerId, value);
+            Clients.All.workerPongResponse(Context.ConnectionId, workerId, value);
         }
 
         public void AgentHeartbeat()
@@ -51,5 +51,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.Client(connectionId).StartWorker();
         }
 
+        public void LogAgent(string message)
+        {
+            Clients.All.agentsLog(Context.ConnectionId, message);
+        }
+
+        public void LogWorker(int workerId, string message)
+        {
+            Clients.All.workersLog(Context.ConnectionId, workerId, message);
+        }
     }
 }
