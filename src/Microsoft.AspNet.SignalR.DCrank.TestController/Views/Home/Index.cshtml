@@ -40,12 +40,12 @@
 
     <button class="button" id="pingAgent">Ping All Agents</button>
 
-    <div data-ng-repeat="agent in agents" data-ng-show="agent.display">
+    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="border:solid">
         <ul data-ng-repeat="agentLogging in agent.output">{{agentLogging}}</ul>
     </div>
 
-    <div data-ng-repeat="agent in agents">
-        <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display">
+    <div data-ng-repeat="agent in agents" style="border:solid">
+        <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display" style="border: dashed">
             <ul data-ng-repeat="workerLogging in worker.output">{{workerLogging}}</ul>
         </div>
     </div>
