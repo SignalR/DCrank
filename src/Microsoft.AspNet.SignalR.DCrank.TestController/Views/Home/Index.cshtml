@@ -19,7 +19,11 @@
                 <th style="border:solid; width:40%">Current Workers</th>
             </tr>
             <tr style="border:solid;" data-ng-repeat="agent in agents">
-                <td style="border:solid;">{{agent.number}}</td>
+                <td style="border:solid;">
+                    <div style="width:100px; display:inline-block; margin-right:10px;">{{agent.number}} </div>
+                    <button class="button" style="display:inline-block;" data-ng-click="showAgentLogging()">Logging</button>
+                    <button class="button" style="display:inline-block;" data-ng-click="pingAgent(agent.id)">Ping</button>
+                </td>
                 <td style="border:solid;">{{agent.numberOfWorkers}}</td>
                 <td style="border:solid;">
                     <div ng-controller="SignalRAngularCtrl">
@@ -30,15 +34,14 @@
                 <td style="border:solid;">
                     <div data-ng-repeat="worker in agent.workers">
                         <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker()">Ping</button>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="showLogging()">Logging</button>
+                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
+                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
+                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-
-    <button class="button" id="pingAgent">Ping All Agents</button>
 
     <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="border:solid">
         <ul data-ng-repeat="agentLogging in agent.output">{{agentLogging}}</ul>
@@ -69,9 +72,6 @@
             // Established a group for the UI so that it can be identified by the hub
             $.connection.hub.qs = { UI: 1 };
             $.connection.hub.start().done(function () {
-                $('#pingAgent').click(function () {
-                    controller.server.pingAgent(5);
-                });
             });
         </script>
     }

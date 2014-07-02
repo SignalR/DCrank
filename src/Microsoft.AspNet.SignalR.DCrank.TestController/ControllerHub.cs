@@ -16,14 +16,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         }
 
         // A test to see if there is end to end communication - see if the int you send is actually received
-        public void PingAgent(int value)
+        public void PingAgent(string agentId, int value)
         {
-            Clients.All.pingAgent(value);
+            Clients.Client(agentId).pingAgent(value);
         }
 
-        public void PingWorker(string agentid, int workerId, int value)
+        public void PingWorker(string agentId, int workerId, int value)
         {
-            Clients.Client(agentid).pingWorker(workerId, value);
+            Clients.Client(agentId).pingWorker(workerId, value);
         }
 
         public void PongAgent(int value)

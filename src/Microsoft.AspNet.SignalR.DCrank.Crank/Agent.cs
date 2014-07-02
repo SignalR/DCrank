@@ -110,7 +110,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             {
                                 await InvokeController("agentHeartbeat", new
                                 {
-                                    Workers = _processes.Select(x => x.Key).ToArray()
+                                    Workers = _processes.Keys
                                 });
                                 await Task.Delay(1000);
                             }

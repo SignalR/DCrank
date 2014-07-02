@@ -5,21 +5,14 @@ angularModule.service('signalRSvc', function ($rootScope) {
 
     var initialize = function () {
 
-        //Getting the connection object
         connection = $.hubConnection();
 
-        //Creating proxy
         this.proxy = connection.createHubProxy('controllerHub');
 
-        //Starting connection
         connection.start();
 
-        this.proxy.on('agentConnected', function (agentId) {
-            $rootScope.$emit("agentConnected", agentId);
-        });
-
-        this.proxy.on('workerConnected', function (agentId, workerId) {
-            $rootScope.$emit("workerConnected", agentId, workerId);
+        this.proxy.on('agentConnected', function (agentId, heartbeatInformation) {
+            $rootScope.$emit("agentConnected", agentId, heartbeatInformation);
         });
 
         this.proxy.on('agentPongResponse', function (agentId, value) {
@@ -40,19 +33,27 @@ angularModule.service('signalRSvc', function ($rootScope) {
     };
 
     var startWorker = function (agentId, numberOfWorkers) {
-        for (var i = 0; i < numberOfWorkers; i++) {
-            this.proxy.invoke('startWorker', agentId);
-        }
+        this.proxy.invoke('startWorker', agentId, numberOfWorkers);
+    };
+
+    var pingAgent = function (agentId) {
+        this.proxy.invoke('pingAgent', agentId, 5); // 5 is a random int
     };
 
     var pingWorker = function (agentId, workerId) {
-        this.proxy.invoke('pingWorker', agentId, workerId, 7);
+        this.proxy.invoke('pingWorker', agentId, workerId, 7); // 7 is a random int
+    };
+
+    var killWorker = function (agentId, workerId) {
+        this.proxy.invoke('killWorker', agentId, workerId);
     };
 
     return {
         initialize: initialize,
         startWorker: startWorker,
-        pingWorker: pingWorker
+        pingAgent: pingAgent,
+        pingWorker: pingWorker,
+        killWorker: killWorker
     };
 });
 
@@ -86,14 +87,22 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.uiGeneralDisplay.push(message);
     }
 
-    $scope.pingWorker = function () {
-        var agentId = this.parent.agent.id;
+    $scope.pingWorker = function (agentId) {
         var workerId = this.worker.id;
         signalRSvc.pingWorker(agentId, workerId);
     }
 
-    $scope.showLogging = function () {
+    $scope.killWorker = function (agentId) {
+        var workerId = this.worker.id;
+        signalRSvc.killWorker(agentId, workerId);
+    }
+
+    $scope.showWorkerLogging = function () {
         this.worker.display = !this.worker.display;
+    }
+
+    $scope.showAgentLogging = function () {
+        this.agent.display = !this.agent.display;
     }
 
     signalRSvc.initialize();
@@ -105,16 +114,23 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         signalRSvc.startWorker(agentId, workersToStart);
     };
 
-    $scope.$parent.$on("agentConnected", function (e, agentId) {
+    $scope.pingAgent = function (agentId) {
+        signalRSvc.pingAgent(agentId);
+    };
+
+    $scope.$parent.$on("agentConnected", function (e, agentId, heartbeatInformation) {
         $scope.$apply(function () {
             var newAgent = true;
+            var agentIndex;
             for (var i = 0; i < $scope.agents.length; i++) {
                 if ($scope.agents[i].id == agentId) {
                     newAgent = false;
+                    agentIndex = i;
                 };
             };
             if (newAgent) {
                 var agentNumber = $scope.currentAgentNumber;
+                agentIndex = agentNumber - 1;
                 var agent = {
                     number: agentNumber,
                     id: agentId,
@@ -127,35 +143,39 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 $scope.agents.push(agent);
                 $scope.newAgentAlert(agentId);
             };
+            //Process the Heartbeat Info.
+            var listOfWorkers = heartbeatInformation.Workers;
+            for (var i = 0; i < listOfWorkers.length; i++) {
+                var workerId = listOfWorkers[i]
+                $scope.workerConnected(agentId, workerId);
+            }
         });
     });
 
-    $scope.$parent.$on("workerConnected", function (e, agentId, workerId) {
-        $scope.$apply(function () {
-            var newWorker = true;
-            var agentIndex;
-            for (var index = 0; index < $scope.agents.length; index++) {
-                if ($scope.agents[index].id == agentId) {
-                    agentIndex = index;
-                    for (var i = 0; i < $scope.agents[index].workers.length; i++) {
-                        if ($scope.agents[index].workers[i].id == workerId) {
-                            newWorker = false;
-                        }
+    $scope.workerConnected = function (agentId, workerId) {
+        var newWorker = true;
+        var agentIndex;
+        for (var index = 0; index < $scope.agents.length; index++) {
+            if ($scope.agents[index].id == agentId) {
+                agentIndex = index;
+                for (var i = 0; i < $scope.agents[index].workers.length; i++) {
+                    if ($scope.agents[index].workers[i].id == workerId) {
+                        newWorker = false;
                     }
-                };
+                }
             };
-            if (newWorker) {
-                var worker = {
-                    id: workerId,
-                    output: [],
-                    display:false
-                };
-                $scope.agents[agentIndex].numberOfWorkers += 1;
-                $scope.agents[agentIndex].workers.push(worker);
-                $scope.newWorkerAlert(agentId, workerId);
+        };
+        if (newWorker) {
+            var worker = {
+                id: workerId,
+                output: [],
+                display: false
             };
-        });
-    });
+            $scope.agents[agentIndex].numberOfWorkers += 1;
+            $scope.agents[agentIndex].workers.push(worker);
+            $scope.newWorkerAlert(agentId, workerId);
+        };
+    };
 
     $scope.$parent.$on("agentPongResponse", function (e, agentId, value) {
         $scope.$apply(function () {
