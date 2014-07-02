@@ -143,12 +143,13 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 $scope.agents.push(agent);
                 $scope.newAgentAlert(agentId);
             };
-            //Process the Heartbeat Info.
+            // Process the Heartbeat Information:
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
                 var workerId = listOfWorkers[i]
                 $scope.workerConnected(agentId, workerId);
             }
+            $scope.deadWorkers(agentIndex, listOfWorkers);
         });
     });
 
@@ -176,6 +177,28 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.newWorkerAlert(agentId, workerId);
         };
     };
+
+    $scope.deadWorkers = function (agentIndex, listOfWorkers) {
+        var count = 0;
+        var agent = $scope.agents[agentIndex];
+        if (listOfWorkers.length == 0) {
+            while (agent.workers.length != 0) {
+                agent.workers.pop();
+                agent.numberOfWorkers -= 1;
+            }
+        }
+        while (agent.workers.length > listOfWorkers.length && count < 5) {
+            for (var i = 0; i < agent.workers.length; i++) {
+                if (listOfWorkers[i] != agent.workers[i].id && listOfWorkers[i] == agent.workers[i+1].id) {
+                    agent.workers.splice(i, 1);
+                    agent.numberOfWorkers -= 1;
+                    break;
+                }
+            }
+            count += 1;
+        }
+
+    }
 
     $scope.$parent.$on("agentPongResponse", function (e, agentId, value) {
         $scope.$apply(function () {
