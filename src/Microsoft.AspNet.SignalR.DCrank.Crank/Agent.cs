@@ -48,17 +48,29 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 InvokeController("pongAgent", value);
             });
 
-            _proxy.On("startWorker", () =>
+            _proxy.On<int>("startWorker", numberOfWorkers =>
             {
-                LogAgent("Agent received startWorker command.");
+                LogAgent("Agent received startWorker command for {0} workers.", numberOfWorkers);
+                for (int index = 0; index < numberOfWorkers; index++)
+                {
+                    var worker = StartWorker();
+                    LogAgent("Agent started worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
 
-                var worker = StartWorker();
-                LogAgent("Agent started worker {0}.", worker.Id);
+                    StartReadLoop(worker);
+                    LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
+                }
+            });
 
-                StartReadLoop(worker);
-                LogAgent("Agent started listening to worker {0}.", worker.Id);
-
-                InvokeController("workerHeartbeat", worker.Id);
+            _proxy.On<int>("killWorker", processId =>
+            {
+                LogAgent("Agent received killWorker command for Worker {0}.", processId);
+                Process process;
+                if (_processes.TryGetValue(processId, out process))
+                {
+                    process.Kill();
+                    _processes.Remove(processId);
+                    LogAgent("Agent killed Worker {0}.", processId);
+                }
             });
 
             _proxy.On<int, int>("pingWorker", (processId, value) =>
@@ -96,7 +108,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             while (_connection.State == ConnectionState.Connected)
                             {
-                                await InvokeController("agentHeartbeat");
+                                await InvokeController("agentHeartbeat", new
+                                {
+                                    Workers = _processes.Select(x => x.Key).ToArray()
+                                });
                                 await Task.Delay(1000);
                             }
                         }
