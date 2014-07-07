@@ -68,23 +68,23 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.newAgentAlert = function (agentId) {
         var message = agentId + ' has connected to the hud';
-        $scope.uiGeneralDisplay.push(message);
+        $scope.uiGeneralDisplay.unshift(message);
     }
 
     $scope.newWorkerAlert = function (agentId, workerId) {
         var message = workerId + ' has connected to the agent: ' + agentId;
-        $scope.uiGeneralDisplay.push(message);
+        $scope.uiGeneralDisplay.unshift(message);
     }
 
     $scope.pingAgentAlert = function (agentId, value) {
         var message = agentId + ' has responded to the ping with ' + value;
-        $scope.uiGeneralDisplay.push(message);
+        $scope.uiGeneralDisplay.unshift(message);
     }
 
     $scope.pingWorkerAlert = function (agentId, workerId, value) {
         var message = 'Worker with id: ' + workerId + ' under' +
                     ' agent: ' + agentId + ' has responded to the ping with ' + value;
-        $scope.uiGeneralDisplay.push(message);
+        $scope.uiGeneralDisplay.unshift(message);
     }
 
     $scope.pingWorker = function (agentId) {
@@ -103,6 +103,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.showAgentLogging = function () {
         this.agent.display = !this.agent.display;
+    }
+
+    $scope.blowUp = function (agentIndex) {
+        $scope.uiGeneralDisplay.unshift('got a blow up message from:' + $scope.agents[agentIndex].id);
+        $scope.agents.splice(agentIndex, 1);
     }
 
     signalRSvc.initialize();
@@ -137,7 +142,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     numberOfWorkers: 0,
                     workers: [],
                     output: [],
-                    display: false
+                    display: false,
+                    selfdestruct: setTimeout(function () { $scope.blowUp(agentIndex) }, 10000)
                 };
                 $scope.currentAgentNumber += 1;
                 $scope.agents.push(agent);
@@ -150,6 +156,10 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 $scope.workerConnected(agentId, workerId);
             }
             $scope.deadWorkers(agentIndex, listOfWorkers);
+
+            // handles the timeout of the agent
+            clearTimeout($scope.agents[agentIndex].selfdestruct);
+            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 10000);
         });
     });
 
@@ -220,7 +230,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     agentIndex = index;
                 };
             };
-            $scope.agents[agentIndex].output.push(message);
+            if (agentIndex != undefined) {
+                $scope.agents[agentIndex].output.push(message);
+            }
         });
     });
 
@@ -238,7 +250,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     }
                 };
             };
-            $scope.agents[agentIndex].workers[workerIndex].output.push(message);
+            if (agentIndex != undefined && workerIndex != undefined) {
+                $scope.agents[agentIndex].workers[workerIndex].output.push(message);
+            }
         });
     });
 
