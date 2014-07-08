@@ -104,7 +104,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                         try
                         {
                             await _connection.Start();
-                            LogAgent("Agent connected to TestController.", _connection.ConnectionId);
+                            LogAgent("Agent connected to TestController.", _connection.ConnectionId);//////////////////////
 
                             while (_connection.State == ConnectionState.Connected)
                             {
@@ -180,7 +180,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private void LogAgent(string format, params object[] arguments)
         {
             var prefix = string.Format("({0}) ", _connection.ConnectionId, DateTime.Now);
-            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
+            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments); ;
             Trace.WriteLine(prefix + message);
 
             try
@@ -195,7 +195,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private async Task InvokeController(string command, params object[] arguments)
         {
-            var commandString = command + "(" + string.Join(", ", arguments) + ")";
+            var commandString = command + "(" + string.Join(", ", JsonConvert.SerializeObject(arguments)) + ")";
 
             try
             {
