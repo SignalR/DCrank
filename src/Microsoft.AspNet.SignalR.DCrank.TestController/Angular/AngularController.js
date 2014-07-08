@@ -143,7 +143,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     workers: [],
                     output: [],
                     display: false,
-                    selfdestruct: setTimeout(function () { $scope.blowUp(agentIndex) }, 10000)
+                    selfdestruct: setTimeout(function () { $scope.blowUp(agentIndex) }, 5000)
                 };
                 $scope.currentAgentNumber += 1;
                 $scope.agents.push(agent);
@@ -157,9 +157,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             }
             $scope.deadWorkers(agentIndex, listOfWorkers);
 
-            // handles the timeout of the agent
+            // Handles the timeout of the agent
             clearTimeout($scope.agents[agentIndex].selfdestruct);
-            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 10000);
+            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 5000);
         });
     });
 
