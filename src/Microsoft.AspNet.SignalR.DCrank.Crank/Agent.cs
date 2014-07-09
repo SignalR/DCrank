@@ -109,12 +109,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _proxy.On<int>("startWorker", numberOfWorkers =>
             {
                 LogAgent("Agent received startWorker command for {0} workers.", numberOfWorkers);
-                for (int index = 0; index < numberOfWorkers; index++)
-                {
-                    var worker = StartWorker();
-                    
-                    LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
-                }
+                StartWorkers(numberOfWorkers);
             });
 
             _proxy.On<int>("killWorker", workerId =>
@@ -146,6 +141,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     LogAgent("Agent failed to send ping command, Worker {0} not found.", workerId);
                 }
+            });
+        }
+
+        private void StartWorkers(int numberOfWorkers)
+        {
+            Task.Run(() =>
+            {
+                Parallel.For(0, numberOfWorkers, index =>
+                {
+                    var worker = StartWorker();
+
+                    LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
+                });
             });
         }
         private void OnLog(int id, string output)
