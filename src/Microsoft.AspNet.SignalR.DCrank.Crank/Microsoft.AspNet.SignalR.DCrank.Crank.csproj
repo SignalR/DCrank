@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.AspNet.SignalR.DCrank.Crank</RootNamespace>
-    <AssemblyName>Microsoft.AspNet.SignalR.DCrank.Crank</AssemblyName>
+    <AssemblyName>crank</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

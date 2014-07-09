@@ -11,11 +11,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Agent
     {
         private const string _url = "http://localhost:17063";
-        private const string _fileName = "Microsoft.AspNet.SignalR.DCrank.Crank.exe";
+        private const string _fileName = "crank.exe";
         private const string _hubName = "ControllerHub";
         private readonly ProcessStartInfo _startInfo;
-        private readonly Dictionary<int, Process> _processes;
-        private readonly JsonSerializer _serializer;
+        private readonly Dictionary<int, Worker> _workers;
         private HubConnection _connection;
         private IHubProxy _proxy;
 
@@ -34,10 +33,69 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 RedirectStandardError = true
             };
 
-            _processes = new Dictionary<int, Process>();
-            _serializer = new JsonSerializer();
+            _workers = new Dictionary<int, Worker>();
 
             Trace.WriteLine("Agent created");
+        }
+
+        public async void Run()
+        {
+            while (true)
+            {
+                try
+                {
+                    using (_connection = new HubConnection(_url))
+                    {
+                        _proxy = _connection.CreateHubProxy(_hubName);
+                        InitializeProxy();
+
+                        Trace.WriteLine("Attempting to connect to TestController");
+
+                        try
+                        {
+                            await _connection.Start();
+
+                            LogAgent("Agent connected to TestController.", _connection.ConnectionId);
+
+                            while (_connection.State == ConnectionState.Connected)
+                            {
+                                await InvokeController("agentHeartbeat", new
+                                {
+                                    Workers = _workers.Keys
+                                });
+
+                                await Task.Delay(1000);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Trace.WriteLine(string.Format("Agent failed to connect to server: {0}", ex.Message));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(string.Format("Connection lost: {0}", ex.Message));
+                }
+
+                await Task.Delay(10000);
+            }
+        }
+
+        private Worker StartWorker()
+        {
+            var worker = new Worker(_startInfo);
+
+            worker.Start();
+
+            worker.OnMessage += OnMessage;
+            worker.OnError += OnError;
+            worker.OnExit += OnExit;
+            worker.OnLog += OnLog;
+
+            _workers.Add(worker.Id, worker);
+
+            return worker;
         }
 
         private void InitializeProxy()
@@ -54,114 +112,68 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 for (int index = 0; index < numberOfWorkers; index++)
                 {
                     var worker = StartWorker();
-                    LogAgent("Agent started worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
-
-                    StartReadLoop(worker);
+                    
                     LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
                 }
             });
 
-            _proxy.On<int>("killWorker", processId =>
+            _proxy.On<int>("killWorker", workerId =>
             {
-                LogAgent("Agent received killWorker command for Worker {0}.", processId);
-                Process process;
-                if (_processes.TryGetValue(processId, out process))
+                LogAgent("Agent received killWorker command for Worker {0}.", workerId);
+
+                Worker worker;
+
+                if (_workers.TryGetValue(workerId, out worker))
                 {
-                    process.Kill();
-                    _processes.Remove(processId);
-                    LogAgent("Agent killed Worker {0}.", processId);
+                    worker.Kill();
+                    _workers.Remove(workerId);
+                    LogAgent("Agent killed Worker {0}.", workerId);
                 }
             });
 
-            _proxy.On<int, int>("pingWorker", (processId, value) =>
+            _proxy.On<int, int>("pingWorker", (workerId, value) =>
             {
-                LogAgent("Agent received pingWorker for Worker {0} with value {1}.", processId, value);
-                Process process;
-                if (_processes.TryGetValue(processId, out process))
+                LogAgent("Agent received pingWorker for Worker {0} with value {1}.", workerId, value);
+
+                Worker worker;
+
+                if (_workers.TryGetValue(workerId, out worker))
                 {
-                    _serializer.Serialize(new JsonTextWriter(process.StandardInput), new Message() { Command = "ping", Value = value });
-                    LogAgent("Agent sent ping command to Worker {0} with value {1}.", processId, value);
+                    worker.Ping(value);
+                    LogAgent("Agent sent ping command to Worker {0} with value {1}.", workerId, value);
                 }
                 else
                 {
-                    LogAgent("Agent failed to send ping command, Worker {0} not found.", processId);
+                    LogAgent("Agent failed to send ping command, Worker {0} not found.", workerId);
                 }
             });
         }
-
-        public async Task Run()
+        private void OnLog(int id, string output)
         {
-            while (true)
+            LogWorker(id, output);
+        }
+
+        private void OnMessage(int Id, Message message)
+        {
+            if (string.Equals(message.Command, "pong"))
             {
-                try
-                {
-                    using (_connection = new HubConnection(_url))
-                    {
-                        _proxy = _connection.CreateHubProxy(_hubName);
-                        InitializeProxy();
-
-                        Trace.WriteLine("Attempting to connect to TestController");
-                        try
-                        {
-                            await _connection.Start();
-                            LogAgent("Agent connected to TestController.", _connection.ConnectionId);//////////////////////
-
-                            while (_connection.State == ConnectionState.Connected)
-                            {
-                                await InvokeController("agentHeartbeat", new
-                                {
-                                    Workers = _processes.Keys
-                                });
-                                await Task.Delay(1000);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine(string.Format("Agent failed to connect to server: {0}", ex.Message));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(string.Format("Connection lost: {0}", ex.Message));
-                }
-                await Task.Delay(10000);
+                LogAgent("Agent received pong message from Worker {0} with value {1}.", Id, message.Value);
+                InvokeController("pongWorker", Id, message.Value);
             }
         }
 
-        private Process StartWorker()
+        private void OnError(int id, Exception ex)
         {
-            var process = Process.Start(_startInfo);
-            _processes.Add(process.Id, process);
-            return process;
+            _workers.Remove(id);
+            LogWorker(id, ex.Message);
         }
 
-        private void StartReadLoop(Process process)
+        private void OnExit(int workerId)
         {
-            var id = process.Id;
-
-            Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    var message = _serializer.Deserialize<Message>(new JsonTextReader(process.StandardOutput));
-                    if (string.Equals(message.Command, "pong"))
-                    {
-                        LogAgent("Agent received pong message from Worker {0} with value {1}.", process.Id, message.Value);
-                        InvokeController("pongWorker", id, message.Value).Wait();
-                    }
-                }
-            });
-            Task.Factory.StartNew(async () =>
-            {
-                while (true)
-                {
-                    LogWorker(process.Id, await process.StandardError.ReadLineAsync());
-                }
-            });
+            _workers.Remove(workerId);
         }
 
-        private void LogWorker(int workerId, string format, params object[] arguments)
+        private async void LogWorker(int workerId, string format, params object[] arguments)
         {
             var prefix = string.Format("({0}, {1}) ", _connection.ConnectionId, workerId);
             var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
@@ -169,7 +181,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             try
             {
-                _proxy.Invoke("LogWorker", workerId, message);
+                await _proxy.Invoke("LogWorker", workerId, message);
             }
             catch (Exception ex)
             {
@@ -177,15 +189,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private void LogAgent(string format, params object[] arguments)
+        private async void LogAgent(string format, params object[] arguments)
         {
             var prefix = string.Format("({0}) ", _connection.ConnectionId, DateTime.Now);
-            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments); ;
+            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
             Trace.WriteLine(prefix + message);
 
             try
             {
-                _proxy.Invoke("LogAgent", message);
+                await _proxy.Invoke("LogAgent", message);
             }
             catch (Exception ex)
             {

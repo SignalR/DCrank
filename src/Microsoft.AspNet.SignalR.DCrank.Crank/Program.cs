@@ -9,12 +9,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             if (args.Length > 0 && string.Equals(args[0], "agent", StringComparison.OrdinalIgnoreCase))
             {
                 var agent = new Agent();
-                agent.Run().Wait();
+                agent.Run();
             }
             else
             {
-                var worker = new Worker();
-                worker.Run().Wait();
+                Worker.Run();
             }
             while (true) ;
         }
