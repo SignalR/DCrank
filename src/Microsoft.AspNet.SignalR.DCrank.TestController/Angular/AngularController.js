@@ -9,7 +9,7 @@ angularModule.service('signalRSvc', function ($rootScope) {
 
         this.proxy = connection.createHubProxy('controllerHub');
 
-        connection.start();
+        connection.logging = true;
 
         this.proxy.on('agentConnected', function (agentId, heartbeatInformation) {
             $rootScope.$emit("agentConnected", agentId, heartbeatInformation);
@@ -30,6 +30,8 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.on('workersLog', function (agentId, workerId, message) {
             $rootScope.$emit("workersLog", agentId, workerId, message);
         });
+
+        connection.start();
     };
 
     var startWorker = function (agentId, numberOfWorkers) {
@@ -66,24 +68,24 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.uiGeneralDisplay = [];
 
-    $scope.newAgentAlert = function (agentId) {
-        var message = agentId + ' has connected to the hud';
+    $scope.newAgentAlert = function (agentNumber) {
+        var message = 'Agent ' + agentNumber + ' has connected to the hud';
         $scope.uiGeneralDisplay.unshift(message);
     }
 
-    $scope.newWorkerAlert = function (agentId, workerId) {
-        var message = workerId + ' has connected to the agent: ' + agentId;
+    $scope.newWorkerAlert = function (agentNumber, workerId) {
+        var message = workerId + ' has connected to agent: ' + agentNumber;
         $scope.uiGeneralDisplay.unshift(message);
     }
 
-    $scope.pingAgentAlert = function (agentId, value) {
-        var message = agentId + ' has responded to the ping with ' + value;
+    $scope.pingAgentAlert = function (agentNumber, value) {
+        var message = 'Agent ' + agentNumber + ' has responded to the ping with ' + value;
         $scope.uiGeneralDisplay.unshift(message);
     }
 
-    $scope.pingWorkerAlert = function (agentId, workerId, value) {
+    $scope.pingWorkerAlert = function (agentNumber, workerId, value) {
         var message = 'Worker with id: ' + workerId + ' under' +
-                    ' agent: ' + agentId + ' has responded to the ping with ' + value;
+                    ' agent: ' + agentNumber + ' has responded to the ping with ' + value;
         $scope.uiGeneralDisplay.unshift(message);
     }
 
@@ -106,8 +108,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     }
 
     $scope.blowUp = function (agentIndex) {
-        $scope.uiGeneralDisplay.unshift('got a blow up message from:' + $scope.agents[agentIndex].id);
+        $scope.uiGeneralDisplay.unshift('got a timeout message from:' + $scope.agents[agentIndex].id);
         $scope.agents.splice(agentIndex, 1);
+        $scope.$digest();
     }
 
     signalRSvc.initialize();
@@ -147,7 +150,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 };
                 $scope.currentAgentNumber += 1;
                 $scope.agents.push(agent);
-                $scope.newAgentAlert(agentId);
+                $scope.newAgentAlert(agentNumber);
             };
             // Process the Heartbeat Information:
             var listOfWorkers = heartbeatInformation.Workers;
@@ -155,8 +158,10 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 var workerId = listOfWorkers[i]
                 $scope.workerConnected(agentId, workerId);
             }
-            $scope.deadWorkers(agentIndex, listOfWorkers);
-
+            if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {
+                $scope.deadWorkers(agentIndex, listOfWorkers);
+            }
+            
             // Handles the timeout of the agent
             clearTimeout($scope.agents[agentIndex].selfdestruct);
             $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 5000);
@@ -184,41 +189,47 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             };
             $scope.agents[agentIndex].numberOfWorkers += 1;
             $scope.agents[agentIndex].workers.push(worker);
-            $scope.newWorkerAlert(agentId, workerId);
+            $scope.newWorkerAlert($scope.agents[agentIndex].number, workerId);
         };
     };
 
     $scope.deadWorkers = function (agentIndex, listOfWorkers) {
-        var count = 0;
         var agent = $scope.agents[agentIndex];
-        if (listOfWorkers.length == 0) {
-            while (agent.workers.length != 0) {
-                agent.workers.pop();
+        for (var i = 0; i < agent.workers.length; i++) {
+            if (listOfWorkers.indexOf(agent.workers[i].id) < 0) {
+                agent.workers.splice(i, 1);
                 agent.numberOfWorkers -= 1;
+                i--;
             }
         }
-        while (agent.workers.length > listOfWorkers.length && count < 5) {
-            for (var i = 0; i < agent.workers.length; i++) {
-                if (listOfWorkers[i] != agent.workers[i].id && listOfWorkers[i] == agent.workers[i+1].id) {
-                    agent.workers.splice(i, 1);
-                    agent.numberOfWorkers -= 1;
-                    break;
-                }
-            }
-            count += 1;
-        }
-
     }
 
     $scope.$parent.$on("agentPongResponse", function (e, agentId, value) {
         $scope.$apply(function () {
-            $scope.pingAgentAlert(agentId, value);
+            var agentIndex;
+            for (var i = 0; i < $scope.agents.length; i++) {
+                if ($scope.agents[i].id == agentId) {
+                    agentIndex = i;
+                    break;
+                };
+            };
+            if (agentIndex != undefined) {
+                $scope.pingAgentAlert($scope.agents[agentIndex].number, value);
+            }
         });
     });
 
     $scope.$parent.$on("workerPongResponse", function (e, agentId, workerId, value) {
         $scope.$apply(function () {
-            $scope.pingWorkerAlert(agentId, workerId, value);
+            var agentIndex;
+            for (var i = 0; i < $scope.agents.length; i++) {
+                if ($scope.agents[i].id == agentId) {
+                    agentIndex = i;
+                };
+            };
+            if (agentIndex != undefined) {
+                $scope.pingWorkerAlert($scope.agents[agentIndex].number, workerId, value);
+            }
         });
     })
 
