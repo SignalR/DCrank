@@ -14,7 +14,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private const string _fileName = "crank.exe";
         private const string _hubName = "ControllerHub";
         private readonly ProcessStartInfo _startInfo;
-        private readonly Dictionary<int, Worker> _workers;
+        private readonly Dictionary<int, AgentWorker> _workers;
         private HubConnection _connection;
         private IHubProxy _proxy;
 
@@ -33,7 +33,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 RedirectStandardError = true
             };
 
-            _workers = new Dictionary<int, Worker>();
+            _workers = new Dictionary<int, AgentWorker>();
 
             Trace.WriteLine("Agent created");
         }
@@ -82,9 +82,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private Worker StartWorker()
+        private AgentWorker StartWorker()
         {
-            var worker = new Worker(_startInfo);
+            var worker = new AgentWorker(_startInfo);
 
             worker.Start();
 
@@ -116,7 +116,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received killWorker command for Worker {0}.", workerId);
 
-                Worker worker;
+                AgentWorker worker;
 
                 if (_workers.TryGetValue(workerId, out worker))
                 {
@@ -130,7 +130,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received pingWorker for Worker {0} with value {1}.", workerId, value);
 
-                Worker worker;
+                AgentWorker worker;
 
                 if (_workers.TryGetValue(workerId, out worker))
                 {
