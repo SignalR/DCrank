@@ -102,10 +102,5 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
         }
-
-        private static void Log(string format, params object[] arguments)
-        {
-            Trace.WriteLine(string.Format(format, arguments));
-        }
     }
 }

@@ -10,18 +10,23 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class Worker
     {
-        public static void Run()
+        public static void Run(int agentProcessId)
         {
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 
-            //Log("Worker created");
+            var agentProcess = Process.GetProcessById(agentProcessId);
+
+            agentProcess.EnableRaisingEvents = true;
+            agentProcess.Exited += OnExited;
+
+            Log("Worker created");
 
             var serializer = new JsonSerializer();
             while (true)
             {
                 var reader = new JsonTextReader(Console.In);
                 var message = serializer.Deserialize<Message>(reader);
-                //Log("Worker received {0} command with value {1}.", message.Command, message.Value);
+                Log("Worker received {0} command with value {1}.", message.Command, message.Value);
 
                 if (string.Equals(message.Command, "ping"))
                 {
@@ -32,9 +37,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     };
 
                     serializer.Serialize(new JsonTextWriter(Console.Out), response);
-                    //Log("Worker sent {0} command with value {1}.", response.Command, response.Value);
+                    Log("Worker sent {0} command with value {1}.", response.Command, response.Value);
                 }
             }
         }
+
+        private static void OnExited(object sender, EventArgs args)
+        {
+            Environment.Exit(0);
+        }
+
+        private static void Log(string format, params object[] arguments)
+        {
+            Trace.WriteLine(string.Format(format, arguments));
+        }
+
     }
 }

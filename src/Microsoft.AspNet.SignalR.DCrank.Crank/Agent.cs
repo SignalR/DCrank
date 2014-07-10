@@ -25,7 +25,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _startInfo = new ProcessStartInfo()
             {
                 FileName = _fileName,
-                Arguments = "",
+                Arguments = string.Format("worker {0}", Process.GetCurrentProcess().Id),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardInput = true,
