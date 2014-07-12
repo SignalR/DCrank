@@ -27,8 +27,8 @@
                 </td>
                 <td style="border:solid;">{{agent.numberOfWorkers}}</td>
                 <td style="border:solid;">
-                    <div ng-controller="SignalRAngularCtrl">
-                        Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="workersToStart">
+                    <div>
+                        Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToStart">
                         <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
                     </div>
                 </td>

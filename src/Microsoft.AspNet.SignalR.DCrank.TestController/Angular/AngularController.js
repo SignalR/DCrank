@@ -62,8 +62,6 @@ angularModule.service('signalRSvc', function ($rootScope) {
 function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.agents = [];
 
-    $scope.workersToStart = '';
-
     $scope.currentAgentNumber = 1;
 
     $scope.uiGeneralDisplay = [];
@@ -117,8 +115,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.startWorkers = function () {
         var agentId = this.agent.id;
-        var workersToStart = Number($scope.workersToStart);
-        $scope.workersToStart = '';
+        var workersToStart = parseInt(this.agent.workersToStart);
+        this.agent.workersToStart = 0;
         signalRSvc.startWorker(agentId, workersToStart);
     };
 
@@ -146,6 +144,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     workers: [],
                     output: [],
                     display: false,
+                    workersToStart: 0,
                     selfdestruct: setTimeout(function () { $scope.blowUp(agentIndex) }, 5000)
                 };
                 $scope.currentAgentNumber += 1;
@@ -161,7 +160,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {
                 $scope.deadWorkers(agentIndex, listOfWorkers);
             }
-            
+
             // Handles the timeout of the agent
             clearTimeout($scope.agents[agentIndex].selfdestruct);
             $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 5000);
