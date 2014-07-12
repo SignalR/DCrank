@@ -105,7 +105,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         this.agent.display = !this.agent.display;
     }
 
-    $scope.blowUp = function (agentIndex) {
+    $scope.timeOut = function (agentIndex) {
         $scope.uiGeneralDisplay.unshift('got a timeout message from:' + $scope.agents[agentIndex].id);
         $scope.agents.splice(agentIndex, 1);
         $scope.$digest();
@@ -145,7 +145,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     output: [],
                     display: false,
                     workersToStart: 0,
-                    selfdestruct: setTimeout(function () { $scope.blowUp(agentIndex) }, 5000)
+                    selfdestruct: setTimeout(function () { $scope.timeOut(agentIndex) }, 5000)
                 };
                 $scope.currentAgentNumber += 1;
                 $scope.agents.push(agent);
@@ -163,7 +163,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
             // Handles the timeout of the agent
             clearTimeout($scope.agents[agentIndex].selfdestruct);
-            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.blowUp(agentIndex) }, 5000);
+            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.timeOut(agentIndex) }, 5000);
         });
     });
 
