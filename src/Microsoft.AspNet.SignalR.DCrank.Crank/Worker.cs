@@ -9,12 +9,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Worker
     {
         private readonly Process _agentProcess;
-        private readonly JsonSerializer _serializer;
 
         public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
-            _serializer = new JsonSerializer();
         }
 
         public async Task Run()
@@ -22,7 +20,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _agentProcess.EnableRaisingEvents = true;
             _agentProcess.Exited += OnExited;
 
-            await Log("Worker created");
+            Log("Worker created");
 
             while (true)
             {
@@ -30,14 +28,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                 var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-                await Log("Worker received {0} command with value {1}.", message.Command, message.Value);
+                Log("Worker received {0} command with value {1}.", message.Command, message.Value);
 
                 if (string.Equals(message.Command, "ping"))
                 {
                     var value = message.Value.ToObject<int>();
                     await Send("pong", value);
 
-                    await Log("Worker sent pong command with value {0}.", value);
+                    Log("Worker sent pong command with value {0}.", value);
                 }
             }
         }

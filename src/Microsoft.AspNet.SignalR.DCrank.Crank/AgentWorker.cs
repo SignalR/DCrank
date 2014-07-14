@@ -10,7 +10,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     {
         private Process _workerProcess;
         private ProcessStartInfo _workerProcessStartInfo;
-        private readonly JsonSerializer _serializer;
 
         public AgentWorker(ProcessStartInfo startInfo)
         {
@@ -20,8 +19,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _workerProcess.StartInfo = _workerProcessStartInfo;
             _workerProcess.EnableRaisingEvents = true;
             _workerProcess.Exited += OnExited;
-
-            _serializer = new JsonSerializer();
         }
 
 
@@ -52,7 +49,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             var message = new Message
             {
                 Command = command,
-                Value =  JToken.FromObject(value)
+                Value = JToken.FromObject(value)
             };
 
             var messageString = JsonConvert.SerializeObject(message);
