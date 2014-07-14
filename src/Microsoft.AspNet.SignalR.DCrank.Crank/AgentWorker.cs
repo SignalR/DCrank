@@ -72,13 +72,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void ProcessingMessages()
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (!_workerProcess.HasExited)
                 {
                     try
                     {
-                        var messageString = _workerProcess.StandardOutput.ReadLine();
+                        var messageString = await _workerProcess.StandardOutput.ReadLineAsync();
                         var message = JsonConvert.DeserializeObject<Message>(messageString);
 
                         OnMessage(Id, message);
