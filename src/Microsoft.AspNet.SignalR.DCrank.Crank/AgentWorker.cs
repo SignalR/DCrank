@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -33,9 +33,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Action<int> OnExit;
 
-        public Action<int, string> OnLog;
-
-
         public bool Start()
         {
             bool success = _workerProcess.Start();
@@ -50,15 +47,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             return success;
         }
 
-        public void Ping(int value)
+        public async Task Send(string command, object value)
         {
-            var message = new Message()
+            var message = new Message
             {
-                Command = "ping",
-                Value = value
+                Command = command,
+                Value =  JToken.FromObject(value)
             };
 
-            _serializer.Serialize(new JsonTextWriter(_workerProcess.StandardInput), message);
+            var messageString = JsonConvert.SerializeObject(message);
+
+            await _workerProcess.StandardInput.WriteLineAsync(messageString);
         }
 
         public void Kill()
@@ -79,25 +78,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     try
                     {
-                        var message = _serializer.Deserialize<Message>(new JsonTextReader(_workerProcess.StandardOutput));
+                        var messageString = _workerProcess.StandardOutput.ReadLine();
+                        var message = JsonConvert.DeserializeObject<Message>(messageString);
+
                         OnMessage(Id, message);
                     }
                     catch (Exception ex)
                     {
                         OnError(Id, ex);
                         break;
-                    }
-                }
-            });
-
-            Task.Run(async () =>
-            {
-                while (!_workerProcess.HasExited)
-                {
-                    string output = await _workerProcess.StandardError.ReadLineAsync();
-                    if (!string.IsNullOrEmpty(output))
-                    {
-                        OnLog(Id, output);
                     }
                 }
             });

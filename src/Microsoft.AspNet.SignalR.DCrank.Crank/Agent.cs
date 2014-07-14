@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
@@ -91,7 +90,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             worker.OnMessage += OnMessage;
             worker.OnError += OnError;
             worker.OnExit += OnExit;
-            worker.OnLog += OnLog;
 
             _workers.Add(worker.Id, worker);
 
@@ -134,7 +132,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                 if (_workers.TryGetValue(workerId, out worker))
                 {
-                    worker.Ping(value);
+                    worker.Send("ping", value);
                     LogAgent("Agent sent ping command to Worker {0} with value {1}.", workerId, value);
                 }
                 else
@@ -156,17 +154,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 });
             });
         }
-        private void OnLog(int id, string output)
-        {
-            LogWorker(id, output);
-        }
 
-        private void OnMessage(int Id, Message message)
+        private void OnMessage(int id, Message message)
         {
             if (string.Equals(message.Command, "pong"))
             {
-                LogAgent("Agent received pong message from Worker {0} with value {1}.", Id, message.Value);
-                InvokeController("pongWorker", Id, message.Value);
+                var value = message.Value.ToObject<int>();
+                LogAgent("Agent received pong message from Worker {0} with value {1}.", id, value);
+                InvokeController("pongWorker", id, value);
+            }
+            if (string.Equals(message.Command, "Log"))
+            {
+                var value = message.Value.ToObject<string>();
+                LogWorker(id, value);
             }
         }
 

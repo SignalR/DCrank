@@ -13,7 +13,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
             else if (args.Length == 2 && string.Equals(args[0], "worker", StringComparison.OrdinalIgnoreCase))
             {
-                Worker.Run(Convert.ToInt32(args[1]));
+                var worker = new Worker(Convert.ToInt32(args[1]));
+                worker.Run().Wait();
             }
             else
             {

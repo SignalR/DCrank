@@ -1,56 +1,66 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class Worker
     {
-        public static void Run(int agentProcessId)
+        private readonly Process _agentProcess;
+        private readonly JsonSerializer _serializer;
+
+        public Worker(int agentProcessId)
         {
-            Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
+            _agentProcess = Process.GetProcessById(agentProcessId);
+            _serializer = new JsonSerializer();
+        }
 
-            var agentProcess = Process.GetProcessById(agentProcessId);
+        public async Task Run()
+        {
+            _agentProcess.EnableRaisingEvents = true;
+            _agentProcess.Exited += OnExited;
 
-            agentProcess.EnableRaisingEvents = true;
-            agentProcess.Exited += OnExited;
+            await Log("Worker created");
 
-            Log("Worker created");
-
-            var serializer = new JsonSerializer();
             while (true)
             {
-                var reader = new JsonTextReader(Console.In);
-                var message = serializer.Deserialize<Message>(reader);
-                Log("Worker received {0} command with value {1}.", message.Command, message.Value);
+                var messageString = await Console.In.ReadLineAsync();
+
+                var message = JsonConvert.DeserializeObject<Message>(messageString);
+
+                await Log("Worker received {0} command with value {1}.", message.Command, message.Value);
 
                 if (string.Equals(message.Command, "ping"))
                 {
-                    var response = new Message()
-                    {
-                        Command = "pong",
-                        Value = message.Value
-                    };
+                    var value = message.Value.ToObject<int>();
+                    await Send("pong", value);
 
-                    serializer.Serialize(new JsonTextWriter(Console.Out), response);
-                    Log("Worker sent {0} command with value {1}.", response.Command, response.Value);
+                    await Log("Worker sent pong command with value {0}.", value);
                 }
             }
         }
 
-        private static void OnExited(object sender, EventArgs args)
+        private void OnExited(object sender, EventArgs args)
         {
             Environment.Exit(0);
         }
 
-        private static void Log(string format, params object[] arguments)
+        private async Task Log(string format, params object[] arguments)
         {
-            Trace.WriteLine(string.Format(format, arguments));
+            await Send("Log", string.Format(format, arguments));
         }
 
+        private async Task Send(string command, object value)
+        {
+            var message = new Message
+            {
+                Command = command,
+                Value = JToken.FromObject(value)
+            };
+            string messageString = JsonConvert.SerializeObject(message);
+            await Console.Out.WriteLineAsync(messageString);
+        }
     }
 }
