@@ -157,16 +157,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void OnMessage(int id, Message message)
         {
-            if (string.Equals(message.Command, "pong"))
+            switch(message.Command.ToLower())
             {
-                var value = message.Value.ToObject<int>();
-                LogAgent("Agent received pong message from Worker {0} with value {1}.", id, value);
-                InvokeController("pongWorker", id, value);
-            }
-            if (string.Equals(message.Command, "Log"))
-            {
-                var value = message.Value.ToObject<string>();
-                LogWorker(id, value);
+                case "ping":
+                    LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);
+                    InvokeController("pongWorker", id, message.Value.ToObject<int>());
+                    break;
+                case "log":
+                    LogWorker(id, message.Value.ToObject<string>());
+                    break;
             }
         }
 
