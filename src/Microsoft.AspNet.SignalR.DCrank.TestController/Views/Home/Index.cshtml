@@ -10,6 +10,15 @@
 </head>
 <body>
     <h1>Hud</h1>
+
+    <h3>Target Application</h3>
+
+    <div class="jumbotron" style="max-height:400px; overflow:auto; min-width: 800px;">
+        <div> Target URL <input type="url" data-ng-model="targetAddress" /> </div>
+        <div> Messages Per Second <input type="number" data-ng-model="messagesPerSecond" /> </div>
+        <div> Mesage Size (Bytes) <input type="number" data-ng-model="messagesSize" /> </div>
+    </div>
+
     <h3>Remote Control</h3>
     <div class="jumbotron" style="max-height:400px; overflow:auto; min-width:800px;">
         <table class="table" id="uiView" style="border:solid; width:100%; font-size:1em">
@@ -31,6 +40,10 @@
                         Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToStart">
                         <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
                     </div>
+                    <div>
+                        Workers to Kill: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToKill">
+                        <input class="button" type="submit" value="Kill Workers" data-ng-click="killWorkers()">
+                    </div>
                 </td>
                 <td style="border:solid;">
                     <div data-ng-repeat="worker in agent.workers">
@@ -38,6 +51,7 @@
                         <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
                         <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
                         <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
+                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
                     </div>
                 </td>
             </tr>

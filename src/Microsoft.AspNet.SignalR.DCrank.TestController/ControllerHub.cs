@@ -50,6 +50,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.Client(agentId).killWorker(workerId);
         }
 
+        public void stopWorker(string agentId, int workerId)
+        {
+            Clients.Client(agentId).stopWorker(workerId);
+        }
+
+        public void KillWorkers(string agentId, int numberOfWorkersToKill)
+        {
+            Clients.Client(agentId).killWorkers(numberOfWorkersToKill);
+        }
+
         public void LogAgent(string message)
         {
             Clients.All.agentsLog(Context.ConnectionId, message);

@@ -50,12 +50,22 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('killWorker', agentId, workerId);
     };
 
+    var stopWorker = function (agentId, workerId) {
+        this.proxy.invoke('stopWorker', agentId, workerId);
+    };
+
+    var killWorkers = function (agentId, numberOfWorkersToKill) {
+        this.proxy.invoke('killWorkers', agentId, numberOfWorkersToKill);
+    };
+
     return {
         initialize: initialize,
         startWorker: startWorker,
         pingAgent: pingAgent,
         pingWorker: pingWorker,
-        killWorker: killWorker
+        killWorker: killWorker,
+        stopWorker: stopWorker,
+        killWorkers: killWorkers
     };
 });
 
@@ -65,6 +75,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.currentAgentNumber = 1;
 
     $scope.uiGeneralDisplay = [];
+
+    $scope.targetAddress = "";
+
+    $scope.messagesPerSecond = 0;
+
+    $scope.messageSize = 0;
 
     $scope.newAgentAlert = function (agentNumber) {
         var message = 'Agent ' + agentNumber + ' has connected to the hud';
@@ -95,6 +111,18 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.killWorker = function (agentId) {
         var workerId = this.worker.id;
         signalRSvc.killWorker(agentId, workerId);
+    }
+
+    $scope.stopWorker = function (agentId) {
+        var workerId = this.worker.id;
+        signalRSvc.stopWorker(agentId, workerId);
+    }
+
+    $scope.killWorkers = function () {
+        var agentId = this.agent.id;
+        var numberOfWorkersToKill = parseInt(this.agent.workersToKill);
+        this.agent.workersToKill = 0;
+        signalRSvc.killWorkers(agentId, numberOfWorkersToKill);
     }
 
     $scope.showWorkerLogging = function () {
@@ -145,6 +173,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     output: [],
                     display: false,
                     workersToStart: 0,
+                    target: $scope.targetAddress,
+                    workersToKill: 0,
                     selfdestruct: setTimeout(function () { $scope.timeOut(agentIndex) }, 5000)
                 };
                 $scope.currentAgentNumber += 1;
