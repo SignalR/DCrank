@@ -131,7 +131,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 for (int i = 0; i < numbuerOfWorkersToKill; i++)
                 {
                     IEnumerator<int> enumerator = _workers.Keys.GetEnumerator();
-                    if(enumerator.MoveNext()){
+                    if (enumerator.MoveNext())
+                    {
                         int first = enumerator.Current;
                         AgentWorker worker;
                         if (_workers.TryGetValue(first, out worker))
@@ -142,10 +143,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                         }
                     }
                     else
-	                {
+                    {
                         LogAgent("Agent currently has no workers to kill");
                         break;
-	                }
+                    }
                 }
             });
 
