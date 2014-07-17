@@ -20,7 +20,7 @@
     </div>
 
     <h3>Remote Control</h3>
-    <div class="jumbotron" style="max-height:400px; overflow:auto; min-width:800px;">
+    <div class="jumbotron" style="min-width:800px;">
         <table class="table" id="uiView" style="border:solid; width:100%; font-size:1em">
             <tr style="border:solid;">
                 <th style="border:solid; width:20%">Agent Id</th>
@@ -58,11 +58,11 @@
         </table>
     </div>
 
-    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="border:solid">
+    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="max-height:400px; overflow:auto; border:solid">
         <ul data-ng-repeat="agentLogging in agent.output track by $index">{{agentLogging}}</ul>
     </div>
 
-    <div data-ng-repeat="agent in agents" style="border:solid">
+    <div data-ng-repeat="agent in agents" style="max-height:400px; overflow:auto; border:solid">
         <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display" style="border: dashed">
             <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
         </div>

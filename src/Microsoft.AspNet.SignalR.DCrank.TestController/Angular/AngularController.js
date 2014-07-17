@@ -271,7 +271,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 };
             };
             if (agentIndex != undefined) {
-                $scope.agents[agentIndex].output.push(message);
+                $scope.agents[agentIndex].output.unshift(message);
             }
         });
     });
@@ -291,7 +291,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 };
             };
             if (agentIndex != undefined && workerIndex != undefined) {
-                $scope.agents[agentIndex].workers[workerIndex].output.push(message);
+                $scope.agents[agentIndex].workers[workerIndex].output.unshift(message);
             }
         });
     });

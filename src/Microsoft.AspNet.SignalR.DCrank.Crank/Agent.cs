@@ -124,6 +124,31 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
 
+            _proxy.On<int>("killWorkers", numbuerOfWorkersToKill =>
+            {
+                LogAgent("Agent received killWorker command to kill {0} workers.", numbuerOfWorkersToKill);
+
+                for (int i = 0; i < numbuerOfWorkersToKill; i++)
+                {
+                    IEnumerator<int> enumerator = _workers.Keys.GetEnumerator();
+                    if(enumerator.MoveNext()){
+                        int first = enumerator.Current;
+                        AgentWorker worker;
+                        if (_workers.TryGetValue(first, out worker))
+                        {
+                            worker.Kill();
+                            _workers.Remove(first);
+                            LogAgent("Agent killed Worker {0}.", first);
+                        }
+                    }
+                    else
+	                {
+                        LogAgent("Agent currently has no workers to kill");
+                        break;
+	                }
+                }
+            });
+
             _proxy.On<int, int>("pingWorker", (workerId, value) =>
             {
                 LogAgent("Agent received pingWorker for Worker {0} with value {1}.", workerId, value);
@@ -157,7 +182,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void OnMessage(int id, Message message)
         {
-            switch(message.Command.ToLower())
+            switch (message.Command.ToLower())
             {
                 case "ping":
                     LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);
