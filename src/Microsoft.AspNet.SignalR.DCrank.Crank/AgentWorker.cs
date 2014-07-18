@@ -21,7 +21,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _workerProcess.Exited += OnExited;
         }
 
-
         public int Id { get; private set; }
 
         public Action<int, Message> OnMessage;

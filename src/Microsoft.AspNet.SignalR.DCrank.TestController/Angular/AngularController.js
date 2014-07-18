@@ -58,6 +58,10 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('killWorkers', agentId, numberOfWorkersToKill);
     };
 
+    var sendTestInfo = function (targetAddress, messageSize, messageRate) {
+        this.proxy.invoke('sendTestInfo', targetAddress, messageSize, messageRate)
+    }
+
     return {
         initialize: initialize,
         startWorker: startWorker,
@@ -123,6 +127,13 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         var numberOfWorkersToKill = parseInt(this.agent.workersToKill);
         this.agent.workersToKill = 0;
         signalRSvc.killWorkers(agentId, numberOfWorkersToKill);
+    }
+
+    $scope.sendTestInfo = function () {
+        var targetAddress = $scope.targetAddress;
+        var messageSize = $scope.messageSize;
+        var messageRate = $scope.messagesPerSecond;
+        signalRSvc.sendTestInfo(targetAddress, messageSize, messageRate);
     }
 
     $scope.showWorkerLogging = function () {
