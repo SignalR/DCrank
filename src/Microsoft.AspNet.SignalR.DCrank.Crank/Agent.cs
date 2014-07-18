@@ -129,11 +129,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
 
-            _proxy.On<int>("killWorkers", numbuerOfWorkersToKill =>
+            _proxy.On<int>("killWorkers", numberOfWorkersToKill =>
             {
-                LogAgent("Agent received killWorker command to kill {0} workers.", numbuerOfWorkersToKill);
+                LogAgent("Agent received killWorker command to kill {0} workers.", numberOfWorkersToKill);
 
-                for (int i = 0; i < numbuerOfWorkersToKill; i++)
+                for (int i = 0; i < numberOfWorkersToKill; i++)
                 {
                     IEnumerator<int> enumerator = _workers.Keys.GetEnumerator();
                     if (enumerator.MoveNext())
