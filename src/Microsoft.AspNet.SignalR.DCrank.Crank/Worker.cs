@@ -45,7 +45,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             Environment.Exit(0);
         }
 
-        private async Task Log(string format, params object[] arguments)
+        private async void Log(string format, params object[] arguments)
         {
             await Send("Log", string.Format(format, arguments));
         }

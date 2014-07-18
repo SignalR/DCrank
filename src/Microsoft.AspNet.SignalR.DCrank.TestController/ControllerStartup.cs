@@ -7,7 +7,6 @@ using Owin;
 
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
-    // You can name this class anything as long as it contains the words 'Startup'
     public class ControllerStartup
     {
         public void Configuration(IAppBuilder app)

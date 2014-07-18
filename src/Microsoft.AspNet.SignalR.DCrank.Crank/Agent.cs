@@ -24,7 +24,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Agent()
         {
-            //Trace.Listeners.Add(new ConsoleTraceListener());
+            Trace.Listeners.Add(new ConsoleTraceListener());
 
             _startInfo = new ProcessStartInfo()
             {
@@ -50,8 +50,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     using (_connection = new HubConnection(_url))
                     {
-                        _connection.TraceWriter = Console.Out;
-
                         _proxy = _connection.CreateHubProxy(_hubName);
                         InitializeProxy();
 
@@ -65,14 +63,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             while (_connection.State == ConnectionState.Connected)
                             {
-                                Console.WriteLine("!!!!!!!!!!!!!!!!!!agentHeartbeat!!!!!!!");
-
                                 await InvokeController("agentHeartbeat", new
                                 {
                                     Workers = _workers.Keys
                                 });
-
-                                Console.WriteLine("!!!!!!!!!!!!!!!!!!after agentHeartbeat!!!!!!!");
 
                                 await Task.Delay(1000);
                             }
@@ -182,7 +176,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received test Information with target address: {0}, with message size: {1}, and message send rate: {2}.", targetAddress, messageSize, messageRate);
 
-                // Sets private variable that stores the given information so you can use it
                 _targertAddress = targetAddress;
                 _messageSize = messageSize;
                 _messageRate = messageRate;
@@ -229,34 +222,34 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private async void LogWorker(int workerId, string format, params object[] arguments)
         {
-            //var prefix = string.Format("({0}, {1}) ", _connection.ConnectionId, workerId);
-            //var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
-            //Trace.WriteLine(prefix + message);
+            var prefix = string.Format("({0}, {1}) ", _connection.ConnectionId, workerId);
+            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
+            Trace.WriteLine(prefix + message);
 
-            //try
-            //{
-            //    await _proxy.Invoke("LogWorker", workerId, message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Trace.WriteLine(prefix + string.Format("LogWorker threw an exception: {0}", ex.Message));
-            //}
+            try
+            {
+                await _proxy.Invoke("LogWorker", workerId, message);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(prefix + string.Format("LogWorker threw an exception: {0}", ex.Message));
+            }
         }
 
         private async void LogAgent(string format, params object[] arguments)
         {
-            //var prefix = string.Format("({0}) ", _connection.ConnectionId, DateTime.Now);
-            //var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
-            //Trace.WriteLine(prefix + message);
+            var prefix = string.Format("({0}) ", _connection.ConnectionId, DateTime.Now);
+            var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
+            Trace.WriteLine(prefix + message);
 
-            //try
-            //{
-            //    await _proxy.Invoke("LogAgent", message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Trace.WriteLine(prefix + string.Format("LogAgent threw an exception: {0}", ex.Message));
-            //}
+            try
+            {
+                await _proxy.Invoke("LogAgent", message);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(prefix + string.Format("LogAgent threw an exception: {0}", ex.Message));
+            }
         }
 
         private async Task InvokeController(string command, params object[] arguments)

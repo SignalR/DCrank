@@ -18,6 +18,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _workerProcess = new Process();
             _workerProcess.StartInfo = _workerProcessStartInfo;
             _workerProcess.EnableRaisingEvents = true;
+            _workerProcess.OutputDataReceived += OnOutputDataReceived;
             _workerProcess.Exited += OnExited;
         }
 
@@ -36,8 +37,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             if (success)
             {
                 Id = _workerProcess.Id;
-
-                ProcessingMessages();
+                _workerProcess.BeginOutputReadLine();
+                _workerProcess.BeginErrorReadLine();
             }
 
             return success;
@@ -66,26 +67,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             OnExit(Id);
         }
 
-        private void ProcessingMessages()
-        {
-            Task.Run(async () =>
-            {
-                while (!_workerProcess.HasExited)
-                {
-                    try
-                    {
-                        var messageString = await _workerProcess.StandardOutput.ReadLineAsync();
-                        var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-                        OnMessage(Id, message);
-                    }
-                    catch (Exception ex)
-                    {
-                        OnError(Id, ex);
-                        break;
-                    }
-                }
-            });
+        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            var messageString = e.Data;
+
+            if (string.IsNullOrEmpty(messageString))
+            {
+                return;
+            }
+
+            var message = JsonConvert.DeserializeObject<Message>(messageString);
+
+            OnMessage(Id, message);
         }
     }
 }
