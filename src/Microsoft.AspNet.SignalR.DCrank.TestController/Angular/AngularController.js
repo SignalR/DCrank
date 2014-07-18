@@ -69,6 +69,7 @@ angularModule.service('signalRSvc', function ($rootScope) {
         pingWorker: pingWorker,
         killWorker: killWorker,
         stopWorker: stopWorker,
+        sendTestInfo: sendTestInfo,
         killWorkers: killWorkers
     };
 });
