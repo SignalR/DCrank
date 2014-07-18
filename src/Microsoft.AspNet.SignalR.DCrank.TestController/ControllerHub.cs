@@ -62,7 +62,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void SendTestInfo(string targetAddress, int messageSize, int messageRate)
         {
-            Clients.All.TestInfo(targetAddress, messageSize, messageRate);
+            Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
         public void LogAgent(string message)

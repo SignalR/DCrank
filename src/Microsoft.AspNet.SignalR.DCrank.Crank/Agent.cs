@@ -18,7 +18,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly Dictionary<int, AgentWorker> _workers;
         private HubConnection _connection;
         private IHubProxy _proxy;
-        private string _targertAddress;
+        private string _targert;
         private int _messageSize;
         private int _messageRate;
 
@@ -172,11 +172,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
 
-            _proxy.On<string, int, int>("TestInfo", (targetAddress, messageSize, messageRate) =>
+            _proxy.On<string, int, int>("startTest", (targetAddress, messageSize, messageRate) =>
             {
                 LogAgent("Agent received test Information with target address: {0}, with message size: {1}, and message send rate: {2}.", targetAddress, messageSize, messageRate);
 
-                _targertAddress = targetAddress;
+                _targert = targetAddress;
                 _messageSize = messageSize;
                 _messageRate = messageRate;
             });
