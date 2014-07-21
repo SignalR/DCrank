@@ -18,9 +18,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly Dictionary<int, AgentWorker> _workers;
         private HubConnection _connection;
         private IHubProxy _proxy;
-        private string _targert;
+        private string _target;
         private int _messageSize;
-        private int _messageRate;
+        private int _messagesPerSecond;
 
         public Agent()
         {
@@ -133,6 +133,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received killWorker command to kill {0} workers.", numberOfWorkersToKill);
 
+                // Removes the specified number of agents [random] from the collection and kills theirs corresponding processes
                 for (int i = 0; i < numberOfWorkersToKill; i++)
                 {
                     IEnumerator<int> enumerator = _workers.Keys.GetEnumerator();
@@ -172,13 +173,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
 
-            _proxy.On<string, int, int>("startTest", (targetAddress, messageSize, messageRate) =>
+            _proxy.On<string, int, int>("startTest", (targetAddress, messageSize, messagesPerSecond) =>
             {
-                LogAgent("Agent received test Information with target address: {0}, with message size: {1}, and message send rate: {2}.", targetAddress, messageSize, messageRate);
+                LogAgent("Agent received test information with target address: {0}, with message size: {1}, and messages sent per second: {2}.", targetAddress, messageSize, messagesPerSecond);
 
-                _targert = targetAddress;
+                _target = targetAddress;
                 _messageSize = messageSize;
-                _messageRate = messageRate;
+                _messagesPerSecond = messagesPerSecond;
             });
         }
 
@@ -197,7 +198,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void OnMessage(int id, Message message)
         {
-            switch (message.Command.ToLower())
+            switch (message.Command.ToLowerInvariant())
             {
                 case "ping":
                     LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);

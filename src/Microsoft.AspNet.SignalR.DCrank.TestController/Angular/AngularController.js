@@ -12,23 +12,23 @@ angularModule.service('signalRSvc', function ($rootScope) {
         connection.logging = true;
 
         this.proxy.on('agentConnected', function (agentId, heartbeatInformation) {
-            $rootScope.$emit("agentConnected", agentId, heartbeatInformation);
+            $rootScope.$emit('agentConnected', agentId, heartbeatInformation);
         });
 
         this.proxy.on('agentPongResponse', function (agentId, value) {
-            $rootScope.$emit("agentPongResponse", agentId, value);
+            $rootScope.$emit('agentPongResponse', agentId, value);
         });
 
         this.proxy.on('workerPongResponse', function (agentId, workerId, value) {
-            $rootScope.$emit("workerPongResponse", agentId, workerId, value);
+            $rootScope.$emit('workerPongResponse', agentId, workerId, value);
         });
 
         this.proxy.on('agentsLog', function (agentId, message) {
-            $rootScope.$emit("agentsLog", agentId, message);
+            $rootScope.$emit('agentsLog', agentId, message);
         });
 
         this.proxy.on('workersLog', function (agentId, workerId, message) {
-            $rootScope.$emit("workersLog", agentId, workerId, message);
+            $rootScope.$emit('workersLog', agentId, workerId, message);
         });
 
         connection.start();
@@ -81,7 +81,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.uiGeneralDisplay = [];
 
-    $scope.targetAddress = "";
+    $scope.targetAddress = '';
 
     $scope.messagesPerSecond = 0;
 
@@ -164,7 +164,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         signalRSvc.pingAgent(agentId);
     };
 
-    $scope.$parent.$on("agentConnected", function (e, agentId, heartbeatInformation) {
+    $scope.$parent.$on('agentConnected', function (e, agentId, heartbeatInformation) {
         $scope.$apply(function () {
             var newAgent = true;
             var agentIndex;
@@ -245,7 +245,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         }
     }
 
-    $scope.$parent.$on("agentPongResponse", function (e, agentId, value) {
+    $scope.$parent.$on('agentPongResponse', function (e, agentId, value) {
         $scope.$apply(function () {
             var agentIndex;
             for (var i = 0; i < $scope.agents.length; i++) {
@@ -260,7 +260,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         });
     });
 
-    $scope.$parent.$on("workerPongResponse", function (e, agentId, workerId, value) {
+    $scope.$parent.$on('workerPongResponse', function (e, agentId, workerId, value) {
         $scope.$apply(function () {
             var agentIndex;
             for (var i = 0; i < $scope.agents.length; i++) {
@@ -274,7 +274,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         });
     })
 
-    $scope.$parent.$on("agentsLog", function (e, agentId, message) {
+    $scope.$parent.$on('agentsLog', function (e, agentId, message) {
         $scope.$apply(function () {
             var agentIndex;
             for (var index = 0; index < $scope.agents.length; index++) {
@@ -288,7 +288,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         });
     });
 
-    $scope.$parent.$on("workersLog", function (e, agentId, workerId, message) {
+    $scope.$parent.$on('workersLog', function (e, agentId, workerId, message) {
         $scope.$apply(function () {
             var agentIndex;
             var workerIndex;
