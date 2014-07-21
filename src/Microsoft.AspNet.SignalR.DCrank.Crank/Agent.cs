@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -133,25 +134,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received killWorker command to kill {0} workers.", numberOfWorkersToKill);
 
-                // Removes the specified number of agents [random] from the collection and kills theirs corresponding processes
-                for (int i = 0; i < numberOfWorkersToKill; i++)
+                var keys = _workers.Keys.Take(numberOfWorkersToKill).ToList();
+
+                foreach (var key in keys)
                 {
-                    IEnumerator<int> enumerator = _workers.Keys.GetEnumerator();
-                    if (enumerator.MoveNext())
+                    AgentWorker worker;
+                    if (_workers.TryGetValue(key, out worker))
                     {
-                        int first = enumerator.Current;
-                        AgentWorker worker;
-                        if (_workers.TryGetValue(first, out worker))
-                        {
-                            worker.Kill();
-                            _workers.Remove(first);
-                            LogAgent("Agent killed Worker {0}.", first);
-                        }
-                    }
-                    else
-                    {
-                        LogAgent("Agent currently has no workers to kill");
-                        break;
+                        worker.Kill();
+                        _workers.Remove(key);
+                        LogAgent("Agent killed Worker {0}.", key);
                     }
                 }
             });
