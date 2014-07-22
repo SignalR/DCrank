@@ -178,12 +178,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                for (int index = 0; index < numberOfWorkers; index++)
+                Parallel.For(0, numberOfWorkers, index =>
                 {
                     var worker = StartWorker();
 
                     LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
-                }
+                });
             });
         }
 
