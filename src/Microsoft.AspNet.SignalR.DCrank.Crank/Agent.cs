@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
-using System.Threading;
-using Microsoft.AspNet.SignalR.Client.Transports;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -58,7 +57,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                         try
                         {
-                            await _connection.Start(new ServerSentEventsTransport());
+                            await _connection.Start();
 
                             LogAgent("Agent connected to TestController.", _connection.ConnectionId);
 
