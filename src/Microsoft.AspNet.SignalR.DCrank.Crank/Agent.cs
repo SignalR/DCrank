@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
@@ -16,12 +17,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private const string _hubName = "ControllerHub";
         private readonly ProcessStartInfo _startInfo;
         private readonly Dictionary<int, AgentWorker> _workers;
+        private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
 
         public Agent()
         {
             Trace.Listeners.Add(new ConsoleTraceListener());
+
+            _hostName = Dns.GetHostName();
 
             _startInfo = new ProcessStartInfo()
             {
@@ -62,6 +66,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             {
                                 await InvokeController("agentHeartbeat", new
                                 {
+                                    HostName = _hostName,
                                     Workers = _workers.Keys
                                 });
 
