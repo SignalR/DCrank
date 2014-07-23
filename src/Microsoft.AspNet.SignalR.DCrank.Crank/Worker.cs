@@ -9,10 +9,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Worker
     {
         private readonly Process _agentProcess;
+        private Client _client;
 
         public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
+            _client = new Client();
         }
 
         public async Task Run()
@@ -25,19 +27,51 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             while (true)
             {
                 var messageString = await Console.In.ReadLineAsync();
-
                 var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-                Log("Worker received {0} command with value {1}.", message.Command, message.Value);
-
-                if (string.Equals(message.Command, "ping"))
+                switch (message.Command)
                 {
-                    var value = message.Value.ToObject<int>();
-                    await Send("pong", value);
+                    case "ping":
+                        var value = message.Value.ToObject<int>();
+                        Log("Worker received {0} command with value {1}.", message.Command, message.Value);
 
-                    Log("Worker sent pong command with value {0}.", value);
+                        await Send("pong", value);
+                        Log("Worker sent pong command with value {0}.", value);
+
+                        break;
+
+                    case "startTest":
+                        var crankArguments = message.Value.ToObject<CrankArguments>();
+
+                        Log("Worker received {0} command with value.", message.Command);
+
+                        _client.OnMessage += OnMessage;
+                        _client.OnClosed += OnClosed;
+
+                        await _client.CreateConnection(crankArguments);
+                        Log("Connection started succesfully");
+
+                        await _client.StartTest(crankArguments);
+
+                        break;
+
+                    case "stop":
+                        _client.StopConnection();
+                        Log("Connection stopped succesfully");
+
+                        break;
                 }
             }
+        }
+
+        private void OnMessage(string message)
+        {
+            Send("Log", string.Format("Worker received following message from server: {0}", message));
+        }
+
+        private void OnClosed()
+        {
+            // Indicates that the connection was closed
         }
 
         private void OnExited(object sender, EventArgs args)
@@ -57,6 +91,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Command = command,
                 Value = JToken.FromObject(value)
             };
+
             string messageString = JsonConvert.SerializeObject(message);
             await Console.Out.WriteLineAsync(messageString);
         }

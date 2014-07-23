@@ -62,6 +62,22 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _workerProcess.Kill();
         }
 
+        public async Task Stop()
+        {
+            await Send("stop", null);
+            _workerProcess.Kill();
+        }
+
+        public async Task StartTest(string url, int sendBytes, int messagesPerSecond)
+        {
+            var parameters = new CrankArguments();
+            parameters.Url = url;
+            parameters.SendInterval = (1000 / messagesPerSecond);
+            parameters.SendBytes = sendBytes;
+
+            await Send("startTest", parameters);
+        }
+
         private void OnExited(object sender, EventArgs args)
         {
             OnExit(Id);

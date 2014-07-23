@@ -18,9 +18,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly Dictionary<int, AgentWorker> _workers;
         private HubConnection _connection;
         private IHubProxy _proxy;
-        private string _target;
-        private int _messageSize;
-        private int _messagesPerSecond;
 
         public Agent()
         {
@@ -168,9 +165,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received test information with target address: {0}, with message size: {1}, and messages sent per second: {2}.", targetAddress, messageSize, messagesPerSecond);
 
-                _target = targetAddress;
-                _messageSize = messageSize;
-                _messagesPerSecond = messagesPerSecond;
+                foreach (var worker in _workers.Values)
+                {
+                    worker.StartTest(targetAddress, messageSize, messagesPerSecond);
+                }
             });
         }
 
@@ -195,6 +193,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);
                     InvokeController("pongWorker", id, message.Value.ToObject<int>());
                     break;
+
                 case "log":
                     LogWorker(id, message.Value.ToObject<string>());
                     break;
