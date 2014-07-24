@@ -18,9 +18,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _connection.Received += OnMessage;
             _connection.Closed += OnClosed;
 
-            int connectCount;
-
-            for (connectCount = 0; connectCount < 3; connectCount++)
+            for (int connectCount = 0; connectCount < 3; connectCount++)
             {
                 try
                 {
@@ -45,7 +43,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     }
                 }
 
-                await Task.Delay(500);
+                await Task.Delay(1000);
             }
         }
 
@@ -57,7 +55,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 Task.Run(async () =>
                 {
-                    while (true)
+                    while (_connection.State == ConnectionState.Connected)
                     {
                         await _connection.Send(payload);
 

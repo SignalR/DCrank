@@ -75,7 +75,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             parameters.SendInterval = (1000 / messagesPerSecond);
             parameters.SendBytes = sendBytes;
 
-            await Send("startTest", parameters);
+            await Send("starttest", parameters);
         }
 
         private void OnExited(object sender, EventArgs args)

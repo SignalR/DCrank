@@ -68,6 +68,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     server = GetHostName(Url);
                 }
+
                 return server;
             }
         }
@@ -75,6 +76,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         public static CrankArguments Parse()
         {
             CrankArguments args = null;
+            
             try
             {
                 args = CommandLine.Parse<CrankArguments>();
@@ -85,40 +87,42 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Console.WriteLine(e.ArgumentHelp.GetHelpText(Console.BufferWidth));
                 Environment.Exit(1);
             }
+
             return args;
         }
 
         private static string GetHostName(string url)
         {
-            if (!String.IsNullOrEmpty(url))
+            if (!string.IsNullOrEmpty(url))
             {
                 return new Uri(url).Host;
             }
+
             return String.Empty;
         }
 
         public IClientTransport GetTransport()
         {
-            if (!String.IsNullOrEmpty(Transport))
+            if (!string.IsNullOrEmpty(Transport))
             {
-                var httpClient = new DefaultHttpClient();
-                if (Transport.Equals("WebSockets", StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(Transport.ToLowerInvariant(), "websockets"))
                 {
-                    return new WebSocketTransport(httpClient);
+                    return new WebSocketTransport();
                 }
-                else if (Transport.Equals("ServerSentEvents", StringComparison.InvariantCultureIgnoreCase))
+                else if (string.Equals(Transport.ToLowerInvariant(), "serversentevents"))
                 {
-                    return new ServerSentEventsTransport(httpClient);
+                    return new ServerSentEventsTransport();
                 }
-                else if (Transport.Equals("LongPolling", StringComparison.InvariantCultureIgnoreCase))
+                else if (string.Equals(Transport.ToLowerInvariant(), "longpolling"))
                 {
-                    return new LongPollingTransport(httpClient);
+                    return new LongPollingTransport();
                 }
-                else if (Transport.Equals("Auto", StringComparison.InvariantCultureIgnoreCase))
+                else if (string.Equals(Transport.ToLowerInvariant(), "auto"))
                 {
-                    return new AutoTransport(httpClient);
+                    return new AutoTransport(new DefaultHttpClient());
                 }
             }
+
             return null;
         }
     }

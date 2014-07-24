@@ -29,7 +29,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 var messageString = await Console.In.ReadLineAsync();
                 var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-                switch (message.Command)
+                switch (message.Command.ToLowerInvariant())
                 {
                     case "ping":
                         var value = message.Value.ToObject<int>();
@@ -40,7 +40,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                         break;
 
-                    case "startTest":
+                    case "starttest":
                         var crankArguments = message.Value.ToObject<CrankArguments>();
 
                         Log("Worker received {0} command with value.", message.Command);
