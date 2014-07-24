@@ -51,7 +51,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                         await _client.CreateConnection(crankArguments);
                         Log("Connection started succesfully");
 
-                        await _client.StartTest(crankArguments);
+                         _client.StartTest(crankArguments);
 
                         break;
 

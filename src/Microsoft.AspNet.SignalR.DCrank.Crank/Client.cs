@@ -35,30 +35,35 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                     break;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Connection.Start Failed: {0}: {1}", e.GetType(), e.Message);
-                }
-            }
+                    Console.WriteLine("Connection.Start Failed: {0}: {1}", ex.GetType(), ex.Message);
 
-            if (connectCount == 3)
-            {
-                // Send information back to the UI?
+                    if (connectCount == 3)
+                    {
+                        throw;
+                    }
+                }
+
+                await Task.Delay(500);
             }
         }
 
-        public async Task StartTest(CrankArguments arguments)
+        public async void StartTest(CrankArguments arguments)
         {
             var payload = (arguments.SendBytes == 0) ? String.Empty : new string('a', arguments.SendBytes);
 
             if (!String.IsNullOrEmpty(payload))
             {
-                while (true)
+                Task.Run(async () =>
                 {
-                    await _connection.Send(payload);
+                    while (true)
+                    {
+                        await _connection.Send(payload);
 
-                    await Task.Delay(arguments.SendInterval);
-                }
+                        await Task.Delay(arguments.SendInterval);
+                    }
+                });
             }
         }
 
