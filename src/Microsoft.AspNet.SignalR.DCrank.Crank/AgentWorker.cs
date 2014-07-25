@@ -64,7 +64,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public async Task Stop()
         {
-            await Send("stop", null);
+            await Send("stop", new object());
             _workerProcess.Kill();
         }
 

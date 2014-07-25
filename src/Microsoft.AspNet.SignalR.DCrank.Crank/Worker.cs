@@ -29,37 +29,44 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 var messageString = await Console.In.ReadLineAsync();
                 var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-                switch (message.Command.ToLowerInvariant())
+                try
                 {
-                    case "ping":
-                        var value = message.Value.ToObject<int>();
-                        Log("Worker received {0} command with value {1}.", message.Command, message.Value);
+                    switch (message.Command.ToLowerInvariant())
+                    {
+                        case "ping":
+                            var value = message.Value.ToObject<int>();
+                            Log("Worker received {0} command with value {1}.", message.Command, message.Value);
 
-                        await Send("pong", value);
-                        Log("Worker sent pong command with value {0}.", value);
+                            await Send("pong", value);
+                            Log("Worker sent pong command with value {0}.", value);
 
-                        break;
+                            break;
 
-                    case "starttest":
-                        var crankArguments = message.Value.ToObject<CrankArguments>();
+                        case "starttest":
+                            var crankArguments = message.Value.ToObject<CrankArguments>();
 
-                        Log("Worker received {0} command with value.", message.Command);
+                            Log("Worker received {0} command with value.", message.Command);
 
-                        _client.OnMessage += OnMessage;
-                        _client.OnClosed += OnClosed;
+                            _client.OnMessage += OnMessage;
+                            _client.OnClosed += OnClosed;
 
-                        await _client.CreateConnection(crankArguments);
-                        Log("Connection started succesfully");
+                            await _client.CreateConnection(crankArguments);
+                            Log("Connection started succesfully");
 
-                         _client.StartTest(crankArguments);
+                            _client.StartTest(crankArguments);
 
-                        break;
+                            break;
 
-                    case "stop":
-                        _client.StopConnection();
-                        Log("Connection stopped succesfully");
+                        case "stop":
+                            _client.StopConnection();
+                            Log("Connection stopped succesfully");
 
-                        break;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Send("Log", string.Format("Worker encountered the following exception: {0}", ex.Message));
                 }
             }
         }

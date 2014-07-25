@@ -170,6 +170,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     worker.StartTest(targetAddress, messageSize, messagesPerSecond);
                 }
             });
+
+            _proxy.On<int>("stopWorker", async workerId =>
+            {
+                await _workers[workerId].Stop();
+                _workers.Remove(workerId);
+            });
         }
 
         private void StartWorkers(int numberOfWorkers)
