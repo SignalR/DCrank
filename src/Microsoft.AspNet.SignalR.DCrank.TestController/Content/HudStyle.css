@@ -1,0 +1,311 @@
+﻿.container {
+    font-family: 'Segoe UI';
+    background-color: #e8e4e4;
+}
+
+.hud {
+    background: -webkit-gradient(linear, bottom, left 175px, from(#CCCCCC), to(#EEEEEE));
+    background: -moz-linear-gradient(bottom, #CCCCCC, #EEEEEE 175px);
+    margin: auto;
+    background-color: #dceaf4;
+    position: relative;
+    min-width: 800px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #999;
+    border: inset 1px solid #333;
+    -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+}
+
+/* Formats the dashboard */
+.dashboard {
+    height: 100px;
+    min-width: 800px;
+    font-family: 'Segoe UI';
+    color: white;
+    background-color: #bbd8e9;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+    .dashboard .left {
+        display: inline;
+        margin: 20px;
+        float: left;
+    }
+
+    .dashboard .right {
+        display: inline;
+        margin: 20px;
+        float: right;
+    }
+
+/* Formats the agents */
+#functionalAgent {
+    display: inline-block;
+    background-color: #009A31;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+    #functionalAgent .numberOfWorkers {
+        align-content: center;
+        text-align: center;
+        font-size: 70px;
+        font-family: 'Segoe UI';
+    }
+
+    #functionalAgent .agentNumber {
+        font-size: 15px;
+        align-self: inherit;
+        font-family: 'Segoe UI';
+    }
+
+    #functionalAgent .machineName {
+        font-size: 15px;
+        float: right;
+        font-family: 'Segoe UI';
+    }
+
+#deadAgent {
+    display: inline-block;
+    background-color: grey;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+    #deadAgent .numberOfWorkers {
+        align-content: center;
+        text-align: center;
+        font-size: 70px;
+        font-family: 'Segoe UI';
+    }
+
+    #deadAgent .agentNumber {
+        font-size: 15px;
+        align-self: inherit;
+        font-family: 'Segoe UI';
+    }
+
+    #deadAgent .machineName {
+        font-size: 15px;
+        float: right;
+        font-family: 'Segoe UI';
+    }
+
+
+#malfunctioningAgent {
+    display: inline-block;
+    background-color: red;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+    #malfunctioningAgent .numberOfWorkers {
+        align-content: center;
+        text-align: center;
+        font-size: 70px;
+        font-family: 'Segoe UI';
+    }
+
+    #malfunctioningAgent .agentNumber {
+        font-size: 15px;
+        align-self: inherit;
+        font-family: 'Segoe UI';
+    }
+
+    #malfunctioningAgent .machineName {
+        font-size: 15px;
+        float: right;
+        font-family: 'Segoe UI';
+    }
+
+/* Add agent button */
+#addAgentButton {
+    display: inline-block;
+    background-color: #F3D5BD;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+    #addAgentButton .glyphicon-plus {
+        align-content: center;
+        text-align: center;
+        font-size: 70px;
+    }
+
+/* Worker container */
+.workerContainer {
+    float: left;
+    overflow: auto;
+    position: relative;
+}
+
+/* Formats the workers */
+#functionalWorker {
+    display: inline-block;
+    background-color: #009A31;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    position: relative;
+}
+
+    #functionalWorker .removeButton {
+        float: right;
+        display: inline;
+        height: 15px;
+        width: 15px;
+        background-color: #009A31;
+        border:none;
+    }
+
+    #functionalWorker .removeButton .glyphicon-remove {
+        font-size: 15px;
+    }
+
+    #functionalWorker .numberOfConnections {
+        align-content: center;
+        text-align: center;
+        font-size: 70px;
+        font-family: 'Segoe UI';
+    }
+
+    #functionalWorker .workerNumber {
+        font-size: 15px;
+        display: inline;
+        float: left;
+        font-family: 'Segoe UI';
+    }
+
+#deadWorker {
+    display: inline-block;
+    background-color: grey;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#malfunctioningWorker {
+    display: inline-block;
+    background-color: red;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Formats the start worker div */
+.startWorker {
+    font-size: 20px;
+    min-width: 800px;
+    padding: 40px;
+}
+
+.button {
+    background-color: #bbd8e9;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Segoe UI';
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    width: 150px;
+}
+
+    .button:hover {
+        border: none;
+        background: #009A31;
+        box-shadow: 0px 0px 1px #777;
+    }
+
+/* Formats the input form */
+.staticInput {
+    background: -webkit-gradient(linear, bottom, left 175px, from(#CCCCCC), to(#EEEEEE));
+    background: -moz-linear-gradient(bottom, #CCCCCC, #EEEEEE 175px);
+    margin: auto;
+    background-color: #dceaf4;
+    position: relative;
+    min-width: 800px;
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    line-height: 24px;
+    text-decoration: none;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #999;
+    border: inset 1px solid #333;
+    -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+}
+
+    .staticInput .staticTextBox {
+        width: 375px;
+        margin: 10px;
+        padding: 5px;
+        display: block;
+        border: 1px solid #bbd8e9;
+        height: 35px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .staticInput .button {
+        width: 150px;
+        display: block;
+        background-color: #bbd8e9;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 6px;
+        color: #fff;
+        font-family: 'Segoe UI';
+        font-size: 20px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        width: 150px;
+        margin: 15px;
+        margin-left: 0px;
+    }
+
+        .staticInput .button:hover {
+            border: none;
+            background: #009A31;
+            box-shadow: 0px 0px 1px #777;
+        }

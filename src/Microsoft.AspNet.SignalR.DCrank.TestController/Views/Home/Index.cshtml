@@ -7,64 +7,114 @@
     <title></title>
     <script src="~/Angular/angular.min.js"></script>
     <script src="~/Angular/AngularController.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/HudStyle.css">
 </head>
-<body>
+<body class="container">
     <h1>Hud</h1>
 
     <h3>Target Application</h3>
 
-    <div class="jumbotron" style="max-height:400px; overflow:auto; min-width: 800px;">
-        <div>Target URL <input type="url" data-ng-model="targetAddress" /></div>
-        <div>Messages Per Second <input type="number" data-ng-model="messagesPerSecond" /></div>
-        <div>Mesage Size (Bytes) <input type="number" data-ng-model="messageSize" /></div>
-        <div><input type="button" data-ng-click="sendTestInfo()" value="Start Test" /></div>
+    <div class="staticInput" style="max-height:400px; overflow:auto; min-width: 800px;">
+        <div>Target URL <input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
+        <div>Messages Per Second <input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
+        <div>Mesage Size (Bytes) <input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
+        <div><input class="button" type="submit" data-ng-click="sendTestInfo()" value="Start Test" /></div>
     </div>
 
-    <h3>Remote Control</h3>
-    <div class="jumbotron" style="min-width:800px;">
-        <table class="table" id="uiView" style="border:solid; width:100%; font-size:1em">
-            <tr style="border:solid;">
-                <th style="border:solid; width:20%">Agent Id</th>
-                <th style="border:solid; width:20%">Number of Workers</th>
-                <th style="border:solid; width:20%">Start Workers</th>
-                <th style="border:solid; width:40%">Current Workers</th>
-            </tr>
-            <tr style="border:solid;" data-ng-repeat="agent in agents">
-                <td style="border:solid;">
-                    <div style="width:100px; display:inline-block; margin-right:10px;">{{agent.number}}</div>
-                    <button class="button" style="display:inline-block;" data-ng-click="showAgentLogging()">Logging</button>
-                    <button class="button" style="display:inline-block;" data-ng-click="pingAgent(agent.id)">Ping</button>
-                </td>
-                <td style="border:solid;">{{agent.numberOfWorkers}}</td>
-                <td style="border:solid;">
-                    <div>
-                        Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToStart">
-                        <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
-                    </div>
-                    <div>
-                        Workers to Kill: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToKill">
-                        <input class="button" type="submit" value="Kill Workers" data-ng-click="killWorkers()">
-                    </div>
-                </td>
-                <td style="border:solid;">
-                    <div data-ng-repeat="worker in agent.workers">
-                        <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
-                        <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
-                    </div>
-                </td>
-            </tr>
-        </table>
+    <h3>Navagation</h3>
+    <div class="hud" data-ng-click="backOut()">
+        @* Permanent View *@
+        <div class="dashboard">
+            <h3 class="left">
+                {{currentView}}
+            </h3>
+            <h3 class="right">
+                Connections: TBA
+            </h3>
+        </div>
+
+        @* View 1: All Agents View *@
+        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toView2()" data-ng-show="agent.view1">
+            <div class="agentNumber">{{agent.number}}</div>
+            <div class="numberOfWorkers">{{agent.numberOfWorkers}}</div>
+            <div class="machineName">{{agent.machineName}}</div>
+        </div>
+
+        @* View 2: All workers in 1 Agent *@
+        <div class="workerContainer" data-ng-repeat="agent in agents">
+            @* Displays the workers for a particular agent *@
+            <div class="col-md-4" id="{{worker.state}}" data-ng-click="toView3()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.view2">
+                <div class="workerNumber">{{worker.id}}</div>
+                <button type="button" class="removeButton" data-ng-click="killWorker(agent.id)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+                <div class="numberOfConnections">TBA</div>
+            </div>
+
+            @* Start worker button *@
+            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.view2">
+                <div class="glyphicon-plus"></div>
+            </div>
+        </div>
     </div>
 
-    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="max-height:400px; overflow:auto; border:solid">
+
+
+    @*/////////////////////////////////Old Stuff///////////////////////////////////////////////*@
+    @*<h3>Remote Control</h3>
+        <div class="jumbotron" style="min-width:800px;">
+            <table class="table" id="uiView" style="border:solid; width:100%; font-size:1em">
+                <tr style="border:solid;">
+                    <th style="border:solid; width:20%">Agent Id</th>
+                    <th style="border:solid; width:20%">Number of Workers</th>
+                    <th style="border:solid; width:20%">Start Workers</th>
+                    <th style="border:solid; width:40%">Current Workers</th>
+                </tr>
+                <tr style="border:solid;" data-ng-repeat="agent in agents">
+                    <td style="border:solid;" data-ng-click="toggleview1_2()" data-ng-show="agent.view1">
+                        <div data-closeclick="true" style="width:100px; display:inline-block; margin-right:10px;">{{agent.number}}</div>
+                        <button class="button" style="display:inline-block;" data-ng-click="showAgentLogging()">Logging</button>
+                        <button class="button" style="display:inline-block;" data-ng-click="pingAgent(agent.id)">Ping</button>
+                    </td>
+                    <td style="border:solid;" data-ng-click="toggleview1_2()" data-ng-show="agent.view2">
+                        <div data-ng-repeat="worker in agent.workers">
+                            <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
+                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
+                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
+                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
+                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
+                        </div>
+                    </td>
+                    <td style="border:solid;">{{agent.numberOfWorkers}}</td>
+                    <td style="border:solid;">
+                        <div>
+                            Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToStart">
+                            <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
+                        </div>
+                        <div>
+                            Workers to Kill: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToKill">
+                            <input class="button" type="submit" value="Kill Workers" data-ng-click="killWorkers()">
+                        </div>
+                    </td>
+                    <td style="border:solid;">
+                        <div data-ng-repeat="worker in agent.workers">
+                                <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
+                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
+                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
+                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
+                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
+                            </div>
+                    </td>
+                </tr>
+            </table>
+        </div>*@
+
+    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="max-height:400px; overflow:auto;">
         <ul data-ng-repeat="agentLogging in agent.output track by $index">{{agentLogging}}</ul>
     </div>
 
-    <div data-ng-repeat="agent in agents" style="max-height:400px; overflow:auto; border:solid">
-        <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display" style="border: dashed">
+    <div data-ng-repeat="agent in agents" style="max-height:400px; overflow:auto;">
+        <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display">
             <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
         </div>
     </div>
