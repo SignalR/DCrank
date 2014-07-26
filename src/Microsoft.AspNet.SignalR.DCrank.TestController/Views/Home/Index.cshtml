@@ -58,57 +58,6 @@
         </div>
     </div>
 
-
-
-    @*/////////////////////////////////Old Stuff///////////////////////////////////////////////*@
-    @*<h3>Remote Control</h3>
-        <div class="jumbotron" style="min-width:800px;">
-            <table class="table" id="uiView" style="border:solid; width:100%; font-size:1em">
-                <tr style="border:solid;">
-                    <th style="border:solid; width:20%">Agent Id</th>
-                    <th style="border:solid; width:20%">Number of Workers</th>
-                    <th style="border:solid; width:20%">Start Workers</th>
-                    <th style="border:solid; width:40%">Current Workers</th>
-                </tr>
-                <tr style="border:solid;" data-ng-repeat="agent in agents">
-                    <td style="border:solid;" data-ng-click="toggleview1_2()" data-ng-show="agent.view1">
-                        <div data-closeclick="true" style="width:100px; display:inline-block; margin-right:10px;">{{agent.number}}</div>
-                        <button class="button" style="display:inline-block;" data-ng-click="showAgentLogging()">Logging</button>
-                        <button class="button" style="display:inline-block;" data-ng-click="pingAgent(agent.id)">Ping</button>
-                    </td>
-                    <td style="border:solid;" data-ng-click="toggleview1_2()" data-ng-show="agent.view2">
-                        <div data-ng-repeat="worker in agent.workers">
-                            <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
-                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
-                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
-                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
-                            <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
-                        </div>
-                    </td>
-                    <td style="border:solid;">{{agent.numberOfWorkers}}</td>
-                    <td style="border:solid;">
-                        <div>
-                            Workers to Start: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToStart">
-                            <input class="button" type="submit" value="Start Workers" data-ng-click="startWorkers()">
-                        </div>
-                        <div>
-                            Workers to Kill: <input type="text" maxlength="5" size="5" data-ng-model="agent.workersToKill">
-                            <input class="button" type="submit" value="Kill Workers" data-ng-click="killWorkers()">
-                        </div>
-                    </td>
-                    <td style="border:solid;">
-                        <div data-ng-repeat="worker in agent.workers">
-                                <div style="width:100px; display:inline-block; margin-right:10px;">{{worker.id}}</div>
-                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="pingWorker(agent.id)">Ping</button>
-                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="showWorkerLogging()">Logging</button>
-                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="killWorker(agent.id)">Kill</button>
-                                <button class="button" style="width:100px; display:inline-block;" data-ng-click="stopWorker(agent.id)">Stop</button>
-                            </div>
-                    </td>
-                </tr>
-            </table>
-        </div>*@
-
     <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="max-height:400px; overflow:auto;">
         <ul data-ng-repeat="agentLogging in agent.output track by $index">{{agentLogging}}</ul>
     </div>
