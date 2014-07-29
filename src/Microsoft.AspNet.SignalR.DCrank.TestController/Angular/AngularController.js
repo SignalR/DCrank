@@ -260,7 +260,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.agents[agentIndex].state = 'functionalAgent';
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
-                var workerId = listOfWorkers[i]
+                var workerId = listOfWorkers[i].Id;
                 $scope.workerConnected(agentId, workerId);
             }
             if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {

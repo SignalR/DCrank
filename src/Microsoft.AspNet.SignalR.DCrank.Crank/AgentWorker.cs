@@ -8,21 +8,25 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class AgentWorker
     {
-        private Process _workerProcess;
-        private ProcessStartInfo _workerProcessStartInfo;
+        private readonly Process _workerProcess;
 
         public AgentWorker(ProcessStartInfo startInfo)
         {
-            _workerProcessStartInfo = startInfo;
 
             _workerProcess = new Process();
-            _workerProcess.StartInfo = _workerProcessStartInfo;
+            _workerProcess.StartInfo = startInfo;
             _workerProcess.EnableRaisingEvents = true;
             _workerProcess.OutputDataReceived += OnOutputDataReceived;
             _workerProcess.Exited += OnExited;
         }
 
         public int Id { get; private set; }
+
+        public int ConnectedCount { get; set; }
+
+        public int DisconnectedCount { get; set; }
+
+        public int ReconnectedCount { get; set; }
 
         public Action<int, Message> OnMessage;
 

@@ -67,7 +67,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                                 await InvokeController("agentHeartbeat", new
                                 {
                                     HostName = _hostName,
-                                    Workers = _workers.Keys
+                                    Workers = _workers.Values.Select(worker => new
+                                    {
+                                        Id = worker.Id,
+                                        ConnectedCount = worker.ConnectedCount,
+                                        DisconnectedCount = worker.DisconnectedCount,
+                                        ReconnectedCount = worker.ReconnectedCount
+                                    })
                                 });
 
                                 await Task.Delay(1000);
@@ -207,6 +213,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                 case "log":
                     LogWorker(id, message.Value.ToObject<string>());
+                    break;
+                case "status":
+                    LogAgent("Agent received status message from Worker {0} with value {1}.", id, message.Value);
+                    var worker = _workers[id];
+                    worker.ConnectedCount = JsonConvert.DeserializeObject<int>(message.Value["ConnectedCount"].ToString());
+                    worker.DisconnectedCount = JsonConvert.DeserializeObject<int>(message.Value["DisconnectedCount"].ToString());
+                    worker.ReconnectedCount = JsonConvert.DeserializeObject<int>(message.Value["ReconnectingCount"].ToString());
                     break;
             }
         }

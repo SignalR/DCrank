@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,6 +25,22 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _agentProcess.Exited += OnExited;
 
             Log("Worker created");
+
+            var updateThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    Send("status", new
+                    {
+                        ConnectedCount = (_client.ConnectionState == ConnectionState.Connected)? 1 : 0,
+                        DisconnectedCount = (_client.ConnectionState == ConnectionState.Disconnected) ? 1 : 0,
+                        ReconnectingCount = (_client.ConnectionState == ConnectionState.Reconnecting) ? 1 : 0
+                    });
+                    Thread.Sleep(1000);
+                }
+            });
+
+            updateThread.Start();
 
             while (true)
             {
@@ -99,7 +117,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(value)
             };
 
-            string messageString = JsonConvert.SerializeObject(message);
+            var messageString = JsonConvert.SerializeObject(message);
             await Console.Out.WriteLineAsync(messageString);
         }
     }
