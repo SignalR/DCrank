@@ -11,30 +11,34 @@
 </head>
 <body class="container">
     <h1>Hud</h1>
-
-    <h3>Target Application</h3>
-
-    <div class="staticInput" style="max-height:400px; overflow:auto; min-width: 800px;">
-        <div>Target URL <input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
-        <div>Messages Per Second <input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
-        <div>Mesage Size (Bytes) <input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
-        <div><input class="button" type="submit" data-ng-click="sendTestInfo()" value="Start Test" /></div>
+    <div id="headingContainer">
+        <h3 id="title">Target Application</h3>
+        <div id="toggle" class="onoffswitch">
+            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" data-ng-model="autoTesting">
+            <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+            </label>
+        </div>
+    </div>
+    <div class="staticInput">
+        <div>Target URL<input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
+        <div>Messages Per Second<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
+        <div>Mesage Size (Bytes)<input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
+        <div data-ng-show="autoTesting">Number of Connections<input class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
+        <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="sendTestInfo()" value="Start Test" /></div>
     </div>
 
     <h3>Navigation</h3>
     <div class="hud" data-ng-click="backOut()">
         @* Permanent View *@
         <div class="dashboard">
-            <h3 class="left">
-                {{currentView}}
-            </h3>
-            <h3 class="right">
-                Connections: TBA
-            </h3>
+            <h3 class="left">{{currentView}}</h3>
+            <h3 class="right">Connections: TBA</h3>
         </div>
 
         @* View 1: All Agents View *@
-        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toView2()" data-ng-show="agent.view1">
+        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toView2()" data-ng-show="displayView1 && agent.view1">
             <div class="agentNumber">{{agent.number}}</div>
             <div class="numberOfWorkers">{{agent.numberOfWorkers}}</div>
             <div class="machineName">{{agent.machineName}}</div>
@@ -45,26 +49,28 @@
             @* Displays the workers for a particular agent *@
             <div class="col-md-4" id="{{worker.state}}" data-ng-click="toView3()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.view2">
                 <div class="workerNumber">{{worker.id}}</div>
-                <button type="button" class="removeButton" data-ng-click="killWorker(agent.id)">
-                    <span class="glyphicon glyphicon-remove"></span>
-                </button>
+                <div class="removeButtonContainer" onclick="kill()" data-ng-click="killWorker(agent.id)">
+                    <input type="checkbox" class="removeCheckbox">
+                    <div class="glyphicon glyphicon-remove"></div>
+                </div>
                 <div class="numberOfConnections">TBA</div>
             </div>
 
             @* Start worker button *@
-            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.view2">
+            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.view2 && !autoTesting">
                 <div class="glyphicon-plus"></div>
             </div>
         </div>
-    </div>
 
-    <div data-ng-repeat="agent in agents" data-ng-show="agent.display" style="max-height:400px; overflow:auto;">
-        <ul data-ng-repeat="agentLogging in agent.output track by $index">{{agentLogging}}</ul>
-    </div>
-
-    <div data-ng-repeat="agent in agents" style="max-height:400px; overflow:auto;">
-        <div data-ng-repeat="worker in agent.workers" data-ng-show="worker.display">
-            <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
+        @* View 3: All logging for 1 worker *@
+        <div class="loggingContainer" data-ng-repeat="agent in agents">
+            <div class="col-md-6" id="logging" onclick="event.stopPropagation()" data-ng-repeat="worker in agent.workers" data-ng-show="worker.view3">
+                <div class="workerId">{{worker.id}}</div>
+                <div class="currentConnections">TBA</div>
+                <div class="log">
+                    <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,6 +94,12 @@
             $.connection.hub.qs = { UI: 1 };
             $.connection.hub.start().done(function () {
             });
+
+            function kill() {
+                event.stopPropagation();
+                var workerObject = event.target.parentNode.parentNode;
+                workerObject.classList.add("dyingWorker");
+            }
         </script>
     }
 </body>

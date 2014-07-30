@@ -28,22 +28,22 @@
     min-width: 800px;
     font-family: 'Segoe UI';
     color: white;
-    background-color: #bbd8e9;
+    background-color: #428bca;
     padding: 20px;
     border-radius: 5px;
 }
 
-    .dashboard .left {
-        display: inline;
-        margin: 20px;
-        float: left;
-    }
+.left {
+    display: inline;
+    margin: 20px;
+    float: left;
+}
 
-    .dashboard .right {
-        display: inline;
-        margin: 20px;
-        float: right;
-    }
+.right {
+    display: inline;
+    margin: 20px;
+    float: right;
+}
 
 /* Formats the agents */
 #functionalAgent {
@@ -55,26 +55,8 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
+    cursor: pointer;
 }
-
-    #functionalAgent .numberOfWorkers {
-        align-content: center;
-        text-align: center;
-        font-size: 70px;
-        font-family: 'Segoe UI';
-    }
-
-    #functionalAgent .agentNumber {
-        font-size: 15px;
-        align-self: inherit;
-        font-family: 'Segoe UI';
-    }
-
-    #functionalAgent .machineName {
-        font-size: 15px;
-        float: right;
-        font-family: 'Segoe UI';
-    }
 
 #deadAgent {
     display: inline-block;
@@ -85,27 +67,8 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
+    cursor: pointer;
 }
-
-    #deadAgent .numberOfWorkers {
-        align-content: center;
-        text-align: center;
-        font-size: 70px;
-        font-family: 'Segoe UI';
-    }
-
-    #deadAgent .agentNumber {
-        font-size: 15px;
-        align-self: inherit;
-        font-family: 'Segoe UI';
-    }
-
-    #deadAgent .machineName {
-        font-size: 15px;
-        float: right;
-        font-family: 'Segoe UI';
-    }
-
 
 #malfunctioningAgent {
     display: inline-block;
@@ -116,26 +79,27 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
-    #malfunctioningAgent .numberOfWorkers {
-        align-content: center;
-        text-align: center;
-        font-size: 70px;
-        font-family: 'Segoe UI';
-    }
+.numberOfWorkers {
+    align-content: center;
+    text-align: center;
+    font-size: 70px;
+    font-family: 'Segoe UI';
+}
 
-    #malfunctioningAgent .agentNumber {
-        font-size: 15px;
-        align-self: inherit;
-        font-family: 'Segoe UI';
-    }
+.agentNumber {
+    font-size: 15px;
+    align-self: inherit;
+    font-family: 'Segoe UI';
+}
 
-    #malfunctioningAgent .machineName {
-        font-size: 15px;
-        float: right;
-        font-family: 'Segoe UI';
-    }
+.machineName {
+    font-size: 15px;
+    float: right;
+    font-family: 'Segoe UI';
+}
 
 /* Add agent button */
 #addAgentButton {
@@ -147,13 +111,14 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
-    #addAgentButton .glyphicon-plus {
-        align-content: center;
-        text-align: center;
-        font-size: 70px;
-    }
+.glyphicon-plus {
+    align-content: center;
+    text-align: center;
+    font-size: 70px;
+}
 
 /* Worker container */
 .workerContainer {
@@ -173,34 +138,8 @@
     padding: 20px;
     border-radius: 5px;
     position: relative;
+    cursor: pointer;
 }
-
-    #functionalWorker .removeButton {
-        float: right;
-        display: inline;
-        height: 15px;
-        width: 15px;
-        background-color: #009A31;
-        border:none;
-    }
-
-    #functionalWorker .removeButton .glyphicon-remove {
-        font-size: 15px;
-    }
-
-    #functionalWorker .numberOfConnections {
-        align-content: center;
-        text-align: center;
-        font-size: 70px;
-        font-family: 'Segoe UI';
-    }
-
-    #functionalWorker .workerNumber {
-        font-size: 15px;
-        display: inline;
-        float: left;
-        font-family: 'Segoe UI';
-    }
 
 #deadWorker {
     display: inline-block;
@@ -211,6 +150,7 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 #malfunctioningWorker {
@@ -222,34 +162,212 @@
     color: white;
     padding: 20px;
     border-radius: 5px;
-}
-
-/* Formats the start worker div */
-.startWorker {
-    font-size: 20px;
-    min-width: 800px;
-    padding: 40px;
-}
-
-.button {
-    background-color: #bbd8e9;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 6px;
-    color: #fff;
-    font-family: 'Segoe UI';
-    font-size: 20px;
-    text-decoration: none;
     cursor: pointer;
-    border: none;
-    width: 150px;
 }
 
-    .button:hover {
-        border: none;
-        background: #009A31;
-        box-shadow: 0px 0px 1px #777;
+
+.removeButtonContainer {
+    float: right;
+    display: inline;
+    height: 25px;
+    width: 25px;
+}
+
+    .removeButtonContainer .removeCheckbox {
+        display: none;
     }
+
+    .removeButtonContainer .glyphicon-remove {
+        font-size: 15px;
+    }
+
+.numberOfConnections {
+    align-content: center;
+    text-align: center;
+    font-size: 70px;
+    font-family: 'Segoe UI';
+}
+
+.workerNumber {
+    font-size: 15px;
+    display: inline;
+    float: left;
+    font-family: 'Segoe UI';
+}
+
+/* Formats the connections and logging view */
+.loggingContainer {
+    float: left;
+    overflow: auto;
+    position: relative;
+}
+
+#logging {
+    display: inline-block;
+    background-color: black;
+    min-width: 800px;
+    min-height: 450px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    width: inherit;
+}
+
+    #logging .workerId {
+        float: left;
+        display: inline;
+    }
+
+    #logging .currentConnections {
+        float: right;
+        display: inline;
+    }
+
+    #logging .log {
+        break-before: always;
+        display: inline-block;
+        font-size: 14px;
+        font-family: 'Segoe UI';
+        min-height: 400px;
+        max-height: 400px;
+        width: 100%;
+        overflow: auto;
+    }
+
+/* Animation for the divs */
+.dyingWorker {
+    animation: dying 1s;
+    -webkit-animation: dying 1s;
+}
+
+@keyframes dying {
+    0% {
+        background-color: green;
+        opacity: 1;
+    }
+
+    50% {
+        background-color: red;
+        opacity: .5;
+    }
+
+    100% {
+        background-color: black;
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes dying {
+    0% {
+        background-color: green;
+        opacity: 1;
+    }
+
+    50% {
+        background-color: red;
+        opacity: .5;
+    }
+
+    100% {
+        background-color: black;
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes thumb {
+    0% {
+        -webkit-transform: scale(1);
+    }
+
+    50% {
+        -webkit-transform: scale(0.9);
+    }
+
+    100% {
+        -webkit-transform: scale(1);
+    }
+}
+
+#functionalAgent:hover {
+    -webkit-animation-name: thumb;
+    -webkit-animation-duration: 400ms;
+    -webkit-transform-origin: 50% 50%;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+}
+
+/* Animation for spinning up a worker? */
+#spinningUp {
+    display: inline-block;
+    background-color: #009A31;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    -webkit-animation-name: spin;
+    -webkit-animation-duration: 400ms;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spin;
+    -moz-animation-duration: 400ms;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -ms-animation-name: spin;
+    -ms-animation-duration: 400ms;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
+    animation-name: spin;
+    animation-duration: 400ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@-ms-keyframes spin {
+    from {
+        -ms-transform: rotate(0deg);
+    }
+
+    to {
+        -ms-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes spin {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 /* Formats the input form */
 .staticInput {
@@ -279,33 +397,140 @@
         margin: 10px;
         padding: 5px;
         display: block;
-        border: 1px solid #bbd8e9;
+        border: 1px solid #428bca;
         height: 35px;
         -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
         -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
         box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
     }
 
-    .staticInput .button {
-        width: 150px;
-        display: block;
-        background-color: #bbd8e9;
+    .staticInput #startTest {
+        width: 375px;
+        background-color: #009A31;
         -moz-border-radius: 5px;
         -webkit-border-radius: 5px;
         border-radius: 6px;
         color: #fff;
         font-family: 'Segoe UI';
         font-size: 20px;
-        text-decoration: none;
         cursor: pointer;
-        border: none;
-        width: 150px;
-        margin: 15px;
-        margin-left: 0px;
+        margin: 10px;
+        padding: 4px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
     }
 
-        .staticInput .button:hover {
-            border: none;
-            background: #009A31;
+        .staticInput #startTest:hover {
+            background: #0ad049;
             box-shadow: 0px 0px 1px #777;
         }
+
+/* Formats the toggle for the auto and manual states */
+#headingContainer {
+    margin: auto;
+    position: relative;
+    min-width: 800px;
+    overflow: auto;
+}
+
+    #headingContainer #title {
+        float: left;
+    }
+
+    #headingContainer #toggle {
+        float: right;
+    }
+
+.onoffswitch {
+    position: relative;
+    width: 120px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.onoffswitch-checkbox {
+    display: none;
+}
+
+.onoffswitch-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #666666;
+    border-radius: 5px;
+    -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+}
+
+.onoffswitch-inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    -moz-transition: margin 0.3s ease-in 0s;
+    -webkit-transition: margin 0.3s ease-in 0s;
+    -o-transition: margin 0.3s ease-in 0s;
+    transition: margin 0.3s ease-in 0s;
+}
+
+    .onoffswitch-inner:before, .onoffswitch-inner:after {
+        display: block;
+        float: left;
+        width: 50%;
+        height: 40px;
+        line-height: 40px;
+        font-size: 16px;
+        color: white;
+        font-family: 'Segoe UI';
+        font-weight: bold;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .onoffswitch-inner:before {
+        content: 'Auto';
+        padding-left: 10px;
+        background-color: #428bca;
+        color: #FFFFFF;
+    }
+
+    .onoffswitch-inner:after {
+        content: 'Manual';
+        padding-right: 10px;
+        background-color: #F8F8F8;
+        color: #666666;
+        text-align: right;
+    }
+
+.onoffswitch-switch {
+    display: block;
+    width: 38px;
+    height: 44px;
+    margin: 1px;
+    background: #FFFFFF;
+    border: 2px solid #666666;
+    border-radius: 5px;
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    right: 82px;
+    -moz-transition: all 0.3s ease-in 0s;
+    -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s;
+    transition: all 0.3s ease-in 0s;
+    background-image: -moz-linear-gradient(center top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+    background-image: -webkit-linear-gradient(center top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+    background-image: -o-linear-gradient(center top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+    background-image: linear-gradient(center top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px;
+}
