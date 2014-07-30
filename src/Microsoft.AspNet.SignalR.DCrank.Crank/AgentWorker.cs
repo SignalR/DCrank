@@ -12,7 +12,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public AgentWorker(ProcessStartInfo startInfo)
         {
-
             _workerProcess = new Process();
             _workerProcess.StartInfo = startInfo;
             _workerProcess.EnableRaisingEvents = true;
@@ -34,7 +33,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Action<int> OnExit;
 
-        public bool Start()
+        public bool Start(int numberOfConnectionsPerWorker)
         {
             bool success = _workerProcess.Start();
 
@@ -86,7 +85,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             OnExit(Id);
         }
-
 
         private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {

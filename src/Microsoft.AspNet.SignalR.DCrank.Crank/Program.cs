@@ -11,9 +11,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 var agent = new Agent();
                 agent.Run();
             }
-            else if (args.Length == 2 && string.Equals(args[0], "worker", StringComparison.OrdinalIgnoreCase))
+            else if (args.Length == 3 && string.Equals(args[0], "worker", StringComparison.OrdinalIgnoreCase))
             {
-                var worker = new Worker(Convert.ToInt32(args[1]));
+                var worker = new Worker(Convert.ToInt32(args[1]), Convert.ToInt32(args[2]));
                 worker.Run().Wait();
             }
             else

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +13,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Worker
     {
         private readonly Process _agentProcess;
-        private Client _client;
+        private ICollection<Client> _clients;
 
-        public Worker(int agentProcessId)
+        public Worker(int agentProcessId, int numberOfConnections)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
-            _client = new Client();
+            _clients = new List<Client>();
+
+            for (int count = 0; count < numberOfConnections; count++)
+            {
+                _clients.Add(new Client());
+            }
         }
 
         public async Task Run()
@@ -30,12 +37,31 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 while (true)
                 {
+                    int connectedCount = 0, disconnectedCount = 0, reconnectingCount = 0;
+
+                    foreach (var client in _clients)
+                    {
+                        switch (client.ConnectionState)
+                        {
+                            case ConnectionState.Connected:
+                                connectedCount++;
+                                break;
+                            case ConnectionState.Disconnected:
+                                disconnectedCount++;
+                                break;
+                            case ConnectionState.Reconnecting:
+                                reconnectingCount++;
+                                break;
+                        }
+                    }
+
                     Send("status", new
                     {
-                        ConnectedCount = (_client.ConnectionState == ConnectionState.Connected)? 1 : 0,
-                        DisconnectedCount = (_client.ConnectionState == ConnectionState.Disconnected) ? 1 : 0,
-                        ReconnectingCount = (_client.ConnectionState == ConnectionState.Reconnecting) ? 1 : 0
+                        ConnectedCount = connectedCount,
+                        DisconnectedCount = disconnectedCount,
+                        ReconnectingCount = reconnectingCount
                     });
+
                     Thread.Sleep(1000);
                 }
             });
@@ -65,20 +91,26 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             Log("Worker received {0} command with value.", message.Command);
 
-                            _client.OnMessage += OnMessage;
-                            _client.OnClosed += OnClosed;
+                            foreach (var client in _clients)
+                            {
+                                client.OnMessage += OnMessage;
+                                client.OnClosed += OnClosed;
 
-                            await _client.CreateConnection(crankArguments);
-                            Log("Connection started succesfully");
+                                await client.CreateConnection(crankArguments);
+                                client.StartTest(crankArguments);
+                            }
 
-                            _client.StartTest(crankArguments);
-
+                            Log("Connections started succesfully");
                             break;
 
                         case "stop":
-                            _client.StopConnection();
-                            Log("Connection stopped succesfully");
+                            foreach (var client in _clients)
+                            {
+                                client.StopConnection();
+                            }
 
+                            _clients.Clear();
+                            Log("Connections stopped succesfully");
                             break;
                     }
                 }

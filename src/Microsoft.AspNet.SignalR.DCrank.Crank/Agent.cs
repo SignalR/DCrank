@@ -94,11 +94,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private AgentWorker StartWorker()
+        private AgentWorker StartWorker(int numberOfConnectionsPerWorker)
         {
             var worker = new AgentWorker(_startInfo);
 
-            worker.Start();
+            worker.Start(numberOfConnectionsPerWorker);
 
             worker.OnMessage += OnMessage;
             worker.OnError += OnError;
@@ -117,10 +117,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 InvokeController("pongAgent", value);
             });
 
-            _proxy.On<int>("startWorker", numberOfWorkers =>
+            _proxy.On<int, int>("startWorkers", (numberOfWorkers, numberOfConnectionsPerWorker) =>
             {
                 LogAgent("Agent received startWorker command for {0} workers.", numberOfWorkers);
-                StartWorkers(numberOfWorkers);
+                StartWorkers(numberOfWorkers, numberOfConnectionsPerWorker);
             });
 
             _proxy.On<int>("killWorker", workerId =>
@@ -189,13 +189,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             });
         }
 
-        private void StartWorkers(int numberOfWorkers)
+        private void StartWorkers(int numberOfWorkers, int numberOfConnectionsPerWorker)
         {
             ThreadPool.QueueUserWorkItem(_ =>
             {
                 Parallel.For(0, numberOfWorkers, index =>
                 {
-                    var worker = StartWorker();
+                    var worker = StartWorker(numberOfConnectionsPerWorker);
 
                     LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
                 });

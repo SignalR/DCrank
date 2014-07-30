@@ -5,6 +5,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     public class ControllerHub : Hub
     {
         private readonly string _uiGroup = "Dashboard";
+        private readonly int numberOfWorkersPerAgent = 3;
 
         public override async Task OnConnected()
         {
@@ -40,9 +41,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.agentConnected(Context.ConnectionId, heartbeatInformation);
         }
 
-        public void StartWorker(string connectionId, int numberOfWorkersToStart)
+        public void StartWorker(string connectionId, int numberOfWorkersToStart, int numberOfConnectionsPerWorker)
         {
-            Clients.Client(connectionId).startWorker(numberOfWorkersToStart);
+            Clients.Client(connectionId).startWorkers(numberOfWorkersToStart, numberOfConnectionsPerWorker);
         }
 
         public void KillWorker(string agentId, int workerId)
@@ -60,8 +61,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.Client(agentId).killWorkers(numberOfWorkersToKill);
         }
 
-        public void SendTestInfo(string targetAddress, int messageSize, int messageRate)
+        public void SendTestInfoManual(string targetAddress, int messageSize, int messageRate)
         {
+            Clients.All.startTest(targetAddress, messageSize, messageRate);
+        }
+
+        public void SendTestInfoAuto(string targetAddress, int messageSize, int messageRate, int numberOfConnections, int numberOfAgents)
+        {
+            int numberOfConnectionsPerWorker = numberOfConnections / (numberOfWorkersPerAgent * numberOfAgents);
+            Clients.All.startWorkers(numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
+
             Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
