@@ -32,15 +32,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public async Task Run()
         {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    Log("Doing stuff {0}", DateTime.UtcNow);
-                    await Task.Delay(3000);
-                }
-            });
-
             _agentProcess.EnableRaisingEvents = true;
             _agentProcess.Exited += OnExited;
 
