@@ -245,34 +245,28 @@
 
 @keyframes dying {
     0% {
-        background-color: green;
         opacity: 1;
     }
 
     50% {
-        background-color: red;
         opacity: .5;
     }
 
     100% {
-        background-color: black;
         opacity: 0;
     }
 }
 
 @-webkit-keyframes dying {
     0% {
-        background-color: green;
         opacity: 1;
     }
 
     50% {
-        background-color: red;
         opacity: .5;
     }
 
     100% {
-        background-color: black;
         opacity: 0;
     }
 }
