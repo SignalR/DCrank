@@ -5,7 +5,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     public class ControllerHub : Hub
     {
         private readonly string _uiGroup = "Dashboard";
-        private readonly int numberOfWorkersPerAgent = 3;
+        private readonly int numberOfWorkersPerAgent = 3; // Default value - can be changed/made configurable as needed
 
         public override async Task OnConnected()
         {
