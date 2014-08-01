@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -15,8 +16,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private const string _url = "http://localhost:17063";
         private const string _fileName = "crank.exe";
         private const string _hubName = "ControllerHub";
-        private readonly ProcessStartInfo _startInfo;
-        private readonly Dictionary<int, AgentWorker> _workers;
+        private readonly ConcurrentDictionary<int, AgentWorker> _workers;
         private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
@@ -27,18 +27,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             _hostName = Dns.GetHostName();
 
-            _startInfo = new ProcessStartInfo()
-            {
-                FileName = _fileName,
-                Arguments = string.Format("worker {0}", Process.GetCurrentProcess().Id),
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-
-            _workers = new Dictionary<int, AgentWorker>();
+            _workers = new ConcurrentDictionary<int, AgentWorker>();
 
             Trace.WriteLine("Agent created");
         }
@@ -96,15 +85,26 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private AgentWorker StartWorker(int numberOfConnectionsPerWorker)
         {
-            var worker = new AgentWorker(_startInfo);
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = _fileName,
+                Arguments = string.Format("worker {0} {1}", Process.GetCurrentProcess().Id, numberOfConnectionsPerWorker),
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
 
-            worker.Start(numberOfConnectionsPerWorker);
+            var worker = new AgentWorker(startInfo);
+
+            worker.Start();
 
             worker.OnMessage += OnMessage;
             worker.OnError += OnError;
             worker.OnExit += OnExit;
 
-            _workers.Add(worker.Id, worker);
+            _workers.TryAdd(worker.Id, worker);
 
             return worker;
         }
@@ -132,7 +132,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 if (_workers.TryGetValue(workerId, out worker))
                 {
                     worker.Kill();
-                    _workers.Remove(workerId);
+                    _workers.TryRemove(workerId, out worker);
                     LogAgent("Agent killed Worker {0}.", workerId);
                 }
             });
@@ -149,7 +149,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     if (_workers.TryGetValue(key, out worker))
                     {
                         worker.Kill();
-                        _workers.Remove(key);
+                        _workers.TryRemove(key, out worker);
                         LogAgent("Agent killed Worker {0}.", key);
                     }
                 }
@@ -184,8 +184,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             _proxy.On<int>("stopWorker", async workerId =>
             {
+                AgentWorker worker;
                 await _workers[workerId].Stop();
-                _workers.Remove(workerId);
+                _workers.TryRemove(workerId, out worker);
             });
         }
 
@@ -214,6 +215,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 case "log":
                     LogWorker(id, message.Value.ToObject<string>());
                     break;
+
                 case "status":
                     LogAgent("Agent received status message from Worker {0} with value {1}.", id, message.Value);
                     var worker = _workers[id];
@@ -224,15 +226,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private void OnError(int id, Exception ex)
+        private void OnError(int workerId, Exception ex)
         {
-            _workers.Remove(id);
-            LogWorker(id, ex.Message);
+            AgentWorker worker;
+            _workers.TryRemove(workerId, out worker);
+            LogWorker(workerId, ex.Message);
         }
 
         private void OnExit(int workerId)
         {
-            _workers.Remove(workerId);
+            AgentWorker worker;
+            _workers.TryRemove(workerId, out worker);
         }
 
         private async void LogWorker(int workerId, string format, params object[] arguments)

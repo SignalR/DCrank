@@ -1,4 +1,5 @@
 ﻿
+using System.Threading;
 using System.Threading.Tasks;
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
@@ -68,10 +69,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void SendTestInfoAuto(string targetAddress, int messageSize, int messageRate, int numberOfConnections, int numberOfAgents)
         {
-            int numberOfConnectionsPerWorker = numberOfConnections / (numberOfWorkersPerAgent * numberOfAgents);
-            Clients.All.startWorkers(numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
-
-            Clients.All.startTest(targetAddress, messageSize, messageRate);
+            if (numberOfConnections != 0 && numberOfAgents != 0)
+            {
+                int numberOfConnectionsPerWorker = numberOfConnections / (numberOfWorkersPerAgent * numberOfAgents);
+                Clients.All.startWorkers(numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
+                Clients.All.startTest(targetAddress, messageSize, messageRate);
+            }
         }
 
         public void LogAgent(string message)

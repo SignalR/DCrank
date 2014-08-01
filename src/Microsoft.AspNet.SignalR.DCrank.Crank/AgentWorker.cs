@@ -33,7 +33,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Action<int> OnExit;
 
-        public bool Start(int numberOfConnectionsPerWorker)
+        public bool Start()
         {
             bool success = _workerProcess.Start();
 
