@@ -23,7 +23,7 @@
     </div>
     <div class="staticInput">
         <div>Target URL<input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
-        <div>Messages Per Second<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
+        <div>Messages Per Second Per Connection<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
         <div>Mesage Size (Bytes)<input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
         <div data-ng-show="autoTesting">Number of Connections<input class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
         <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="sendTestInfo()" value="Start Test" /></div>

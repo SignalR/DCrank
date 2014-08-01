@@ -28,14 +28,14 @@ angularModule.service('signalRSvc', function ($rootScope) {
         });
 
         this.proxy.on('workersLog', function (agentId, workerId, message) {
-            $rootScope.$emit('workersLog', agentId, workerId, message);
+            setTimeout($rootScope.$emit('workersLog', agentId, workerId, message), 1000);
         });
 
         connection.start();
     };
 
-    var startWorker = function (agentId, numberOfWorkers) {
-        this.proxy.invoke('startWorker', agentId, numberOfWorkers);
+    var startWorker = function (agentId, numberOfWorkers, numberOfConnections) {
+        this.proxy.invoke('startWorker', agentId, numberOfWorkers, numberOfConnections);
     };
 
     var pingAgent = function (agentId) {
@@ -254,14 +254,16 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             output: [],
             view3: false,
             state: 'spinningUp',
-            display: false
+            display: false,
+            numberOfConnections: 1
         };
         $scope.currentAgentInView.workers.push(worker);
         $scope.currentAgentInView.numberOfWorkers += 1;
         var agentId = $scope.currentAgentInView.id;
         var workersToStart = 1;
         this.agent.workersToStart = 0;
-        signalRSvc.startWorker(agentId, workersToStart);
+        var numberOfConnections = worker.numberOfConnections;
+        signalRSvc.startWorker(agentId, workersToStart, numberOfConnections);
     };
 
     $scope.pingAgent = function (agentId) {
@@ -294,7 +296,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     view1: true,
                     view2: false,
                     state: 'functionalAgent',
-                    machineName: 'N/A',
+                    machineName: heartbeatInformation.HostName,
                     selfdestruct: setTimeout(function () { $scope.timeOut(agentIndex) }, 5000)
                 };
                 $scope.agents.push(agent);
@@ -306,7 +308,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
                 var workerId = listOfWorkers[i].Id;
-                $scope.workerConnected(agentId, workerId);
+                $scope.workerConnected(agentId, workerId, listOfWorkers[i].ConnectedCount);
             }
             if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {
                 $scope.deadWorkers(agentIndex, listOfWorkers);
@@ -318,7 +320,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         });
     });
 
-    $scope.workerConnected = function (agentId, workerId) {
+    $scope.workerConnected = function (agentId, workerId, connectionCount) {
         var newWorker = true;
         var agentIndex;
         for (var index = 0; index < $scope.agents.length; index++) {
@@ -337,7 +339,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 output: [],
                 view3: false,
                 state: 'functionalWorker',
-                display: false
+                display: false,
+                numberOfConnections: connectionCount
             };
             $scope.agents[agentIndex].numberOfWorkers += 1;
             $scope.agents[agentIndex].workers.push(worker);
@@ -401,6 +404,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.$parent.$on('workersLog', function (e, agentId, workerId, message) {
         $scope.$apply(function () {
+
             var agentIndex;
             var workerIndex;
             for (var index = 0; index < $scope.agents.length; index++) {
