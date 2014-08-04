@@ -38,7 +38,7 @@
         </div>
 
         @* View 1: All Agents View *@
-        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toView2()" data-ng-show="displayView1 && agent.view1">
+        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toSingleAgentView()" data-ng-show="displayAllAgentsView && agent.allAgentsView">
             <div class="agentNumber">{{agent.number}}</div>
             <div class="numberOfWorkers">{{agent.numberOfWorkers}}</div>
             <div class="machineName">{{agent.machineName}}</div>
@@ -47,7 +47,7 @@
         @* View 2: All workers in 1 Agent *@
         <div class="workerContainer" data-ng-repeat="agent in agents">
             @* Displays the workers for a particular agent *@
-            <div class="col-md-4" id="{{worker.state}}" data-ng-click="toView3()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.view2">
+            <div class="col-md-4" id="{{worker.state}}" data-ng-click="toSingleWorkerView()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.singleAgentView">
                 <div class="workerNumber">{{worker.id}}</div>
                 <div class="removeButtonContainer" onclick="kill()" data-ng-click="killWorker(agent.id)">
                     <input type="checkbox" class="removeCheckbox">
@@ -57,14 +57,14 @@
             </div>
 
             @* Start worker button *@
-            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.view2 && !autoTesting">
+            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.singleAgentView && !autoTesting">
                 <div class="glyphicon-plus"></div>
             </div>
         </div>
 
         @* View 3: All logging for 1 worker *@
         <div class="loggingContainer" data-ng-repeat="agent in agents">
-            <div class="col-md-6" id="logging" onclick="event.stopPropagation()" data-ng-repeat="worker in agent.workers" data-ng-show="worker.view3">
+            <div class="col-md-6" id="logging" onclick="event.stopPropagation()" data-ng-repeat="worker in agent.workers" data-ng-show="worker.singleWorkerView">
                 <div class="workerId">{{worker.id}}</div>
                 <div class="currentConnections">TBA</div>
                 <div class="log">
