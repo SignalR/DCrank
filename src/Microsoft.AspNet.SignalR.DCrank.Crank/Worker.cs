@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -33,7 +32,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             Log("Worker created");
 
-            var updateThread = new Thread(() =>
+            Task.Run(() =>
             {
                 while (true)
                 {
@@ -65,8 +64,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     Thread.Sleep(1000);
                 }
             });
-
-            updateThread.Start();
 
             while (true)
             {

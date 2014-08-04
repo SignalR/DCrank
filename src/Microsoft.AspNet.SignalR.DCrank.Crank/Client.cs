@@ -10,12 +10,24 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private Connection _connection;
         private CancellationTokenSource _sendCts;
         private bool _sendInProgress;
-        private ConnectionState _connectionState = ConnectionState.Disconnected;
 
         public Action OnClosed;
         public Action<string> OnMessage;
 
-        public ConnectionState ConnectionState { get { return _connectionState; } }
+        public ConnectionState ConnectionState
+        {
+            get
+            {
+                if (_connection == null)
+                {
+                    return ConnectionState.Disconnected;
+                }
+                else
+                {
+                    return _connection.State;
+                }
+            }
+        }
 
         public async Task CreateConnection(CrankArguments arguments)
         {
@@ -25,7 +37,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             _connection.Received += OnMessage;
             _connection.Closed += OnClosed;
-            _connection.StateChanged += OnStateChanged;
 
             for (int connectCount = 0; connectCount < 3; connectCount++)
             {
@@ -56,10 +67,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private void OnStateChanged(StateChange stateChange)
-        {
-            _connectionState = stateChange.NewState;
-        }
 
         public async void StartTest(CrankArguments arguments)
         {
