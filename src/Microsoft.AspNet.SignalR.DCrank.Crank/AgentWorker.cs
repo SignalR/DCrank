@@ -68,7 +68,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         public async Task Stop()
         {
             await Send("stop", new object());
-            _workerProcess.Kill();
         }
 
         public async Task StartTest(string url, int sendBytes, int messagesPerSecond)

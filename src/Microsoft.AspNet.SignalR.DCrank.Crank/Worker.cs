@@ -21,7 +21,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             for (int count = 0; count < numberOfConnections; count++)
             {
-                _clients.Add(new Client());
+                var client = new Client();
+
+                client.OnMessage += OnMessage;
+                client.OnClosed += OnClosed;
+
+                _clients.Add(client);
             }
         }
 
@@ -32,40 +37,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             Log("Worker created");
 
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    int connectedCount = 0, disconnectedCount = 0, reconnectingCount = 0;
+            Task.Run(() => SendStatusUpdate());
 
-                    foreach (var client in _clients)
-                    {
-                        switch (client.ConnectionState)
-                        {
-                            case ConnectionState.Connected:
-                                connectedCount++;
-                                break;
-                            case ConnectionState.Disconnected:
-                                disconnectedCount++;
-                                break;
-                            case ConnectionState.Reconnecting:
-                                reconnectingCount++;
-                                break;
-                        }
-                    }
+            bool workerStopped = false;
 
-                    Send("status", new
-                    {
-                        ConnectedCount = connectedCount,
-                        DisconnectedCount = disconnectedCount,
-                        ReconnectingCount = reconnectingCount
-                    });
-
-                    Thread.Sleep(1000);
-                }
-            });
-
-            while (true)
+            while (!workerStopped)
             {
                 var messageString = await Console.In.ReadLineAsync();
                 var message = JsonConvert.DeserializeObject<Message>(messageString);
@@ -90,9 +66,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             foreach (var client in _clients)
                             {
-                                client.OnMessage += OnMessage;
-                                client.OnClosed += OnClosed;
-
                                 await client.CreateConnection(crankArguments);
                                 client.StartTest(crankArguments);
                             }
@@ -108,6 +81,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             _clients.Clear();
                             Log("Connections stopped succesfully");
+
+                            workerStopped = true;
                             break;
                     }
                 }
@@ -148,6 +123,40 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             var messageString = JsonConvert.SerializeObject(message);
             await Console.Out.WriteLineAsync(messageString);
+        }
+
+        private void SendStatusUpdate()
+        {
+            while (true)
+            {
+                int connectedCount = 0, disconnectedCount = 0, reconnectingCount = 0;
+
+                foreach (var client in _clients)
+                {
+                    switch (client.ConnectionState)
+                    {
+                        case ConnectionState.Connected:
+                            connectedCount++;
+                            break;
+                        case ConnectionState.Disconnected:
+                            disconnectedCount++;
+                            break;
+                        case ConnectionState.Reconnecting:
+                            reconnectingCount++;
+                            break;
+                    }
+                }
+
+                Send("status", new
+                {
+                    ConnectedCount = connectedCount,
+                    DisconnectedCount = disconnectedCount,
+                    ReconnectingCount = reconnectingCount
+                });
+
+                Thread.Sleep(1000);
+            }
+
         }
     }
 }

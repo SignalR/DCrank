@@ -20,6 +20,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
+        private AutoResetEvent _areWorkersStarted;
 
         public Agent()
         {
@@ -28,6 +29,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _hostName = Dns.GetHostName();
 
             _workers = new ConcurrentDictionary<int, AgentWorker>();
+
+            _areWorkersStarted = new AutoResetEvent(false);
 
             Trace.WriteLine("Agent created");
         }
@@ -176,10 +179,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received test information with target address: {0}, with message size: {1}, and messages sent per second: {2}.", targetAddress, messageSize, messagesPerSecond);
 
-                foreach (var worker in _workers.Values)
+                Task.Run(() =>
                 {
-                    worker.StartTest(targetAddress, messageSize, messagesPerSecond);
-                }
+                    _areWorkersStarted.WaitOne();
+
+                    foreach (var worker in _workers.Values)
+                    {
+                        worker.StartTest(targetAddress, messageSize, messagesPerSecond);
+                    }
+                });
             });
 
             _proxy.On<int>("stopWorker", async workerId =>
@@ -192,15 +200,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void StartWorkers(int numberOfWorkers, int numberOfConnectionsPerWorker)
         {
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                Parallel.For(0, numberOfWorkers, index =>
-                {
-                    var worker = StartWorker(numberOfConnectionsPerWorker);
+            Task.Run(() =>
+                       {
+                           Parallel.For(0, numberOfWorkers, index =>
+                           {
+                               var worker = StartWorker(numberOfConnectionsPerWorker);
 
-                    LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
-                });
-            });
+                               LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
+                           });
+
+                           _areWorkersStarted.Set();
+                       });
         }
 
         private void OnMessage(int id, Message message)
