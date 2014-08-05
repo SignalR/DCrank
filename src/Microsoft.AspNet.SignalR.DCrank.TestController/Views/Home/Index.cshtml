@@ -26,7 +26,9 @@
         <div>Messages Per Second Per Connection<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
         <div>Mesage Size (Bytes)<input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
         <div data-ng-show="autoTesting">Number of Connections<input class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
-        <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="sendTestInfo()" value="Start Test" /></div>
+        <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="sendTestInfo()" data-ng-hide="testRunning" value="Start Test" /></div>
+        <div><input id="stopTest" class="btn btn-default btn-lg" type="submit" data-ng-click="stopTestRun()" data-ng-show="testRunning" value="Stop Test" /></div>
+        <div><input id="rampUp" class="btn btn-default btn-lg" type="submit" data-ng-click="rampUp()" data-ng-show="testRunning" value="Ramp Up" /></div>
     </div>
 
     <h3>Navigation</h3>
@@ -34,7 +36,7 @@
         @* Permanent View *@
         <div class="dashboard">
             <h3 class="left">{{currentView}}</h3>
-            <h3 class="right">Connections: TBA</h3>
+            <h3 class="right">Connections: {{totalConnectionCount}}</h3>
         </div>
 
         @* View 1: All Agents View *@
@@ -53,7 +55,7 @@
                     <input type="checkbox" class="removeCheckbox">
                     <div class="glyphicon glyphicon-remove"></div>
                 </div>
-                <div class="numberOfConnections">TBA</div>
+                <div class="numberOfConnections">{{worker.numberOfConnections}}</div>
             </div>
 
             @* Start worker button *@
@@ -66,7 +68,7 @@
         <div class="loggingContainer" data-ng-repeat="agent in agents">
             <div class="col-md-6" id="logging" onclick="event.stopPropagation()" data-ng-repeat="worker in agent.workers" data-ng-show="worker.singleWorkerView">
                 <div class="workerId">{{worker.id}}</div>
-                <div class="currentConnections">TBA</div>
+                <div class="currentConnections">{{worker.numberOfConnections}}</div>
                 <div class="log">
                     <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
                 </div>

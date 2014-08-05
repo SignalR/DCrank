@@ -66,6 +66,10 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('sendTestInfoManual', targetAddress, messageSize, messageRate)
     }
 
+    var stopTestRun = function () {
+        this.proxy.invoke('stopTestRun')
+    }
+
     return {
         initialize: initialize,
         startWorker: startWorker,
@@ -74,6 +78,7 @@ angularModule.service('signalRSvc', function ($rootScope) {
         killWorker: killWorker,
         stopWorker: stopWorker,
         sendTestInfoAuto: sendTestInfoAuto,
+        stopTestRun: stopTestRun,
         sendTestInfoManual: sendTestInfoManual,
         killWorkers: killWorkers
     };
@@ -98,6 +103,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.autoTesting = true;
 
+    $scope.testRunning = false;
+
     $scope.pendingLogs = {};
 
     $scope.uiGeneralDisplay = [];
@@ -110,7 +117,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.messageSize;
 
-    $scope.numberOfAgents = $scope.agents.length;
+    $scope.totalConnectionCount = 0;
 
     $scope.newAgentAlert = function (agentNumber) {
         var message = 'Agent ' + agentNumber + ' has connected to the hud';
@@ -224,12 +231,27 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         var messageRate = $scope.messagesPerSecond;
         if ($scope.autoTesting) {
             var numberOfConnections = $scope.numberOfConnections;
-            var numberOfAgents = $scope.numberOfAgents;
+            var numberOfAgents = $scope.agents.length;
             signalRSvc.sendTestInfoAuto(targetAddress, messageSize, messageRate, numberOfConnections, numberOfAgents);
         }
         else {
             signalRSvc.sendTestInfoManual(targetAddress, messageSize, messageRate);
         }
+        $scope.testRunning = true;
+    }
+
+    $scope.stopTestRun = function () {
+        signalRSvc.stopTestRun();
+        $scope.testRunning = false;
+    }
+
+    $scope.rampUp = function () {
+        var targetAddress = $scope.targetAddress;
+        var messageSize = $scope.messageSize;
+        var messageRate = $scope.messagesPerSecond;
+        var numberOfConnections = $scope.numberOfConnections;
+        var numberOfAgents = $scope.agents.length;
+        signalRSvc.sendTestInfoAuto(targetAddress, messageSize, messageRate, numberOfConnections, numberOfAgents);
     }
 
     $scope.showWorkerLogging = function () {
@@ -263,7 +285,6 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.currentAgentInView.numberOfWorkers += 1;
         var agentId = $scope.currentAgentInView.id;
         var workersToStart = 1;
-        this.agent.workersToStart = 0;
         var numberOfConnections = worker.numberOfConnections;
         signalRSvc.startWorker(agentId, workersToStart, numberOfConnections);
     };
@@ -292,7 +313,6 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     workers: [],
                     output: [],
                     display: false,
-                    workersToStart: 0,
                     target: $scope.targetAddress,
                     workersToKill: 0,
                     allAgentsView: true,
@@ -309,28 +329,46 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.agents[agentIndex].state = 'functionalAgent';
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
-                var workerId = listOfWorkers[i].Id;
-                $scope.workerConnected(agentId, workerId, listOfWorkers[i].ConnectedCount);
+                $scope.workerConnected(agentId, listOfWorkers[i].Id, listOfWorkers[i].ConnectedCount);
             }
             if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {
-                $scope.deadWorkers(agentIndex, listOfWorkers);
+                var listOfWorkerIds = [];
+                for (var i = 0; i < listOfWorkers.length; i++) {
+                    listOfWorkerIds.push(listOfWorkers[i].Id);
+                }
+                $scope.deadWorkers(agentIndex, listOfWorkerIds);
             }
 
             // Handles the timeout of the agent
             clearTimeout($scope.agents[agentIndex].selfdestruct);
             $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.timeOut(agentIndex) }, 5000);
+
+            // Updates the connection count
+            $scope.getConnectionCount();
         });
     });
+
+    $scope.getConnectionCount = function () {
+        var currentCount = 0;
+        for (var agent = 0; agent < $scope.agents.length; agent++) {
+            for (var worker = 0; worker < $scope.agents[agent].workers.length; worker++) {
+                currentCount += $scope.agents[agent].workers[worker].numberOfConnections;
+            }
+        }
+        $scope.totalConnectionCount = currentCount;
+    }
 
     $scope.workerConnected = function (agentId, workerId, connectionCount) {
         var newWorker = true;
         var agentIndex;
+        var workerIndex;
         for (var index = 0; index < $scope.agents.length; index++) {
             if ($scope.agents[index].id == agentId) {
                 agentIndex = index;
                 for (var i = 0; i < $scope.agents[index].workers.length; i++) {
                     if ($scope.agents[index].workers[i].id == workerId) {
                         newWorker = false;
+                        workerIndex = i;
                     }
                 }
             };
@@ -356,13 +394,16 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.agents[agentIndex].numberOfWorkers += 1;
             $scope.agents[agentIndex].workers.push(worker);
             $scope.newWorkerAlert($scope.agents[agentIndex].number, workerId);
-        };
+        }
+        else {
+            $scope.agents[agentIndex].workers[workerIndex].numberOfConnections = connectionCount;
+        }
     };
 
-    $scope.deadWorkers = function (agentIndex, listOfWorkers) {
+    $scope.deadWorkers = function (agentIndex, listOfWorkerIds) {
         var agent = $scope.agents[agentIndex];
         for (var i = 0; i < agent.workers.length; i++) {
-            if (listOfWorkers.indexOf(agent.workers[i].id) < 0) {
+            if (listOfWorkerIds.indexOf(agent.workers[i].id) < 0) {
                 agent.workers.splice(i, 1);
                 agent.numberOfWorkers -= 1;
                 i--;
@@ -433,6 +474,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             }
             else {
                 $scope.pendingLogs[agentId] = {};
+                $scope.pendingLogs[agentId][workerId] = [];
                 $scope.pendingLogs[agentId][workerId].push(message);
             }
         });

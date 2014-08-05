@@ -287,7 +287,7 @@
 
 #functionalAgent:hover {
     -webkit-animation-name: thumb;
-    -webkit-animation-duration: 400ms;
+    -webkit-animation-duration: 800ms;
     -webkit-transform-origin: 50% 50%;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-timing-function: linear;
@@ -420,6 +420,50 @@
             box-shadow: 0px 0px 1px #777;
         }
 
+    .staticInput #stopTest {
+        width: 375px;
+        background-color: #ed1204;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 6px;
+        color: #fff;
+        font-family: 'Segoe UI';
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+        padding: 4px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+
+        .staticInput #stopTest:hover {
+            background: #f46b6b;
+            box-shadow: 0px 0px 1px #777;
+        }
+
+
+    .staticInput #rampUp {
+        width: 375px;
+        background-color: #428bca;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 6px;
+        color: #fff;
+        font-family: 'Segoe UI';
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+        padding: 4px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+
+        .staticInput #rampUp:hover {
+            background: #6bb4f3;
+            box-shadow: 0px 0px 1px #777;
+        }
 /* Formats the toggle for the auto and manual states */
 #headingContainer {
     margin: auto;

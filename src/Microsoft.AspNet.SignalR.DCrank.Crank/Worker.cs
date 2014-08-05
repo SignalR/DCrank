@@ -154,7 +154,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     ReconnectingCount = reconnectingCount
                 });
 
-                Thread.Sleep(1000);
+                Thread.Sleep(5000);
             }
 
         }

@@ -77,6 +77,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             }
         }
 
+        public void StopTestRun()
+        {
+            Clients.All.killWorkers(10);
+        }
+
         public void LogAgent(string message)
         {
             Clients.All.agentsLog(Context.ConnectionId, message);
