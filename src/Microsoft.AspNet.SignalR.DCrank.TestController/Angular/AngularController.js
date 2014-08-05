@@ -346,7 +346,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             };
 
             // Gives the worker any information that may have come in prior to its creation
-            if ($scope.pendingLogs[agentId] != undefined && $scope.pendingLogs[agentId][workerId].length > 0) {
+            if ($scope.pendingLogs[agentId] != undefined && $scope.pendingLogs[agentId][workerId] != undefined) {
                 while ($scope.pendingLogs[agentId][workerId].length > 0) {
                     worker.output.unshift($scope.pendingLogs[agentId][workerId].pop());
                 }
