@@ -28,7 +28,7 @@ angularModule.service('signalRSvc', function ($rootScope) {
         });
 
         this.proxy.on('workersLog', function (agentId, workerId, message) {
-            setTimeout($rootScope.$emit('workersLog', agentId, workerId, message), 1000);
+            $rootScope.$emit('workersLog', agentId, workerId, message);
         });
 
         connection.start();
@@ -97,6 +97,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.displaySingleWorkerView = false;
 
     $scope.autoTesting = true;
+
+    $scope.pendingLogs = {};
 
     $scope.uiGeneralDisplay = [];
 
@@ -240,7 +242,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     $scope.timeOut = function (agentIndex) {
         $scope.uiGeneralDisplay.unshift('got a timeout message from: ' + $scope.agents[agentIndex].number);
-        // $scope.agents.splice(agentIndex, 1);
+        // $scope.agents.splice(agentIndex, 1); // We still need to decide how long we want a 'dead' agent to linger in the ui
         $scope.agents[agentIndex].state = 'deadAgent';
         $scope.$digest();
     }
@@ -342,6 +344,15 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 display: false,
                 numberOfConnections: connectionCount
             };
+
+            // Gives the worker any information that may have come in prior to its creation
+            if ($scope.pendingLogs[agentId] != undefined && $scope.pendingLogs[agentId][workerId].length > 0) {
+                while ($scope.pendingLogs[agentId][workerId].length > 0) {
+                    worker.output.unshift($scope.pendingLogs[agentId][workerId].pop());
+                }
+            }
+
+            // Updates the Agent
             $scope.agents[agentIndex].numberOfWorkers += 1;
             $scope.agents[agentIndex].workers.push(worker);
             $scope.newWorkerAlert($scope.agents[agentIndex].number, workerId);
@@ -419,6 +430,10 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             };
             if (agentIndex != undefined && workerIndex != undefined) {
                 $scope.agents[agentIndex].workers[workerIndex].output.unshift(message);
+            }
+            else {
+                $scope.pendingLogs[agentId] = {};
+                $scope.pendingLogs[agentId][workerId].push(message);
             }
         });
     });
