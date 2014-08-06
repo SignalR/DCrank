@@ -67,19 +67,23 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
-        public void SendTestInfoAuto(string targetAddress, int messageSize, int messageRate, int numberOfConnections, int numberOfAgents)
+        public void SetUpTest(int numberOfConnections, int numberOfAgents)
         {
             if (numberOfConnections != 0 && numberOfAgents != 0)
             {
                 int numberOfConnectionsPerWorker = numberOfConnections / (numberOfWorkersPerAgent * numberOfAgents);
                 Clients.All.startWorkers(numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
-                Clients.All.startTest(targetAddress, messageSize, messageRate);
             }
         }
 
-        public void StopTestRun()
+        public void StartTest(string targetAddress, int messageSize, int messageRate)
         {
-            Clients.All.killWorkers(10);
+            Clients.All.startTest(targetAddress, messageSize, messageRate);
+        }
+
+        public void KillConnections()
+        {
+            Clients.All.killWorkers(100);
         }
 
         public void LogAgent(string message)

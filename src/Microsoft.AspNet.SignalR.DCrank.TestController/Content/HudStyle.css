@@ -420,7 +420,7 @@
             box-shadow: 0px 0px 1px #777;
         }
 
-    .staticInput #stopTest {
+    .staticInput #killConnections {
         width: 375px;
         background-color: #ed1204;
         -moz-border-radius: 5px;
@@ -437,13 +437,13 @@
         box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
     }
 
-        .staticInput #stopTest:hover {
+        .staticInput #killConnections:hover {
             background: #f46b6b;
             box-shadow: 0px 0px 1px #777;
         }
 
 
-    .staticInput #rampUp {
+    .staticInput #forTestRun {
         width: 375px;
         background-color: #428bca;
         -moz-border-radius: 5px;
@@ -460,10 +460,12 @@
         box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
     }
 
-        .staticInput #rampUp:hover {
+        .staticInput #forTestRun:hover {
             background: #6bb4f3;
             box-shadow: 0px 0px 1px #777;
         }
+
+
 /* Formats the toggle for the auto and manual states */
 #headingContainer {
     margin: auto;
