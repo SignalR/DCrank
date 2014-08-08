@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
@@ -20,7 +18,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
-        private AutoResetEvent _areWorkersStarted;
+
 
         public Agent()
         {
@@ -29,8 +27,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _hostName = Dns.GetHostName();
 
             _workers = new ConcurrentDictionary<int, AgentWorker>();
-
-            _areWorkersStarted = new AutoResetEvent(false);
 
             Trace.WriteLine("Agent created");
         }
@@ -86,12 +82,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private AgentWorker StartWorker(int numberOfConnectionsPerWorker)
+        private AgentWorker CreateWorker()
         {
             var startInfo = new ProcessStartInfo()
             {
                 FileName = _fileName,
-                Arguments = string.Format("worker {0} {1}", Process.GetCurrentProcess().Id, numberOfConnectionsPerWorker),
+                Arguments = string.Format("worker {0}", Process.GetCurrentProcess().Id),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardInput = true,
@@ -112,6 +108,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             return worker;
         }
 
+        private async Task StartWorker(int id, string targetAddress, int numberOfConnectionsPerWorker)
+        {
+            AgentWorker worker;
+            if (_workers.TryGetValue(id, out worker))
+            {
+                await worker.Connect(targetAddress, numberOfConnectionsPerWorker);
+            }
+        }
+
         private void InitializeProxy()
         {
             _proxy.On<int>("pingAgent", value =>
@@ -120,10 +125,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 InvokeController("pongAgent", value);
             });
 
-            _proxy.On<int, int>("startWorkers", (numberOfWorkers, numberOfConnectionsPerWorker) =>
+            _proxy.On<string, int, int>("startWorkers", (targetAddress, numberOfWorkers, numberOfConnectionsPerWorker) =>
             {
-                LogAgent("Agent received startWorker command for {0} workers.", numberOfWorkers);
-                StartWorkers(numberOfWorkers, numberOfConnectionsPerWorker);
+                LogAgent("Agent received startWorker command for target {0} with {1} workers and {2} connections per worker.", targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
+                StartWorkers(targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
             });
 
             _proxy.On<int>("killWorker", workerId =>
@@ -175,17 +180,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
             });
 
-            _proxy.On<string, int, int>("startTest", (targetAddress, messageSize, messagesPerSecond) =>
+            _proxy.On<int, int>("startTest", (messageSize, messagesPerSecond) =>
             {
-                LogAgent("Agent received test information with target address: {0}, with message size: {1}, and messages sent per second: {2}.", targetAddress, messageSize, messagesPerSecond);
+                LogAgent("Agent received test information with message size: {0}, and messages sent per second: {1}.", messageSize, messagesPerSecond);
 
                 Task.Run(() =>
                 {
-                    _areWorkersStarted.WaitOne();
-
                     foreach (var worker in _workers.Values)
                     {
-                        worker.StartTest(targetAddress, messageSize, messagesPerSecond);
+                        worker.StartTest(messageSize, messagesPerSecond);
                     }
                 });
             });
@@ -198,19 +201,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             });
         }
 
-        private void StartWorkers(int numberOfWorkers, int numberOfConnectionsPerWorker)
+        private void StartWorkers(string targetAddress, int numberOfWorkers, int numberOfConnectionsPerWorker)
         {
             Task.Run(() =>
-                       {
-                           Parallel.For(0, numberOfWorkers, index =>
-                           {
-                               var worker = StartWorker(numberOfConnectionsPerWorker);
+            {
+                Parallel.For(0, numberOfWorkers, async index =>
+                {
+                    var worker = CreateWorker();
 
-                               LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
-                           });
+                    await StartWorker(worker.Id, targetAddress, numberOfConnectionsPerWorker);
 
-                           _areWorkersStarted.Set();
-                       });
+                    LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
+                });
+            });
         }
 
         private void OnMessage(int id, Message message)

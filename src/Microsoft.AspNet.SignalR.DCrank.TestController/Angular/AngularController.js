@@ -62,12 +62,12 @@ angularModule.service('signalRSvc', function ($rootScope) {
 
 
     // Running a Test
-    var setUpTest = function (numberOfConnections, numberOfAgents) {
-        this.proxy.invoke('setUpTest', numberOfConnections, numberOfAgents);
+    var setUpTest = function (targetAddress, numberOfConnections, numberOfAgents) {
+        this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, numberOfAgents);
     }
 
-    var startTest = function (targetAddress, messageSize, messageRate) {
-        this.proxy.invoke('startTest', targetAddress, messageSize, messageRate)
+    var startTest = function (messageSize, messageRate) {
+        this.proxy.invoke('startTest', messageSize, messageRate)
     }
 
     var killConnections = function () {
@@ -418,22 +418,21 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
     // Functions to set up and execute a test run
     $scope.spinUpConnections = function () {
+        var targetAddress = $scope.targetAddress;
         var numberOfConnections = $scope.numberOfConnections;
         var numberOfAgents = $scope.agents.length;
         $scope.targetNumber = numberOfConnections;
         $scope.setUpNeeded = false;
         $scope.spinningUpConnections = true;
-        signalRSvc.setUpTest(numberOfConnections, numberOfAgents);
+        signalRSvc.setUpTest(targetAddress, numberOfConnections, numberOfAgents);
     }
 
     $scope.startTest = function () {
-        var targetAddress = $scope.targetAddress;
         var messageSize = $scope.messageSize;
         var messageRate = $scope.messagesPerSecond;
         $scope.readyToStartTest = false;
         $scope.testRunning = true;
-        signalRSvc.startTest(targetAddress, messageSize, messageRate);
-
+        signalRSvc.startTest(messageSize, messageRate);
     }
 
     $scope.killConnections = function () {

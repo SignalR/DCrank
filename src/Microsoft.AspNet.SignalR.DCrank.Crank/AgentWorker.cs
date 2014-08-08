@@ -70,10 +70,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             await Send("stop", new object());
         }
 
-        public async Task StartTest(string url, int sendBytes, int messagesPerSecond)
+        public async Task Connect(string targetAddress, int numberOfConnections)
+        {
+            await Send("connect", new
+            {
+                TargetAddress = targetAddress,
+                NumberOfConnections = numberOfConnections
+            });
+        }
+
+        public async Task StartTest(int sendBytes, int messagesPerSecond)
         {
             var parameters = new CrankArguments();
-            parameters.Url = url;
             parameters.SendInterval = (1000 / messagesPerSecond);
             parameters.SendBytes = sendBytes;
 

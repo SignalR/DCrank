@@ -23,7 +23,7 @@
     </div>
     <div class="staticInput">
         <div data-ng-show="autoTesting && setUpNeeded">Number of Connections<input class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
-        <div data-ng-show="readyToStartTest">Target URL<input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
+        <div data-ng-show="setUpNeeded">Target URL<input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
         <div data-ng-show="readyToStartTest">Messages Per Second Per Connection<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
         <div data-ng-show="readyToStartTest">Mesage Size (Bytes)<input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
         <div><input id="forTestRun" class="btn btn-default btn-lg" type="submit" data-ng-click="spinUpConnections()" data-ng-show="setUpNeeded" value="Set Up Connections" /></div>

@@ -14,20 +14,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly Process _agentProcess;
         private List<Client> _clients;
 
-        public Worker(int agentProcessId, int numberOfConnections)
+        public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
             _clients = new List<Client>();
-
-            for (int count = 0; count < numberOfConnections; count++)
-            {
-                var client = new Client();
-
-                client.OnMessage += OnMessage;
-                client.OnClosed += OnClosed;
-
-                _clients.Add(client);
-            }
         }
 
         public async Task Run()
@@ -59,6 +49,28 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             break;
 
+                        case "connect":
+                            var connectArguments = new CrankArguments()
+                            {
+                                Url = message.Value["TargetAddress"].ToObject<string>(),
+                            };
+
+                            var numberOfConnections = message.Value["NumberOfConnections"].ToObject<int>();
+                            for (int count = 0; count < numberOfConnections; count++)
+                            {
+                                var client = new Client();
+
+                                client.OnMessage += OnMessage;
+                                client.OnClosed += OnClosed;
+
+                                await client.CreateConnection(connectArguments);
+                                _clients.Add(client);
+                            }
+
+                            Log("Connections connected succesfully");
+
+                            break;
+
                         case "starttest":
                             var crankArguments = message.Value.ToObject<CrankArguments>();
 
@@ -66,11 +78,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             foreach (var client in _clients)
                             {
-                                await client.CreateConnection(crankArguments);
                                 client.StartTest(crankArguments);
                             }
 
-                            Log("Connections started succesfully");
+                            Log("Test started succesfully");
                             break;
 
                         case "stop":
@@ -154,6 +165,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     ReconnectingCount = reconnectingCount
                 });
 
+                // Sending once per 5 seconds to avoid overloading the Test Controller
                 Thread.Sleep(5000);
             }
 
