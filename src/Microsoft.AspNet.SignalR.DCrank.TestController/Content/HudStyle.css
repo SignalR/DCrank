@@ -442,7 +442,6 @@
             box-shadow: 0px 0px 1px #777;
         }
 
-
     .staticInput #forTestRun {
         width: 375px;
         background-color: #428bca;
@@ -461,6 +460,28 @@
     }
 
         .staticInput #forTestRun:hover {
+            background: #6bb4f3;
+            box-shadow: 0px 0px 1px #777;
+        }
+
+        .staticInput #setingUpConnections {
+        width: 375px;
+        background-color: #428bca;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 6px;
+        color: #fff;
+        font-family: 'Segoe UI';
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+        padding: 4px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+
+        .staticInput #setingUpConnections:hover {
             background: #6bb4f3;
             box-shadow: 0px 0px 1px #777;
         }

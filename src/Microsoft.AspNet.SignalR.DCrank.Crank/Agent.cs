@@ -18,15 +18,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
-
+        private string _targetAddress;
+        private int _totalConnectionsRequested;
+        private bool _applyingLoad;
 
         public Agent()
         {
             Trace.Listeners.Add(new ConsoleTraceListener());
 
-            _hostName = Dns.GetHostName();
-
             _workers = new ConcurrentDictionary<int, AgentWorker>();
+            _hostName = Dns.GetHostName();
 
             Trace.WriteLine("Agent created");
         }
@@ -55,6 +56,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                                 await InvokeController("agentHeartbeat", new
                                 {
                                     HostName = _hostName,
+                                    TargetAddresss = _targetAddress,
+                                    TotalConnectionsRequested = _totalConnectionsRequested,
+                                    ApplyingLoad = _applyingLoad,
                                     Workers = _workers.Values.Select(worker => new
                                     {
                                         Id = worker.Id,
@@ -128,6 +132,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _proxy.On<string, int, int>("startWorkers", (targetAddress, numberOfWorkers, numberOfConnectionsPerWorker) =>
             {
                 LogAgent("Agent received startWorker command for target {0} with {1} workers and {2} connections per worker.", targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
+                _targetAddress = targetAddress;
+                _totalConnectionsRequested = numberOfWorkers * numberOfConnectionsPerWorker;
                 StartWorkers(targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
             });
 
@@ -140,7 +146,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 if (_workers.TryGetValue(workerId, out worker))
                 {
                     worker.Kill();
-                    _workers.TryRemove(workerId, out worker);
                     LogAgent("Agent killed Worker {0}.", workerId);
                 }
             });
@@ -157,10 +162,26 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     if (_workers.TryGetValue(key, out worker))
                     {
                         worker.Kill();
-                        _workers.TryRemove(key, out worker);
                         LogAgent("Agent killed Worker {0}.", key);
                     }
                 }
+            });
+
+            _proxy.On("killConnections", () =>
+            {
+                var keys = _workers.Keys.ToList();
+
+                foreach (var key in keys)
+                {
+                    AgentWorker worker;
+                    if (_workers.TryGetValue(key, out worker))
+                    {
+                        worker.Kill();
+                        LogAgent("Agent killed Worker {0}.", key);
+                    }
+                }
+                _totalConnectionsRequested = 0;
+                _applyingLoad = false;
             });
 
             _proxy.On<int, int>("pingWorker", (workerId, value) =>
@@ -183,6 +204,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _proxy.On<int, int>("startTest", (messageSize, messagesPerSecond) =>
             {
                 LogAgent("Agent received test information with message size: {0}, and messages sent per second: {1}.", messageSize, messagesPerSecond);
+                _applyingLoad = true;
 
                 Task.Run(() =>
                 {
@@ -196,8 +218,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _proxy.On<int>("stopWorker", async workerId =>
             {
                 AgentWorker worker;
-                await _workers[workerId].Stop();
-                _workers.TryRemove(workerId, out worker);
+                if (_workers.TryGetValue(workerId, out worker))
+                {
+                    await worker.Stop();
+                }
             });
         }
 
@@ -231,18 +255,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                 case "status":
                     LogAgent("Agent received status message from Worker {0} with value {1}.", id, message.Value);
-                    var worker = _workers[id];
-                    worker.ConnectedCount = JsonConvert.DeserializeObject<int>(message.Value["ConnectedCount"].ToString());
-                    worker.DisconnectedCount = JsonConvert.DeserializeObject<int>(message.Value["DisconnectedCount"].ToString());
-                    worker.ReconnectedCount = JsonConvert.DeserializeObject<int>(message.Value["ReconnectingCount"].ToString());
+                    AgentWorker worker;
+                    if (_workers.TryGetValue(id, out worker))
+                    {
+                        worker.ConnectedCount = message.Value["ConnectedCount"].ToObject<int>();
+                        worker.DisconnectedCount = message.Value["DisconnectedCount"].ToObject<int>();
+                        worker.ReconnectedCount = message.Value["ReconnectingCount"].ToObject<int>();
+                    }
                     break;
             }
         }
 
         private void OnError(int workerId, Exception ex)
         {
-            AgentWorker worker;
-            _workers.TryRemove(workerId, out worker);
             LogWorker(workerId, ex.Message);
         }
 

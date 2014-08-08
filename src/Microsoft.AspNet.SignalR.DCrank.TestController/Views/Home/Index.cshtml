@@ -22,14 +22,24 @@
         </div>
     </div>
     <div class="staticInput">
-        <div data-ng-show="autoTesting && setUpNeeded">Number of Connections<input class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
-        <div data-ng-show="setUpNeeded">Target URL<input class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
-        <div data-ng-show="readyToStartTest">Messages Per Second Per Connection<input class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
-        <div data-ng-show="readyToStartTest">Mesage Size (Bytes)<input class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
-        <div><input id="forTestRun" class="btn btn-default btn-lg" type="submit" data-ng-click="spinUpConnections()" data-ng-show="setUpNeeded" value="Set Up Connections" /></div>
-        <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="startTest()" data-ng-show="readyToStartTest" value="Start Test" /></div>
-        <div><input id="forTestRun" class="btn btn-default btn-lg" type="submit" data-ng-click="stopTest()" data-ng-show="testRunning" value="Disconnect" /></div>
-        <div><input id="killConnections" class="btn btn-default btn-lg" type="submit" data-ng-click="killConnections()" data-ng-show="spinningUpConnections || readyToStartTest || testRunning" value="Kill Connections" /></div>
+        <form data-ng-show="setUpNeeded">
+            <div data-ng-show="autoTesting">Number of Connections<input id="numberOfConnections" class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
+            <div>Target URL<input id="targetURL" class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
+            <div><input id="setingUpConnections" class="btn btn-default btn-lg" type="submit" data-ng-click="spinUpConnections()" value="Set Up Connections" /></div>
+        </form>
+        <form data-ng-show="spinningUpConnections">
+            <div><input id="killConnections" class="btn btn-default btn-lg" type="submit" data-ng-click="killConnections()" value="Kill Connections" /></div>
+        </form>
+        <form data-ng-show="readyToStartTest">
+            <div>Messages Per Second Per Connection<input id="messageRate" class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
+            <div>Mesage Size (Bytes)<input id="messageSize" class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
+            <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="startTest()" value="Start Test" /></div>
+            <div><input id="killConnections" class="btn btn-default btn-lg" type="button" data-ng-click="killConnections()" value="Kill Connections" /></div>
+        </form>
+        <form data-ng-show="testRunning">
+            <div><input id="forTestRun" class="btn btn-default btn-lg" type="submit" data-ng-click="stopTest()" value="Disconnect" /></div>
+            <div><input id="killConnections" class="btn btn-default btn-lg" type="button" data-ng-click="killConnections()" value="Kill Connections" /></div>
+        </form>
     </div>
 
     <h3>Navigation</h3>

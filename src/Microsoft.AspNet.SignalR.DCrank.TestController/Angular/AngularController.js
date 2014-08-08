@@ -67,11 +67,11 @@ angularModule.service('signalRSvc', function ($rootScope) {
     }
 
     var startTest = function (messageSize, messageRate) {
-        this.proxy.invoke('startTest', messageSize, messageRate)
+        this.proxy.invoke('startTest', messageSize, messageRate);
     }
 
     var killConnections = function () {
-        this.proxy.invoke('killConnections')
+        this.proxy.invoke('killConnections');
     }
 
     return {
@@ -119,7 +119,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.autoTesting = true;
     $scope.setUpNeeded = true;
     $scope.spinningUpConnections = false;
-    $scope.targetNumber;
+    $scope.targetNumber = 0;
     $scope.readyToStartTest = false;
     $scope.testRunning = false;
 
@@ -142,10 +142,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     number: agentNumber,
                     id: agentId,
                     numberOfWorkers: 0,
+                    targetNumberOfConnections: heartbeatInformation.TotalConnectionsRequested,
                     workers: [],
                     output: [],
                     display: false,
                     target: $scope.targetAddress,
+                    applyingLoad: heartbeatInformation.ApplyingLoad,
                     workersToKill: 0,
                     allAgentsView: true,
                     singleAgentView: false,
@@ -158,6 +160,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             };
 
             // Process the Heartbeat Information:
+            $scope.agents[agentIndex].targetNumberOfConnections = heartbeatInformation.TotalConnectionsRequested;
+            $scope.agents[agentIndex].applyingLoad = heartbeatInformation.ApplyingLoad;
             $scope.agents[agentIndex].state = 'functionalAgent';
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
@@ -176,12 +180,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.timeOut(agentIndex) }, 5000);
 
             // Updates the connection count
+            $scope.getTargetConnectionCount();
             $scope.getConnectionCount();
-            if ($scope.totalConnectionCount == $scope.targetNumber) {
-                $scope.targetNumber = undefined;
-                $scope.spinningUpConnections = false;
-                $scope.readyToStartTest = true;
-            }
+            $scope.setState();
         });
     });
 
@@ -291,8 +292,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 $scope.agents[agentIndex].workers[workerIndex].output.unshift(message);
             }
             else {
-                $scope.pendingLogs[agentId] = {};
-                $scope.pendingLogs[agentId][workerId] = [];
+                if ($scope.pendingLogs[agentId] == undefined) {
+                    $scope.pendingLogs[agentId] = {};
+                }
+                if ($scope.pendingLogs[agentId][workerId] == undefined) {
+                    $scope.pendingLogs[agentId][workerId] = [];
+                }
                 $scope.pendingLogs[agentId][workerId].push(message);
             }
         });
@@ -415,32 +420,37 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.$digest();
     }
 
-
     // Functions to set up and execute a test run
     $scope.spinUpConnections = function () {
         var targetAddress = $scope.targetAddress;
         var numberOfConnections = $scope.numberOfConnections;
         var numberOfAgents = $scope.agents.length;
         $scope.targetNumber = numberOfConnections;
-        $scope.setUpNeeded = false;
-        $scope.spinningUpConnections = true;
         signalRSvc.setUpTest(targetAddress, numberOfConnections, numberOfAgents);
+        $scope.setState();
     }
 
     $scope.startTest = function () {
         var messageSize = $scope.messageSize;
         var messageRate = $scope.messagesPerSecond;
-        $scope.readyToStartTest = false;
-        $scope.testRunning = true;
         signalRSvc.startTest(messageSize, messageRate);
+        $scope.setState();
     }
 
     $scope.killConnections = function () {
-        $scope.setUpNeeded = true;
-        $scope.spinningUpConnections = false;
-        $scope.readyToStartTest = false;
-        $scope.testRunning = false;
+        $scope.targetNumber = 0;
         signalRSvc.killConnections();
+        $scope.setState();
+    }
+
+    $scope.getTargetConnectionCount = function () {
+        var targetCount = 0;
+
+        for (var agent = 0; agent < $scope.agents.length; agent++) {
+            targetCount += $scope.agents[agent].targetNumberOfConnections;
+        }
+
+        $scope.targetNumber = targetCount;
     }
 
     $scope.getConnectionCount = function () {
@@ -451,5 +461,44 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             }
         }
         $scope.totalConnectionCount = currentCount;
+    }
+
+    $scope.setState = function () {
+        if ($scope.targetNumber === 0) {
+            // Idle
+            $scope.setUpNeeded = true;
+            $scope.spinningUpConnections = false;
+            $scope.readyToStartTest = false;
+            $scope.testRunning = false;
+        }
+        else if ($scope.totalConnectionCount < $scope.targetNumber) {
+            // Spinning up connections
+            $scope.setUpNeeded = false;
+            $scope.spinningUpConnections = true;
+            $scope.readyToStartTest = false;
+            $scope.testRunning = false;
+        }
+        else {
+            var applyingLoad = false;
+            for (var agent = 0; agent < $scope.agents.length; agent++) {
+                if ($scope.agents[agent].applyingLoad) {
+                    applyingLoad = true;
+                }
+            }
+            if (applyingLoad) {
+                // Running the test
+                $scope.setUpNeeded = false;
+                $scope.spinningUpConnections = false;
+                $scope.readyToStartTest = false;
+                $scope.testRunning = true;
+            }
+            else {
+                // Ready to start test
+                $scope.setUpNeeded = false;
+                $scope.spinningUpConnections = false;
+                $scope.readyToStartTest = true;
+                $scope.testRunning = false;
+            }
+        }
     }
 }

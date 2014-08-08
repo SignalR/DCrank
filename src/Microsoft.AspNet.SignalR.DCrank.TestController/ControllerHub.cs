@@ -83,7 +83,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void KillConnections()
         {
-            Clients.All.killWorkers(100);
+            Clients.All.killConnections();
         }
 
         public void LogAgent(string message)
