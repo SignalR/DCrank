@@ -74,13 +74,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             break;
 
                         case "starttest":
-                            var crankArguments = message.Value.ToObject<CrankArguments>();
+                            var startTestArguments = new CrankArguments()
+                            {
+                                SendInterval = message.Value["SendInterval"].ToObject<int>(),
+                                SendBytes = message.Value["SendBytes"].ToObject<int>()
+                            };
 
                             Log("Worker received {0} command with value.", message.Command);
 
                             foreach (var client in _clients)
                             {
-                                client.StartTest(crankArguments);
+                                client.StartTest(startTestArguments);
                             }
 
                             Log("Test started succesfully");

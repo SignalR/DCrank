@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -35,6 +33,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Action<int> OnExit;
 
+        public IWorker Worker { get; private set; }
+
         public bool Start()
         {
             bool success = _workerProcess.Start();
@@ -44,50 +44,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Id = _workerProcess.Id;
                 _workerProcess.BeginOutputReadLine();
                 _workerProcess.BeginErrorReadLine();
+
+                Worker = new WorkerSender(_workerProcess.StandardInput);
             }
 
             return success;
         }
 
-        public async Task Send(string command, object value)
-        {
-            var message = new Message
-            {
-                Command = command,
-                Value = JToken.FromObject(value)
-            };
-
-            var messageString = JsonConvert.SerializeObject(message);
-
-            await _workerProcess.StandardInput.WriteLineAsync(messageString);
-        }
-
         public void Kill()
         {
             _workerProcess.Kill();
-        }
-
-        public async Task Stop()
-        {
-            await Send("stop", new object());
-        }
-
-        public async Task Connect(string targetAddress, int numberOfConnections)
-        {
-            await Send("connect", new
-            {
-                TargetAddress = targetAddress,
-                NumberOfConnections = numberOfConnections
-            });
-        }
-
-        public async Task StartTest(int sendBytes, int messagesPerSecond)
-        {
-            var parameters = new CrankArguments();
-            parameters.SendInterval = (1000 / messagesPerSecond);
-            parameters.SendBytes = sendBytes;
-
-            await Send("starttest", parameters);
         }
 
         private void OnExited(object sender, EventArgs args)

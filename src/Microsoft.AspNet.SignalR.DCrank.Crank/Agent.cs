@@ -118,7 +118,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             AgentWorker worker;
             if (_workers.TryGetValue(id, out worker))
             {
-                await worker.Connect(targetAddress, numberOfConnectionsPerWorker);
+                await worker.Worker.Connect(targetAddress, numberOfConnectionsPerWorker);
             }
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                 if (_workers.TryGetValue(workerId, out worker))
                 {
-                    worker.Send("ping", value);
+                    worker.Worker.Ping(value);
                     LogAgent("Agent sent ping command to Worker {0} with value {1}.", workerId, value);
                 }
                 else
@@ -206,12 +206,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 LogAgent("Agent received test information with message size: {0}, and messages sent per second: {1}.", messageSize, messagesPerSecond);
                 _applyingLoad = true;
+                var sendInterval = (1000 / messagesPerSecond);
 
                 Task.Run(() =>
                 {
                     foreach (var worker in _workers.Values)
                     {
-                        worker.StartTest(messageSize, messagesPerSecond);
+                        worker.Worker.StartTest(sendInterval, messageSize);
                     }
                 });
             });
@@ -221,7 +222,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 AgentWorker worker;
                 if (_workers.TryGetValue(workerId, out worker))
                 {
-                    await worker.Stop();
+                    await worker.Worker.Stop();
                 }
             });
 
@@ -234,7 +235,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     AgentWorker worker;
                     if (_workers.TryGetValue(key, out worker))
                     {
-                        await worker.Stop();
+                        await worker.Worker.Stop();
                         LogAgent("Agent stopped Worker {0}.", key);
                     }
                 }
