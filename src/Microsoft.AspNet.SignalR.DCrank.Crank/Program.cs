@@ -9,7 +9,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             if (args.Length == 1 && string.Equals(args[0], "agent", StringComparison.OrdinalIgnoreCase))
             {
                 var agent = new Agent();
-                agent.Run();
+                agent.Run().Wait();
             }
             else if (args.Length == 2 && string.Equals(args[0], "worker", StringComparison.OrdinalIgnoreCase))
             {
@@ -20,8 +20,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 throw new ArgumentException();
             }
-
-            while (true) ;
         }
     }
 }

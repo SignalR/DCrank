@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
@@ -9,16 +10,18 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
-    public class Worker
+    public class Worker : IWorker
     {
         private readonly Process _agentProcess;
-        private List<Client> _clients;
+        private readonly List<Client> _clients;
+        private readonly CancellationTokenSource _sendStatusCts;
         private int _targetConnectionCount;
 
         public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
             _clients = new List<Client>();
+            _sendStatusCts = new CancellationTokenSource();
         }
 
         public async Task Run()
@@ -28,87 +31,79 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             Log("Worker created");
 
-            Task.Run(() => SendStatusUpdate());
+            var receiver = new WorkerReceiver(
+                new StreamReader(Console.OpenStandardInput()),
+                this);
 
-            bool workerStopped = false;
+            receiver.Start();
 
-            while (!workerStopped)
+            await SendStatusUpdate(_sendStatusCts.Token);
+
+            receiver.Stop();
+        }
+
+        public async Task Ping(int value)
+        {
+            Log("Worker received ping command with value {0}.", value);
+
+            await Send("pong", value);
+            Log("Worker sent pong command with value {0}.", value);
+        }
+
+        public async Task Connect(string targetAddress, int numberOfConnections)
+        {
+            Log("Worker received connect command with target address {0} and number of connections {1}", targetAddress, numberOfConnections);
+            var connectArguments = new CrankArguments()
             {
-                var messageString = await Console.In.ReadLineAsync();
-                var message = JsonConvert.DeserializeObject<Message>(messageString);
+                Url = targetAddress,
+            };
 
-                try
-                {
-                    switch (message.Command.ToLowerInvariant())
-                    {
-                        case "ping":
-                            var value = message.Value.ToObject<int>();
-                            Log("Worker received {0} command with value {1}.", message.Command, message.Value);
+            _targetConnectionCount += numberOfConnections;
+            for (int count = 0; count < numberOfConnections; count++)
+            {
+                var client = new Client();
 
-                            await Send("pong", value);
-                            Log("Worker sent pong command with value {0}.", value);
+                client.OnMessage += OnMessage;
+                client.OnClosed += OnClosed;
 
-                            break;
-
-                        case "connect":
-                            var connectArguments = new CrankArguments()
-                            {
-                                Url = message.Value["TargetAddress"].ToObject<string>(),
-                            };
-
-                            var numberOfConnections = message.Value["NumberOfConnections"].ToObject<int>();
-                            _targetConnectionCount += numberOfConnections;
-                            for (int count = 0; count < numberOfConnections; count++)
-                            {
-                                var client = new Client();
-
-                                client.OnMessage += OnMessage;
-                                client.OnClosed += OnClosed;
-
-                                await client.CreateConnection(connectArguments);
-                                _clients.Add(client);
-                            }
-
-                            Log("Connections connected succesfully");
-
-                            break;
-
-                        case "starttest":
-                            var startTestArguments = new CrankArguments()
-                            {
-                                SendInterval = message.Value["SendInterval"].ToObject<int>(),
-                                SendBytes = message.Value["SendBytes"].ToObject<int>()
-                            };
-
-                            Log("Worker received {0} command with value.", message.Command);
-
-                            foreach (var client in _clients)
-                            {
-                                client.StartTest(startTestArguments);
-                            }
-
-                            Log("Test started succesfully");
-                            break;
-
-                        case "stop":
-                            _targetConnectionCount = 0;
-                            foreach (var client in _clients)
-                            {
-                                client.StopConnection();
-                            }
-
-                            _clients.Clear();
-                            Log("Connections stopped succesfully");
-
-                            workerStopped = true;
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Send("Log", string.Format("Worker encountered the following exception: {0}", ex.Message));
-                }
+                await client.CreateConnection(connectArguments);
+                _clients.Add(client);
             }
+
+            Log("Connections connected succesfully");
+        }
+
+        public async Task StartTest(int sendInterval, int sendBytes)
+        {
+            Log("Worker received start test command with interval {0} and message size {1}.", sendInterval, sendBytes);
+
+            var startTestArguments = new CrankArguments()
+            {
+                SendInterval = sendInterval,
+                SendBytes = sendBytes
+            };
+
+            foreach (var client in _clients)
+            {
+                client.StartTest(startTestArguments);
+            }
+
+            Log("Test started succesfully");
+        }
+
+        public async Task Stop()
+        {
+            Log("Worker received stop command");
+            _targetConnectionCount = 0;
+
+            foreach (var client in _clients)
+            {
+                client.StopConnection();
+            }
+
+            _clients.Clear();
+            _sendStatusCts.Cancel();
+            Log("Connections stopped succesfully");
         }
 
         private void OnMessage(string message)
@@ -143,9 +138,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             await Console.Out.WriteLineAsync(messageString);
         }
 
-        private void SendStatusUpdate()
+        private async Task SendStatusUpdate(CancellationToken cancellationToken)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 int connectedCount = 0, disconnectedCount = 0, reconnectingCount = 0;
 
@@ -174,7 +169,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 });
 
                 // Sending once per 5 seconds to avoid overloading the Test Controller
-                Thread.Sleep(5000);
+                await Task.Delay(5000);
             }
         }
     }

@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Agent.cs" />
     <Compile Include="WorkerSender.cs" />
+    <Compile Include="WorkerReceiver.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="CrankArguments.cs" />
     <Compile Include="IWorker.cs" />

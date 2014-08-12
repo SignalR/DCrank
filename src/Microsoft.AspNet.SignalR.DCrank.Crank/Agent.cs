@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
@@ -32,7 +33,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             Trace.WriteLine("Agent created");
         }
 
-        public async void Run()
+        public async Task Run()
         {
             while (true)
             {
