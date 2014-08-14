@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
@@ -67,7 +68,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
-        public void SetUpTest(string targetAddresss, int numberOfConnections, int numberOfAgents)
+        public void SetUpTest(string targetAddresss, int numberOfConnections, int numberOfAgents, string[] agentIdList)
         {
             if (numberOfConnections != 0 && numberOfAgents != 0)
             {

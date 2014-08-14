@@ -123,7 +123,7 @@
 /* Worker container */
 .workerContainer {
     float: left;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 }
 
@@ -165,6 +165,17 @@
     cursor: pointer;
 }
 
+#rampingUp {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    margin: 20px;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #fce109;
+}
 
 .removeButtonContainer {
     float: right;
@@ -192,6 +203,13 @@
     font-size: 15px;
     display: inline;
     float: left;
+    font-family: 'Segoe UI';
+}
+
+.targetNumberOfConnections {
+    font-size: 15px;
+    display: inline;
+    float: right;
     font-family: 'Segoe UI';
 }
 
@@ -464,7 +482,7 @@
             box-shadow: 0px 0px 1px #777;
         }
 
-        .staticInput #setingUpConnections {
+    .staticInput #setingUpConnections {
         width: 375px;
         background-color: #428bca;
         -moz-border-radius: 5px;

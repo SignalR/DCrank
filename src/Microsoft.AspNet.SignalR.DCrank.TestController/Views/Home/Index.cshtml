@@ -62,11 +62,12 @@
             @* Displays the workers for a particular agent *@
             <div class="col-md-4" id="{{worker.state}}" data-ng-click="toSingleWorkerView()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.singleAgentView">
                 <div class="workerNumber">{{worker.id}}</div>
-                <div class="removeButtonContainer" onclick="kill()" data-ng-click="killWorker(agent.id)">
+                <div class="removeButtonContainer" onclick="kill()" data-ng-click="killWorker(agent.id)" data-ng-hide="autoTesting">
                     <input type="checkbox" class="removeCheckbox">
                     <div class="glyphicon glyphicon-remove"></div>
                 </div>
                 <div class="numberOfConnections">{{worker.numberOfConnections}}</div>
+                <div class="targetNumberOfConnections">{{worker.targetConnectionCount}}</div>
             </div>
 
             @* Start worker button *@

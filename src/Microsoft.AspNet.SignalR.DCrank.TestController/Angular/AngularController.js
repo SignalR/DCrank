@@ -62,8 +62,8 @@ angularModule.service('signalRSvc', function ($rootScope) {
 
 
     // Running a Test
-    var setUpTest = function (targetAddress, numberOfConnections, numberOfAgents) {
-        this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, numberOfAgents);
+    var setUpTest = function (targetAddress, numberOfConnections, numberOfAgents, agentIdList) {
+        this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, numberOfAgents, agentIdList);
     }
 
     var startTest = function (messageSize, messageRate) {
@@ -119,9 +119,9 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.autoTesting = true;
     $scope.setUpNeeded = true;
     $scope.spinningUpConnections = false;
-    $scope.targetNumber = 0;
     $scope.readyToStartTest = false;
     $scope.testRunning = false;
+    $scope.targetNumber = 0;
 
 
     // Agent and worker creation and upkeep
@@ -153,11 +153,15 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     singleAgentView: false,
                     state: 'functionalAgent',
                     machineName: heartbeatInformation.HostName,
-                    selfdestruct: setTimeout(function () { $scope.timeOut(agentIndex) }, 5000)
+                    selfdestruct: setTimeout(function () { $scope.timeOut(agentId) }, 5000)
                 };
                 $scope.agents.push(agent);
                 $scope.newAgentAlert(agentNumber);
             };
+
+            // Handles the timeout of the agent
+            clearTimeout($scope.agents[agentIndex].selfdestruct);
+            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.timeOut(agentId) }, 5000);
 
             // Process the Heartbeat Information:
             $scope.agents[agentIndex].targetNumberOfConnections = heartbeatInformation.TotalConnectionsRequested;
@@ -175,9 +179,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 $scope.deadWorkers(agentIndex, listOfWorkerIds);
             }
 
-            // Handles the timeout of the agent
-            clearTimeout($scope.agents[agentIndex].selfdestruct);
-            $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.timeOut(agentIndex) }, 5000);
+            // Updates appropriate worker states
+            $scope.setWorkerState(agentIndex);
 
             // Updates the connection count
             $scope.getTargetConnectionCount();
@@ -208,6 +211,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 singleWorkerView: false,
                 state: 'functionalWorker',
                 display: false,
+                targetConnectionCount: 3, // Hard coded because the worker is not passing us this parameter yet
                 numberOfConnections: connectionCount
             };
 
@@ -247,7 +251,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             singleWorkerView: false,
             state: 'spinningUp',
             display: false,
-            numberOfConnections: 1
+            numberOfConnections: 1,
+            targetConnectionCount: 1
         };
         $scope.currentAgentInView.workers.push(worker);
         $scope.currentAgentInView.numberOfWorkers += 1;
@@ -413,12 +418,51 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         signalRSvc.killWorkers(agentId, numberOfWorkersToKill);
     }
 
-    $scope.timeOut = function (agentIndex) {
+    $scope.timeOut = function (agentId) {
+        var agentIndex;
+        for (var i = 0; i < $scope.agents.length; i++) {
+            if ($scope.agents[i].id == agentId) {
+                newAgent = false;
+                agentIndex = i;
+            };
+        };
         $scope.uiGeneralDisplay.unshift('got a timeout message from: ' + $scope.agents[agentIndex].number);
-        // $scope.agents.splice(agentIndex, 1); // We still need to decide how long we want a 'dead' agent to linger in the ui
         $scope.agents[agentIndex].state = 'deadAgent';
+        $scope.setWorkerState(agentIndex);
+        $scope.getConnectionCount();
+        $scope.$digest();
+        $scope.agents[agentIndex].selfdestruct = setTimeout(function () { $scope.removeDeadAgent(agentId) }, 15000);
+    }
+
+    $scope.setWorkerState = function (agentIndex) {
+        for (var i = 0; i < $scope.agents[agentIndex].workers.length; i++) {
+            if ($scope.agents[agentIndex].state == 'deadAgent') {
+                $scope.agents[agentIndex].workers[i].state = 'deadWorker';
+                $scope.agents[agentIndex].workers[i].numberOfConnections = 0;
+            }
+            else if ($scope.agents[agentIndex].workers[i].targetConnectionCount != $scope.agents[agentIndex].workers[i].numberOfConnections) {
+                $scope.agents[agentIndex].workers[i].state = 'rampingUp';
+            }
+            else if ($scope.agents[agentIndex].state == 'functionalAgent') {
+                for (var i = 0; i < $scope.agents[agentIndex].workers.length; i++) {
+                    $scope.agents[agentIndex].workers[i].state = 'functionalWorker';
+                }
+            }
+        }
+    }
+
+    $scope.removeDeadAgent = function (agentId) {
+        var agentIndex;
+        for (var i = 0; i < $scope.agents.length; i++) {
+            if ($scope.agents[i].id == agentId) {
+                agentIndex = i;
+            };
+        };
+        $scope.uiGeneralDisplay.unshift('got a self destruct message from: ' + $scope.agents[agentIndex].id);
+        $scope.agents.splice(agentIndex, 1);
         $scope.$digest();
     }
+
 
     // Functions to set up and execute a test run
     $scope.spinUpConnections = function () {
@@ -426,8 +470,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         var numberOfConnections = $scope.numberOfConnections;
         var numberOfAgents = $scope.agents.length;
         $scope.targetNumber = numberOfConnections;
-        signalRSvc.setUpTest(targetAddress, numberOfConnections, numberOfAgents);
-        $scope.setState();
+        var agentIdList = [];
+        for (var i = 0; i < $scope.agents.length; i++) {
+            agentIdList.push($scope.agents[i].id);
+        }
+        signalRSvc.setUpTest(targetAddress, numberOfConnections, numberOfAgents, agentIdList);
     }
 
     $scope.startTest = function () {
@@ -463,10 +510,13 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.totalConnectionCount = currentCount;
     }
 
-    $scope.setState = function () {
-        if ($scope.targetNumber === 0) {
-            // Idle
-            $scope.setUpNeeded = true;
+    $scope.setState = function (applyingLoad) {
+        // Running the test
+        if (applyingLoad) {
+            $scope.setUpNeeded = false;
+            $scope.spinningUpConnections = false;
+            $scope.readyToStartTest = false;
+            $scope.setUpNeeded = false;
             $scope.spinningUpConnections = false;
             $scope.readyToStartTest = false;
             $scope.testRunning = false;
@@ -478,27 +528,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.readyToStartTest = false;
             $scope.testRunning = false;
         }
-        else {
-            var applyingLoad = false;
-            for (var agent = 0; agent < $scope.agents.length; agent++) {
-                if ($scope.agents[agent].applyingLoad) {
-                    applyingLoad = true;
-                }
-            }
-            if (applyingLoad) {
-                // Running the test
-                $scope.setUpNeeded = false;
-                $scope.spinningUpConnections = false;
-                $scope.readyToStartTest = false;
-                $scope.testRunning = true;
-            }
-            else {
-                // Ready to start test
-                $scope.setUpNeeded = false;
-                $scope.spinningUpConnections = false;
-                $scope.readyToStartTest = true;
-                $scope.testRunning = false;
-            }
+            // Need set up information
+        else if ($scope.targetNumber == 0 && $scope.totalConnectionCount == 0) {
+            $scope.setUpNeeded = true;
+            $scope.spinningUpConnections = false;
+            $scope.readyToStartTest = false;
+            $scope.testRunning = false;
         }
     }
 }
