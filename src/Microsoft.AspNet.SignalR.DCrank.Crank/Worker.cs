@@ -57,7 +57,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             };
 
                             var numberOfConnections = message.Value["NumberOfConnections"].ToObject<int>();
-                            _targetConnectionCount += numberOfConnections;
+                            targetConnectionCount += numberOfConnections;
                             for (int count = 0; count < numberOfConnections; count++)
                             {
                                 var client = new Client();
@@ -101,6 +101,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             Log("Connections stopped succesfully");
 
                             workerStopped = true;
+                            targetConnectionCount = 0;
                             break;
                     }
                 }
@@ -170,7 +171,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     ConnectedCount = connectedCount,
                     DisconnectedCount = disconnectedCount,
                     ReconnectingCount = reconnectingCount,
-                    TargetConnectionCount = _targetConnectionCount
+                    TargetConnectionCount = targetConnectionCount
                 });
 
                 // Sending once per 5 seconds to avoid overloading the Test Controller
