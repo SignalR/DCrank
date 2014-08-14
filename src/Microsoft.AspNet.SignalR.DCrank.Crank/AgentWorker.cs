@@ -27,6 +27,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public int ReconnectedCount { get; set; }
 
+        public int TargetConnectionCount { get; set; }
+
         public Action<int, Message> OnMessage;
 
         public Action<int, Exception> OnError;

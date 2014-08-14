@@ -70,6 +70,10 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('startTest', messageSize, messageRate);
     }
 
+    var stopWorkers = function () {
+        this.proxy.invoke('stopWorkers');
+    }
+
     var killConnections = function () {
         this.proxy.invoke('killConnections');
     }
@@ -84,6 +88,7 @@ angularModule.service('signalRSvc', function ($rootScope) {
         killWorkers: killWorkers,
         setUpTest: setUpTest,
         startTest: startTest,
+        stopWorkers: stopWorkers,
         killConnections: killConnections
     };
 });
@@ -146,7 +151,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                     workers: [],
                     output: [],
                     display: false,
-                    target: $scope.targetAddress,
+                    target: heartbeatInformation.TargetAddress,
                     applyingLoad: heartbeatInformation.ApplyingLoad,
                     workersToKill: 0,
                     allAgentsView: true,
@@ -169,7 +174,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.agents[agentIndex].state = 'functionalAgent';
             var listOfWorkers = heartbeatInformation.Workers;
             for (var i = 0; i < listOfWorkers.length; i++) {
-                $scope.workerConnected(agentId, listOfWorkers[i].Id, listOfWorkers[i].ConnectedCount);
+                $scope.workerConnected(agentId, listOfWorkers[i].Id, listOfWorkers[i].ConnectedCount, listOfWorkers[i].TargetConnectionCount);
             }
             if (listOfWorkers.length != $scope.agents[agentIndex].workers.length) {
                 var listOfWorkerIds = [];
@@ -185,11 +190,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             // Updates the connection count
             $scope.getTargetConnectionCount();
             $scope.getConnectionCount();
-            $scope.setState();
+            $scope.setState(heartbeatInformation.ApplyingLoad);
         });
     });
 
-    $scope.workerConnected = function (agentId, workerId, connectionCount) {
+    $scope.workerConnected = function (agentId, workerId, connectionCount, targetConnectionCount) {
         var newWorker = true;
         var agentIndex;
         var workerIndex;
@@ -211,7 +216,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 singleWorkerView: false,
                 state: 'functionalWorker',
                 display: false,
-                targetConnectionCount: 3, // Hard coded because the worker is not passing us this parameter yet
+                targetConnectionCount: targetConnectionCount,
                 numberOfConnections: connectionCount
             };
 
@@ -229,6 +234,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         }
         else {
             $scope.agents[agentIndex].workers[workerIndex].numberOfConnections = connectionCount;
+            $scope.agents[agentIndex].workers[workerIndex].targetConnectionCount = targetConnectionCount;
         }
     };
 
@@ -481,13 +487,16 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         var messageSize = $scope.messageSize;
         var messageRate = $scope.messagesPerSecond;
         signalRSvc.startTest(messageSize, messageRate);
-        $scope.setState();
     }
 
     $scope.killConnections = function () {
         $scope.targetNumber = 0;
         signalRSvc.killConnections();
-        $scope.setState();
+    }
+
+    $scope.stopWorkers = function () {
+        $scope.targetNumber = 0;
+        signalRSvc.stopWorkers();
     }
 
     $scope.getTargetConnectionCount = function () {
@@ -511,14 +520,18 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     }
 
     $scope.setState = function (applyingLoad) {
-        // Running the test
         if (applyingLoad) {
+            // Running the test
             $scope.setUpNeeded = false;
             $scope.spinningUpConnections = false;
             $scope.readyToStartTest = false;
+            $scope.testRunning = true;
+        }
+        else if ($scope.targetNumber != 0 && $scope.totalConnectionCount == $scope.targetNumber) {
+            // Ready to start test
             $scope.setUpNeeded = false;
             $scope.spinningUpConnections = false;
-            $scope.readyToStartTest = false;
+            $scope.readyToStartTest = true;
             $scope.testRunning = false;
         }
         else if ($scope.totalConnectionCount < $scope.targetNumber) {
@@ -528,8 +541,8 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.readyToStartTest = false;
             $scope.testRunning = false;
         }
-            // Need set up information
         else if ($scope.targetNumber == 0 && $scope.totalConnectionCount == 0) {
+            // Need set up information
             $scope.setUpNeeded = true;
             $scope.spinningUpConnections = false;
             $scope.readyToStartTest = false;

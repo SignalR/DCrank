@@ -56,7 +56,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                                 await InvokeController("agentHeartbeat", new
                                 {
                                     HostName = _hostName,
-                                    TargetAddresss = _targetAddress,
+                                    TargetAddress = _targetAddress,
                                     TotalConnectionsRequested = _totalConnectionsRequested,
                                     ApplyingLoad = _applyingLoad,
                                     Workers = _workers.Values.Select(worker => new
@@ -64,7 +64,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                                         Id = worker.Id,
                                         ConnectedCount = worker.ConnectedCount,
                                         DisconnectedCount = worker.DisconnectedCount,
-                                        ReconnectedCount = worker.ReconnectedCount
+                                        ReconnectedCount = worker.ReconnectedCount,
+                                        TargetConnectionCount = worker.TargetConnectionCount
                                     })
                                 });
 
@@ -223,6 +224,23 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     await worker.Stop();
                 }
             });
+
+            _proxy.On("stopWorkers", async () =>
+            {
+                var keys = _workers.Keys.ToList();
+
+                foreach (var key in keys)
+                {
+                    AgentWorker worker;
+                    if (_workers.TryGetValue(key, out worker))
+                    {
+                        await worker.Stop();
+                        LogAgent("Agent stopped Worker {0}.", key);
+                    }
+                }
+                _totalConnectionsRequested = 0;
+                _applyingLoad = false;
+            });
         }
 
         private void StartWorkers(string targetAddress, int numberOfWorkers, int numberOfConnectionsPerWorker)
@@ -261,6 +279,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                         worker.ConnectedCount = message.Value["ConnectedCount"].ToObject<int>();
                         worker.DisconnectedCount = message.Value["DisconnectedCount"].ToObject<int>();
                         worker.ReconnectedCount = message.Value["ReconnectingCount"].ToObject<int>();
+                        worker.TargetConnectionCount = message.Value["TargetConnectionCount"].ToObject<int>();
                     }
                     break;
             }
