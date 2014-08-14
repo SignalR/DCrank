@@ -91,7 +91,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             break;
 
                         case "stop":
-                            _targetConnectionCount = 0;
+                            targetConnectionCount = 0;
                             foreach (var client in _clients)
                             {
                                 client.StopConnection();
@@ -101,7 +101,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             Log("Connections stopped succesfully");
 
                             workerStopped = true;
-                            targetConnectionCount = 0;
                             break;
                     }
                 }
