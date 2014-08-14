@@ -107,6 +107,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
             _sendStatusCts.Cancel();
             Log("Connections stopped succesfully");
+            _targetConnectionCount = 0;
         }
 
         private void OnMessage(string message)
