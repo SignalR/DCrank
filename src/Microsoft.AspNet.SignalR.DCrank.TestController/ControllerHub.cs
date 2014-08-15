@@ -73,8 +73,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
-        public void SetUpTest(string targetAddresss, int numberOfConnections, int numberOfAgents, string[] agentIdList)
+        public void SetUpTest(string targetAddresss, int numberOfConnections, string[] agentIdList)
         {
+            int numberOfAgents = agentIdList.Length;
             if (numberOfConnections != 0 && numberOfAgents != 0)
             {
                 int numberOfConnectionsPerWorker = numberOfConnections / (numberOfWorkersPerAgent * numberOfAgents);

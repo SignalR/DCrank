@@ -482,7 +482,7 @@
             box-shadow: 0px 0px 1px #777;
         }
 
-    .staticInput #setingUpConnections {
+    .staticInput #settingUpConnections {
         width: 375px;
         background-color: #428bca;
         -moz-border-radius: 5px;
@@ -499,7 +499,7 @@
         box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
     }
 
-        .staticInput #setingUpConnections:hover {
+        .staticInput #settingUpConnections:hover {
             background: #6bb4f3;
             box-shadow: 0px 0px 1px #777;
         }

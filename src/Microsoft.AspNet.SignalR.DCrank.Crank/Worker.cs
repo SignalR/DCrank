@@ -13,7 +13,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     {
         private readonly Process _agentProcess;
         private List<Client> _clients;
-        private int targetConnectionCount = 0;
+        private int _targetConnectionCount = 0;
 
         public Worker(int agentProcessId)
         {
@@ -57,7 +57,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             };
 
                             var numberOfConnections = message.Value["NumberOfConnections"].ToObject<int>();
-                            targetConnectionCount += numberOfConnections;
+                            _targetConnectionCount += numberOfConnections;
                             for (int count = 0; count < numberOfConnections; count++)
                             {
                                 var client = new Client();
@@ -87,7 +87,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                             break;
 
                         case "stop":
-                            targetConnectionCount = 0;
+                            _targetConnectionCount = 0;
                             foreach (var client in _clients)
                             {
                                 client.StopConnection();
@@ -166,7 +166,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     ConnectedCount = connectedCount,
                     DisconnectedCount = disconnectedCount,
                     ReconnectingCount = reconnectingCount,
-                    TargetConnectionCount = targetConnectionCount
+                    TargetConnectionCount = _targetConnectionCount
                 });
 
                 // Sending once per 5 seconds to avoid overloading the Test Controller

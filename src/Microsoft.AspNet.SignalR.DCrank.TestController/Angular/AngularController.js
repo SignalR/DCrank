@@ -62,8 +62,8 @@ angularModule.service('signalRSvc', function ($rootScope) {
 
 
     // Running a Test
-    var setUpTest = function (targetAddress, numberOfConnections, numberOfAgents, agentIdList) {
-        this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, numberOfAgents, agentIdList);
+    var setUpTest = function (targetAddress, numberOfConnections, agentIdList) {
+        this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, agentIdList);
     }
 
     var startTest = function (messageSize, messageRate) {
@@ -474,13 +474,14 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.spinUpConnections = function () {
         var targetAddress = $scope.targetAddress;
         var numberOfConnections = $scope.numberOfConnections;
-        var numberOfAgents = $scope.agents.length;
         $scope.targetNumber = numberOfConnections;
         var agentIdList = [];
         for (var i = 0; i < $scope.agents.length; i++) {
-            agentIdList.push($scope.agents[i].id);
+            if ($scope.agents[i].state == 'functionalAgent') {
+                agentIdList.push($scope.agents[i].id);
+            }
         }
-        signalRSvc.setUpTest(targetAddress, numberOfConnections, numberOfAgents, agentIdList);
+        signalRSvc.setUpTest(targetAddress, numberOfConnections, agentIdList);
     }
 
     $scope.startTest = function () {
