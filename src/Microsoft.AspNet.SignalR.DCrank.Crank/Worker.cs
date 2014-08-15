@@ -13,7 +13,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     {
         private readonly Process _agentProcess;
         private List<Client> _clients;
-        private int _targetConnectionCount = 0;
+        private int _targetConnectionCount;
 
         public Worker(int agentProcessId)
         {
