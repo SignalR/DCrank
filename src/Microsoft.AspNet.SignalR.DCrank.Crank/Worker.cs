@@ -5,14 +5,14 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class Worker : IWorker
     {
         private readonly Process _agentProcess;
+        private readonly IAgent _agent;
+        private readonly int _processId;
         private readonly ConcurrentBag<Client> _clients;
         private readonly CancellationTokenSource _sendStatusCts;
         private int _targetConnectionCount;
@@ -20,6 +20,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
+            _agent = new AgentSender(new StreamWriter(Console.OpenStandardOutput()));
+            _processId = Process.GetCurrentProcess().Id;
             _clients = new ConcurrentBag<Client>();
             _sendStatusCts = new CancellationTokenSource();
         }
@@ -46,7 +48,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             Log("Worker received ping command with value {0}.", value);
 
-            await Send("pong", value);
+            await _agent.Pong(_processId, value);
             Log("Worker sent pong command with value {0}.", value);
         }
 
@@ -112,7 +114,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private void OnMessage(string message)
         {
-            Send("Log", string.Format("Worker received following message from server: {0}", message));
+            Log("Worker received following message from server: {0}", message);
         }
 
         private void OnClosed()
@@ -125,21 +127,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             Environment.Exit(0);
         }
 
-        private async void Log(string format, params object[] arguments)
+        private void Log(string format, params object[] arguments)
         {
-            await Send("Log", string.Format(format, arguments));
-        }
-
-        private async Task Send(string command, object value)
-        {
-            var message = new Message
-            {
-                Command = command,
-                Value = JToken.FromObject(value)
-            };
-
-            var messageString = JsonConvert.SerializeObject(message);
-            await Console.Out.WriteLineAsync(messageString);
+            _agent.Log(_processId, string.Format(format, arguments));
         }
 
         private async Task SendStatusUpdate(CancellationToken cancellationToken)
@@ -164,16 +154,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     }
                 }
 
-                Send("status", new
-                {
-                    ConnectedCount = connectedCount,
-                    DisconnectedCount = disconnectedCount,
-                    ReconnectingCount = reconnectingCount,
-                    TargetConnectionCount = _targetConnectionCount
-                });
+                await _agent.Status(
+                    _processId,
+                    new StatusInformation
+                    {
+                        ConnectedCount = connectedCount,
+                        DisconnectedCount = disconnectedCount,
+                        ReconnectingCount = reconnectingCount,
+                        TargetConnectionCount = _targetConnectionCount
+                    }
+                );
 
                 // Sending once per 5 seconds to avoid overloading the Test Controller
-                await Task.Delay(5000);
+                await Task.Delay(5000, cancellationToken);
             }
         }
     }

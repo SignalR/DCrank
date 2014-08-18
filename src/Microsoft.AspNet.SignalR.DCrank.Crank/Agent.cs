@@ -265,11 +265,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 case "ping":
                     LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);
-                    InvokeController("pongWorker", id, message.Value.ToObject<int>());
+                    InvokeController("pongWorker", id, message.Value["Value"].ToObject<int>());
                     break;
 
                 case "log":
-                    LogWorker(id, message.Value.ToObject<string>());
+                    LogWorker(id, message.Value["Text"].ToObject<string>());
                     break;
 
                 case "status":
@@ -277,10 +277,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     AgentWorker worker;
                     if (_workers.TryGetValue(id, out worker))
                     {
-                        worker.ConnectedCount = message.Value["ConnectedCount"].ToObject<int>();
-                        worker.DisconnectedCount = message.Value["DisconnectedCount"].ToObject<int>();
-                        worker.ReconnectedCount = message.Value["ReconnectingCount"].ToObject<int>();
-                        worker.TargetConnectionCount = message.Value["TargetConnectionCount"].ToObject<int>();
+                        var statusInformation = message.Value["StatusInformation"].ToObject<StatusInformation>();
+
+                        worker.ConnectedCount = statusInformation.ConnectedCount;
+                        worker.DisconnectedCount = statusInformation.DisconnectedCount;
+                        worker.ReconnectedCount = statusInformation.ReconnectingCount;
+                        worker.TargetConnectionCount = statusInformation.TargetConnectionCount;
                     }
                     break;
             }
