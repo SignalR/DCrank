@@ -31,6 +31,10 @@ angularModule.service('signalRSvc', function ($rootScope) {
             $rootScope.$emit('workersLog', agentId, workerId, message);
         });
 
+        this.proxy.on('updatePerfCounters', function (performanceData) {
+            $rootScope.$emit('updatePerfCounters', performanceData);
+        });
+
         connection.start();
     };
 
@@ -78,6 +82,15 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('killConnections');
     }
 
+
+    // Displaying and updating the database information
+    var connectToDatabase = function () {
+        this.proxy.invoke('connectToDatabase');
+    }
+    var getPerformanceData = function () {
+        this.proxy.invoke('getPerformanceData');
+    }
+
     return {
         initialize: initialize,
         startWorker: startWorker,
@@ -89,7 +102,9 @@ angularModule.service('signalRSvc', function ($rootScope) {
         setUpTest: setUpTest,
         startTest: startTest,
         stopWorkers: stopWorkers,
-        killConnections: killConnections
+        killConnections: killConnections,
+        connectToDatabase: connectToDatabase,
+        getPerformanceData: getPerformanceData
     };
 });
 
@@ -129,13 +144,18 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.targetNumber = 0;
 
 
+    // Running a test - performance data
+    $scope.perfCounterData;
+    $scope.getPerfCounters;
+
+
     // Agent and worker creation and upkeep
     $scope.$parent.$on('agentConnected', function (e, agentId, heartbeatInformation) {
         $scope.$apply(function () {
             var newAgent = true;
             for (var i = 0; i < $scope.agents.length; i++) {
                 var agent = $scope.agents[i];
-                if (agent.id == agentId) {
+                if (agent.id === agentId) {
                     newAgent = false;
                     break;
                 };
@@ -176,7 +196,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 var worker = listOfWorkers[i];
                 $scope.workerConnected(agentId, worker.Id, worker.ConnectedCount, worker.TargetConnectionCount);
             }
-            if (listOfWorkers.length != agent.workers.length) {
+            if (listOfWorkers.length !== agent.workers.length) {
                 var listOfWorkerIds = [];
                 for (var i = 0; i < listOfWorkers.length; i++) {
                     var deadWorker = listOfWorkers[i];
@@ -192,6 +212,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.getTargetConnectionCount();
             $scope.getConnectionCount();
             $scope.setState(heartbeatInformation.ApplyingLoad);
+
+            // Updates the perf counters table
+            //if ($scope.testRunning && $scope.getPerfCounters === undefined) {
+            //    $scope.getPerfCounters = setTimeout(function () { $scope.updatePerfCounters() }, 5000);
+            //}
         });
     });
 
@@ -201,11 +226,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         var workerIndex;
         for (var index = 0; index < $scope.agents.length; index++) {
             var agent = $scope.agents[index];
-            if (agent.id == agentId) {
+            if (agent.id === agentId) {
                 agentIndex = index;
                 for (var i = 0; i < agent.workers.length; i++) {
                     var worker = agent.workers[i];
-                    if (worker.id == workerId) {
+                    if (worker.id === workerId) {
                         newWorker = false;
                         workerIndex = i;
                         break;
@@ -226,7 +251,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             };
 
             // Gives the worker any information that may have come in prior to its creation
-            if ($scope.pendingLogs[agentId] != undefined && $scope.pendingLogs[agentId][workerId] != undefined) {
+            if ($scope.pendingLogs[agentId] !== undefined && $scope.pendingLogs[agentId][workerId] !== undefined) {
                 while ($scope.pendingLogs[agentId][workerId].length > 0) {
                     addedWorker.output.unshift($scope.pendingLogs[agentId][workerId].pop());
                 }
@@ -278,7 +303,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.$apply(function () {
             for (var index = 0; index < $scope.agents.length; index++) {
                 var agent = $scope.agents[index];
-                if (agent.id == agentId) {
+                if (agent.id === agentId) {
                     agent.output.unshift(message);
                     break;
                 };
@@ -290,24 +315,24 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.$apply(function () {
             for (var index = 0; index < $scope.agents.length; index++) {
                 var agent = $scope.agents[index];
-                if (agent.id == agentId) {
+                if (agent.id === agentId) {
                     for (var i = 0; i < agent.workers.length; i++) {
                         var worker = agent.workers[i];
-                        if (worker.id == workerId) {
+                        if (worker.id === workerId) {
                             break;
                         }
                     }
                     break;
                 };
             };
-            if (agent != undefined && worker != undefined) {
+            if (agent !== undefined && worker !== undefined) {
                 worker.output.unshift(message);
             }
             else {
-                if ($scope.pendingLogs[agentId] == undefined) {
+                if ($scope.pendingLogs[agentId] === undefined) {
                     $scope.pendingLogs[agentId] = {};
                 }
-                if ($scope.pendingLogs[agentId][workerId] == undefined) {
+                if ($scope.pendingLogs[agentId][workerId] === undefined) {
                     $scope.pendingLogs[agentId][workerId] = [];
                 }
                 $scope.pendingLogs[agentId][workerId].push(message);
@@ -428,12 +453,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.timeOut = function (agentId) {
         for (var i = 0; i < $scope.agents.length; i++) {
             var agent = $scope.agents[i];
-            if (agent.id == agentId) {
+            if (agent.id === agentId) {
                 newAgent = false;
                 break;
             };
         };
-        $scope.uiGeneralDisplay.unshift('got a timeout message from: ' + agent.number);
+        $scope.uiGeneralDisplay.unshift('Received a timeout message from: ' + agent.number);
         agent.state = 'deadAgent';
         $scope.setWorkerState(agent);
         $scope.getConnectionCount();
@@ -444,14 +469,14 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.setWorkerState = function (agent) {
         for (var i = 0; i < agent.workers.length; i++) {
             var worker = agent.workers[i];
-            if (agent.state == 'deadAgent') {
+            if (agent.state === 'deadAgent') {
                 worker.state = 'deadWorker';
                 worker.numberOfConnections = 0;
             }
-            else if (worker.targetConnectionCount != worker.numberOfConnections) {
+            else if (worker.targetConnectionCount !== worker.numberOfConnections) {
                 worker.state = 'rampingUp';
             }
-            else if (agent.state == 'functionalAgent') {
+            else if (agent.state === 'functionalAgent') {
                 worker.state = 'functionalWorker';
             }
         }
@@ -460,11 +485,11 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.removeDeadAgent = function (agentId) {
         var agentIndex;
         for (var i = 0; i < $scope.agents.length; i++) {
-            if ($scope.agents[i].id == agentId) {
+            if ($scope.agents[i].id === agentId) {
                 agentIndex = i;
             };
         };
-        $scope.uiGeneralDisplay.unshift('got a self destruct message from: ' + $scope.agents[agentIndex].id);
+        $scope.uiGeneralDisplay.unshift('Recieved a self destruct message from: ' + $scope.agents[agentIndex].id);
         $scope.agents.splice(agentIndex, 1);
         $scope.$digest();
     }
@@ -477,11 +502,12 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         $scope.targetNumber = numberOfConnections;
         var agentIdList = [];
         for (var i = 0; i < $scope.agents.length; i++) {
-            if ($scope.agents[i].state == 'functionalAgent') {
+            if ($scope.agents[i].state === 'functionalAgent') {
                 agentIdList.push($scope.agents[i].id);
             }
         }
         signalRSvc.setUpTest(targetAddress, numberOfConnections, agentIdList);
+        // signalRSvc.connectToDatabase();
     }
 
     $scope.startTest = function () {
@@ -526,7 +552,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.readyToStartTest = false;
             $scope.testRunning = true;
         }
-        else if ($scope.targetNumber != 0 && $scope.totalConnectionCount == $scope.targetNumber) {
+        else if ($scope.targetNumber !== 0 && $scope.totalConnectionCount === $scope.targetNumber) {
             // Ready to start test
             $scope.setUpNeeded = false;
             $scope.spinningUpConnections = false;
@@ -540,12 +566,26 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.readyToStartTest = false;
             $scope.testRunning = false;
         }
-        else if ($scope.targetNumber == 0 && $scope.totalConnectionCount == 0) {
+        else if ($scope.targetNumber === 0 && $scope.totalConnectionCount === 0) {
             // Need set up information
             $scope.setUpNeeded = true;
             $scope.spinningUpConnections = false;
             $scope.readyToStartTest = false;
             $scope.testRunning = false;
         }
+    }
+
+
+    // Helps to display the signalR connection data
+    $scope.$parent.$on('updatePerfCounters', function (e, performanceData) {
+        $scope.$apply(function () {
+            $scope.perfCounterData = performanceData;
+            $scope.$digest();
+        });
+    });
+
+    $scope.updatePerfCounters = function () {
+        signalRSvc.getPerformanceData();
+        $scope.getPerfCounters = undefined;
     }
 }
