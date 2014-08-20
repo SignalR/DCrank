@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -70,9 +71,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 return;
             }
 
-            var message = JsonConvert.DeserializeObject<Message>(messageString);
+            try
+            {
+                var message = JsonConvert.DeserializeObject<Message>(messageString);
 
-            OnMessage(Id, message);
+                OnMessage(Id, message);
+            }
+            catch (Exception ex)
+            {
+                OnMessage(Id, new Message()
+                {
+                    Command = "log",
+                    Value = JToken.FromObject(messageString)
+                });
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -30,27 +32,34 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 while (!_receiveMessageCts.Token.IsCancellationRequested)
                 {
                     var messageString = await _reader.ReadLineAsync();
-                    var message = JsonConvert.DeserializeObject<Message>(messageString);
-
-                    switch (message.Command.ToLowerInvariant())
+                    try
                     {
-                        case "ping":
-                            await _worker.Ping(
-                                message.Value["Value"].ToObject<int>());
-                            break;
-                        case "connect":
-                            await _worker.Connect(
-                                message.Value["TargetAddress"].ToObject<string>(),
-                                message.Value["NumberOfConnections"].ToObject<int>());
-                            break;
-                        case "starttest":
-                            await _worker.StartTest(
-                                message.Value["SendInterval"].ToObject<int>(),
-                                message.Value["SendBytes"].ToObject<int>());
-                            break;
-                        case "stop":
-                            await _worker.Stop();
-                            break;
+                        var message = JsonConvert.DeserializeObject<Message>(messageString);
+
+                        switch (message.Command.ToLowerInvariant())
+                        {
+                            case "ping":
+                                await _worker.Ping(
+                                    message.Value["Value"].ToObject<int>());
+                                break;
+                            case "connect":
+                                await _worker.Connect(
+                                    message.Value["TargetAddress"].ToObject<string>(),
+                                    message.Value["NumberOfConnections"].ToObject<int>());
+                                break;
+                            case "starttest":
+                                await _worker.StartTest(
+                                    message.Value["SendInterval"].ToObject<int>(),
+                                    message.Value["SendBytes"].ToObject<int>());
+                                break;
+                            case "stop":
+                                await _worker.Stop();
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
                     }
                 }
             });

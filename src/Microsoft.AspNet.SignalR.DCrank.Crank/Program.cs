@@ -1,4 +1,5 @@
 ﻿using System;
+using CmdLine;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
@@ -6,19 +7,31 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     {
         static void Main(string[] args)
         {
-            if (args.Length == 1 && string.Equals(args[0], "agent", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                var agent = new Agent();
-                agent.Run().Wait();
+                var arguments = CommandLine.Parse<DCrankArguments>();
+                switch (arguments.Mode.ToLowerInvariant())
+                {
+                    case "agent":
+                        var agent = new Agent();
+                        agent.Run(arguments.ControllerUrl).Wait();
+                        break;
+                    case "worker":
+                        var worker = new Worker(arguments.ParentPid);
+                        worker.Run().Wait();
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Invalid value for Mode \"{0}\"", arguments.Mode));
+                }
             }
-            else if (args.Length == 2 && string.Equals(args[0], "worker", StringComparison.OrdinalIgnoreCase))
+            catch (CommandLineException ex)
             {
-                var worker = new Worker(Convert.ToInt32(args[1]));
-                worker.Run().Wait();
+                Console.WriteLine(ex.ArgumentHelp.Message);
+                Console.WriteLine(ex.ArgumentHelp.GetHelpText(Console.BufferWidth));
             }
-            else
+            catch (ArgumentException ex)
             {
-                throw new ArgumentException();
+                Console.WriteLine(ex.Message);
             }
         }
     }

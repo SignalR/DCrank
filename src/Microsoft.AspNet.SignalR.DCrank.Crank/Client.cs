@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
@@ -55,7 +56,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Connection.Start Failed: {0}: {1}", ex.GetType(), ex.Message);
+                    Trace.WriteLine(string.Format("Connection.Start Failed: {0}: {1}", ex.GetType(), ex.Message));
 
                     if (connectCount == 3)
                     {

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -13,14 +13,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Worker : IWorker
     {
         private readonly Process _agentProcess;
-        private readonly List<Client> _clients;
+        private readonly ConcurrentBag<Client> _clients;
         private readonly CancellationTokenSource _sendStatusCts;
         private int _targetConnectionCount;
 
         public Worker(int agentProcessId)
         {
             _agentProcess = Process.GetProcessById(agentProcessId);
-            _clients = new List<Client>();
+            _clients = new ConcurrentBag<Client>();
             _sendStatusCts = new CancellationTokenSource();
         }
 
@@ -96,12 +96,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             Log("Worker received stop command");
             _targetConnectionCount = 0;
 
-            foreach (var client in _clients)
+            while (!_clients.IsEmpty)
             {
-                client.StopConnection();
+                Client client;
+                if (_clients.TryTake(out client))
+                {
+                    client.StopConnection();
+                }
             }
 
-            _clients.Clear();
             _sendStatusCts.Cancel();
             Log("Connections stopped succesfully");
         }

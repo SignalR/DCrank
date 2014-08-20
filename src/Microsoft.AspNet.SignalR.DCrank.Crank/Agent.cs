@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
@@ -12,7 +11,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class Agent
     {
-        private const string _url = "http://localhost:17063";
         private const string _fileName = "crank.exe";
         private const string _hubName = "ControllerHub";
         private readonly ConcurrentDictionary<int, AgentWorker> _workers;
@@ -33,13 +31,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             Trace.WriteLine("Agent created");
         }
 
-        public async Task Run()
+        public async Task Run(string controllerUrl)
         {
             while (true)
             {
                 try
                 {
-                    using (_connection = new HubConnection(_url))
+                    using (_connection = new HubConnection(controllerUrl))
                     {
                         _proxy = _connection.CreateHubProxy(_hubName);
                         InitializeProxy();
@@ -93,7 +91,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             var startInfo = new ProcessStartInfo()
             {
                 FileName = _fileName,
-                Arguments = string.Format("worker {0}", Process.GetCurrentProcess().Id),
+                Arguments = string.Format("/Mode:worker /ParentPid:{0}", Process.GetCurrentProcess().Id),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardInput = true,
