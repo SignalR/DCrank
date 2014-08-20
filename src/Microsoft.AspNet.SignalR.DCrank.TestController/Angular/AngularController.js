@@ -145,8 +145,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
 
     // Running a test - performance data
-    $scope.perfCounterData;
-    $scope.getPerfCounters;
+    $scope.performaceCounterData;
 
 
     // Agent and worker creation and upkeep
@@ -212,27 +211,18 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             $scope.getTargetConnectionCount();
             $scope.getConnectionCount();
             $scope.setState(heartbeatInformation.ApplyingLoad);
-
-            // Updates the perf counters table
-            //if ($scope.testRunning && $scope.getPerfCounters === undefined) {
-            //    $scope.getPerfCounters = setTimeout(function () { $scope.updatePerfCounters() }, 5000);
-            //}
         });
     });
 
     $scope.workerConnected = function (agentId, workerId, connectionCount, targetConnectionCount) {
         var newWorker = true;
-        var agentIndex;
-        var workerIndex;
         for (var index = 0; index < $scope.agents.length; index++) {
             var agent = $scope.agents[index];
             if (agent.id === agentId) {
-                agentIndex = index;
                 for (var i = 0; i < agent.workers.length; i++) {
                     var worker = agent.workers[i];
                     if (worker.id === workerId) {
                         newWorker = false;
-                        workerIndex = i;
                         break;
                     }
                 }
@@ -489,7 +479,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
                 agentIndex = i;
             };
         };
-        $scope.uiGeneralDisplay.unshift('Recieved a self destruct message from: ' + $scope.agents[agentIndex].id);
+        $scope.uiGeneralDisplay.unshift('Received a self destruct message from: ' + $scope.agents[agentIndex].number);
         $scope.agents.splice(agentIndex, 1);
         $scope.$digest();
     }
@@ -507,7 +497,6 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
             }
         }
         signalRSvc.setUpTest(targetAddress, numberOfConnections, agentIdList);
-        // signalRSvc.connectToDatabase();
     }
 
     $scope.startTest = function () {
@@ -579,13 +568,16 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     // Helps to display the signalR connection data
     $scope.$parent.$on('updatePerfCounters', function (e, performanceData) {
         $scope.$apply(function () {
-            $scope.perfCounterData = performanceData;
-            $scope.$digest();
+            var newPerformanceData = [];
+            for (var property in performanceData) {
+                var currentRow = [];
+                if (performanceData.hasOwnProperty(property)) {
+                    currentRow.push(property);
+                    currentRow.push(performanceData[property]);
+                    newPerformanceData.push(currentRow);
+                }
+            }
+            $scope.performaceCounterData = newPerformanceData;
         });
     });
-
-    $scope.updatePerfCounters = function () {
-        signalRSvc.getPerformanceData();
-        $scope.getPerfCounters = undefined;
-    }
 }

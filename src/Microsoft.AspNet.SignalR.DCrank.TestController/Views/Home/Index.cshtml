@@ -94,11 +94,11 @@
         <ul data-ng-repeat="messages in uiGeneralDisplay track by $index">{{messages}}</ul>
     </div>
 
-    <h1>Performace</h1>
+    <h1 data-ng-show="testRunning">Performace</h1>
     <div id="hud">
         <div id="perfCounters" data-ng-show="testRunning">
             <table>
-                <tr data-ng-repeat="currentRow in perfCounterData track by $index">
+                <tr data-ng-repeat="currentRow in performaceCounterData track by $index">
                     <td data-ng-repeat="currentColumn in currentRow track by $index">{{currentColumn}}</td>
                 </tr>
             </table>
