@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
     public class ControllerHub : Hub
@@ -12,6 +15,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         private readonly int _numberOfWorkersPerAgent = 3; // Default value - can be changed/made configurable as needed
         private string _connectionString;
         private SqlConnection _performanceDatabaseConnection;
+
+        private readonly PerformanceCounters _performanceCounters;
+
+        public ControllerHub() : this(PerformanceCounters.Instance) { }
+
+        public ControllerHub(PerformanceCounters PerformanceCounters)
+        {
+            _performanceCounters = PerformanceCounters;
+        }
 
         public override async Task OnConnected()
         {
@@ -87,7 +99,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.startTest(targetAddress, messageSize, messageRate);
         }
 
-        public void SetUpTest(string targetAddresss, int numberOfConnections, string[] agentIdList)
+        public async Task SetUpTest(string targetAddresss, int numberOfConnections, string[] agentIdList)
         {
             int numberOfAgents = agentIdList.Length;
             if (numberOfConnections != 0 && numberOfAgents != 0)
@@ -96,8 +108,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 Clients.All.startWorkers(targetAddresss, _numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
             }
 
-            // get connection string from the database
-            // Clients.All.requestConnectionString();
+            // Get connection string from the database
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(targetAddresss + "/dcrank");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var data = await response.Content.ReadAsStringAsync();
+                    var jsonData = JObject.Parse(data);
+                    _connectionString = jsonData["ConnectionString"].ToObject<string>();
+                    _performanceCounters.Start(_connectionString);
+                }
+            }
         }
 
         public void StartTest(int messageSize, int messageRate)
@@ -108,55 +131,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         public void KillConnections()
         {
             Clients.All.killConnections();
-        }
-
-        public void SetConnectionString(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
-        public void ConnectToDatabase()
-        {
-            _performanceDatabaseConnection = new SqlConnection(_connectionString);
-
-            // Allows the connection to be established before trying to open it
-            Thread.Sleep(15000);
-
-            try
-            {
-                _performanceDatabaseConnection.Open();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-
-        public void GetPerformanceData()
-        {
-            try
-            {
-                List<List<string>> perfermanceData = new List<List<string>>();
-
-                SqlDataReader myReader = null;
-                SqlCommand myCommand = new SqlCommand("select * from table",
-                                                         _performanceDatabaseConnection);
-                myReader = myCommand.ExecuteReader();
-                // Reads through the entire table once
-                while (myReader.Read())
-                {
-                    List<string> currentRow = new List<string>();
-                    currentRow.Add(myReader["Column1"].ToString());
-                    currentRow.Add(myReader["Column2"].ToString());
-                    perfermanceData.Add(currentRow);
-                }
-
-                Clients.All.updatePerfCounters(perfermanceData);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
         }
     }
 }
