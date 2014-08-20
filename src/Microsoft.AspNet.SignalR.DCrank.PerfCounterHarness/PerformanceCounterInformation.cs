@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class Info
+    public class PerformanceCounterInformation
     {
         public static string ConnectionString { get; set; }
     }

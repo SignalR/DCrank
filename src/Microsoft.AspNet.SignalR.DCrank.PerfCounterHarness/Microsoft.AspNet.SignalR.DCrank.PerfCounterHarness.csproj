@@ -71,7 +71,7 @@
   <ItemGroup>
     <Compile Include="DCrankExtensions.cs" />
     <Compile Include="DependencyResolverExtensions.cs" />
-    <Compile Include="Info.cs" />
+    <Compile Include="PerformanceCounterInformation.cs" />
     <Compile Include="PerformanceCounterSample.cs" />
     <Compile Include="PerformanceCounterSampleContext.cs" />
     <Compile Include="PerformanceCounterManagerDCrank.cs" />

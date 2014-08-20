@@ -13,9 +13,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
         {
             Task.Run(() =>
             {
-                using (var database = new PerformanceCounterSampleContext(connectionString))
+                while (true)
                 {
-                    while (true)
+                    using (var database = new PerformanceCounterSampleContext(connectionString))
                     {
                         try
                         {
@@ -31,16 +31,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                                 ConnectionsReconnected = ConnectionsReconnected.RawValue,
                                 ConnectionsDisconnected = ConnectionsDisconnected.RawValue
                             };
+
                             database.PerformanceCounterSamples.Add(perfCounterSample);
                             database.SaveChanges();
-
-                            Thread.Sleep(updateInterval * 1000);
                         }
                         catch (DbUpdateException ex)
                         {
                             Debug.WriteLine(ex.InnerException.Message);
                         }
                     }
+
+                    Thread.Sleep(updateInterval * 1000);
                 }
             });
         }

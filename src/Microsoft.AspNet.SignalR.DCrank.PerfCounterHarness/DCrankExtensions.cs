@@ -12,7 +12,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                     map.Run(context =>
                         {
                             return context.Response.WriteAsync(JsonConvert.SerializeObject(
-                                new { DatabaseConnectionString = Info.ConnectionString }));
+                                new { DatabaseConnectionString = PerformanceCounterInformation.ConnectionString }));
                         });
                 });
         }
