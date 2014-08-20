@@ -176,7 +176,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 // Sending once per 5 seconds to avoid overloading the Test Controller
                 Thread.Sleep(5000);
             }
-
         }
     }
 }

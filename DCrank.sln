@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30423.0
+VisualStudioVersion = 12.0.30321.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D864C79D-4933-407C-90D6-D6A9BB50603B}"
 EndProject
@@ -10,6 +10,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Crank", "src\Microsoft.AspNet.SignalR.DCrank.Crank\Microsoft.AspNet.SignalR.DCrank.Crank.csproj", "{C85BF784-D977-45B0-8A08-D49245035F89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.Crank.Tests", "tests\Microsoft.AspNet.SignalR.DCrank.Crank.Tests\Microsoft.AspNet.SignalR.DCrank.Crank.Tests.csproj", "{85DD9145-AE67-4870-A9ED-DE0FDB694479}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness", "src\Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness\Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness.csproj", "{A4C6EFF4-43E9-4CC1-93EB-A40692AF48FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +30,10 @@ Global
 		{85DD9145-AE67-4870-A9ED-DE0FDB694479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85DD9145-AE67-4870-A9ED-DE0FDB694479}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85DD9145-AE67-4870-A9ED-DE0FDB694479}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4C6EFF4-43E9-4CC1-93EB-A40692AF48FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C6EFF4-43E9-4CC1-93EB-A40692AF48FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4C6EFF4-43E9-4CC1-93EB-A40692AF48FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4C6EFF4-43E9-4CC1-93EB-A40692AF48FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
