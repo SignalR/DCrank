@@ -1,10 +1,12 @@
 /* jquery.signalR.core.js */
 /*global window:false */
 /*!
- * ASP.NET SignalR JavaScript Library v2.1.0
+ * ASP.NET SignalR JavaScript Library v2.2.0-pre
  * http://signalr.net/
  *
- * Copyright (C) Microsoft Corporation. All rights reserved.
+ * Copyright Microsoft Open Technologies, Inc. All rights reserved.
+ * Licensed under the Apache 2.0
+ * https://github.com/SignalR/SignalR/blob/master/LICENSE.md
  *
  */
 
@@ -98,7 +100,7 @@
         isDisconnecting = function (connection) {
             return connection.state === signalR.connectionState.disconnected;
         },
-        
+
         supportsKeepAlive = function (connection) {
             return connection._.keepAliveData.activated &&
                    connection.transport.supportsKeepAlive(connection);
@@ -401,7 +403,7 @@
 
         state: signalR.connectionState.disconnected,
 
-        clientProtocol: "1.4",
+        clientProtocol: "1.5",
 
         reconnectDelay: 2000,
 
@@ -1190,13 +1192,14 @@
             throw new Error("Query string property must be either a string or object.");
         },
 
-        getUrl: function (connection, transport, reconnecting, poll) {
+        // BUG #2953: The url needs to be same otherwise it will cause a memory leak
+        getUrl: function (connection, transport, reconnecting, poll, ajaxPost) {
             /// <summary>Gets the url for making a GET based connect request</summary>
             var baseUrl = transport === "webSockets" ? "" : connection.baseUrl,
                 url = baseUrl + connection.appRelativeUrl,
                 qs = "transport=" + transport;
 
-            if (connection.groupsToken) {
+            if (!ajaxPost && connection.groupsToken) {
                 qs += "&groupsToken=" + window.encodeURIComponent(connection.groupsToken);
             }
 
@@ -1210,13 +1213,17 @@
                     url += "/reconnect";
                 }
 
-                if (connection.messageId) {
+                if (!ajaxPost && connection.messageId) {
                     qs += "&messageId=" + window.encodeURIComponent(connection.messageId);
                 }
             }
             url += "?" + qs;
             url = transportLogic.prepareQueryString(connection, url);
-            url += "&tid=" + Math.floor(Math.random() * 11);
+
+            if (!ajaxPost) {
+                url += "&tid=" + Math.floor(Math.random() * 11);
+            }
+
             return url;
         },
 
@@ -1225,7 +1232,6 @@
                 MessageId: minPersistentResponse.C,
                 Messages: minPersistentResponse.M,
                 Initialized: typeof (minPersistentResponse.S) !== "undefined" ? true : false,
-                Disconnect: typeof (minPersistentResponse.D) !== "undefined" ? true : false,
                 ShouldReconnect: typeof (minPersistentResponse.T) !== "undefined" ? true : false,
                 LongPollDelay: minPersistentResponse.L,
                 GroupsToken: minPersistentResponse.G
@@ -1427,7 +1433,7 @@
                 // Update Keep alive on reconnect
                 $(connection).bind(events.onReconnect, connection._.keepAliveData.reconnectKeepAliveUpdate);
 
-                connection.log("Now monitoring keep alive with a warning timeout of " + keepAliveData.timeoutWarning + " and a connection lost timeout of " + keepAliveData.timeout + ".");
+                connection.log("Now monitoring keep alive with a warning timeout of " + keepAliveData.timeoutWarning + ", keep alive timeout of " + keepAliveData.timeout + " and disconnecting timeout of " + connection.disconnectTimeout);
             } else {
                 connection.log("Tried to monitor keep alive but it's already being monitored.");
             }
@@ -1965,7 +1971,7 @@
             if (window.EventSource) {
                 // If the browser supports SSE, don't use Forever Frame
                 if (onFailed) {
-                    connection.log("This browser supports SSE, skipping Forever Frame.");
+                    connection.log("Forever Frame is not supported by SignalR on browsers with SSE support.");
                     onFailed();
                 }
                 return;
@@ -2220,7 +2226,16 @@
                         connect = (messageId === null),
                         reconnecting = !connect,
                         polling = !raiseReconnect,
-                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling);
+                        url = transportLogic.getUrl(instance, that.name, reconnecting, polling, true /* use Post for longPolling */),
+                        postData = {};
+
+                    if (instance.messageId) {
+                        postData.messageId = instance.messageId;
+                    }
+
+                    if (instance.groupsToken) {
+                        postData.groupsToken = instance.groupsToken;
+                    }
 
                     // If we've disconnected during the time we've tried to re-instantiate the poll then stop.
                     if (isDisconnecting(instance) === true) {
@@ -2235,6 +2250,9 @@
                             }
                         },
                         url: url,
+                        type: "POST",
+                        contentType: signalR._.defaultContentType,
+                        data: postData,
                         success: function (result) {
                             var minData,
                                 delay = 0,
@@ -2270,10 +2288,6 @@
                             if (data &&
                                 $.type(data.LongPollDelay) === "number") {
                                 delay = data.LongPollDelay;
-                            }
-
-                            if (data && data.Disconnect) {
-                                return;
                             }
 
                             if (isDisconnecting(instance) === true) {
@@ -2814,5 +2828,5 @@
 /*global window:false */
 /// <reference path="jquery.signalR.core.js" />
 (function ($, undefined) {
-    $.signalR.version = "2.1.0";
+    $.signalR.version = "2.2.0-pre";
 }(window.jQuery));

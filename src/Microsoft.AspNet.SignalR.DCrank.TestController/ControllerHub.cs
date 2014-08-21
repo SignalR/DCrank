@@ -12,11 +12,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     public class ControllerHub : Hub
     {
         private readonly string _uiGroup = "Dashboard";
-        private readonly int _numberOfWorkersPerAgent = 3; // Default value - can be changed/made configurable as needed
+        private const int _numberOfWorkersPerAgent = 3; // Default value - can be changed/made configurable as needed
         private string _connectionString;
-        private SqlConnection _performanceDatabaseConnection;
-
         private readonly PerformanceCounters _performanceCounters;
+        private readonly string _dcrankEndpoint = "/_dcrank";
 
         public ControllerHub() : this(PerformanceCounters.Instance) { }
 
@@ -87,6 +86,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         public void StopWorkers()
         {
             Clients.All.stopWorkers();
+            _performanceCounters.Stop();
         }
 
         public void KillWorkers(string agentId, int numberOfWorkersToKill)
@@ -111,14 +111,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             // Get connection string from the database
             using (var client = new HttpClient())
             {
-                var response = await client.GetAsync(targetAddresss + "/dcrank");
+                var response = await client.GetAsync(targetAddresss + _dcrankEndpoint);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var data = await response.Content.ReadAsStringAsync();
                     var jsonData = JObject.Parse(data);
-                    _connectionString = jsonData["ConnectionString"].ToObject<string>();
+                    _connectionString = jsonData["DatabaseConnectionString"].ToObject<string>();
                     _performanceCounters.Start(_connectionString);
+                }
+                else
+                {
+                    Clients.All.updatePerfCounters(new { Performace_Counters_Unavailible = "404 Not Found Error" });
                 }
             }
         }
@@ -131,6 +135,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         public void KillConnections()
         {
             Clients.All.killConnections();
+            _performanceCounters.Stop();
         }
     }
 }

@@ -5,8 +5,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public static class DCrankExtensions
     {
-        public static IAppBuilder UseDCrankEndpoint(this IAppBuilder app, string endPoint)
+        public static IAppBuilder UseDCrankEndpoint(this IAppBuilder app)
         {
+            var endPoint = "/_dcrank";
             return app.Map(endPoint, map =>
                 {
                     map.Run(context =>

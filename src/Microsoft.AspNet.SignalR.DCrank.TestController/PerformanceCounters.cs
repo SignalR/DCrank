@@ -11,9 +11,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     public class PerformanceCounters
     {
         // Singleton instance
-        private readonly static Lazy<PerformanceCounters> _instance = new Lazy<PerformanceCounters>(() => new PerformanceCounters(GlobalHost.ConnectionManager.GetHubContext<ControllerHub>().Clients));
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(5000);
+        private readonly static Lazy<PerformanceCounters> _performanceCounterInstance = new Lazy<PerformanceCounters>(() => new PerformanceCounters(GlobalHost.ConnectionManager.GetHubContext<ControllerHub>().Clients));
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(500);
         private Timer _timer;
+        private readonly object _updatePerformanceCounters = new object();
+        private volatile bool _updatingPerformanceCounters = false;
 
         // Database as a list for the javascript
         private PerformanceCounterSample _latestUpdate;
@@ -28,14 +30,23 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         {
             get
             {
-                return _instance.Value;
+                return _performanceCounterInstance.Value;
             }
         }
 
         public void Start(string connectionString)
         {
             _connectionString = connectionString;
-            _timer = new Timer(UpdatePerformanceCounters, null, _updateInterval, _updateInterval);
+            if (_timer == null)
+            {
+                _timer = new Timer(UpdatePerformanceCounters, null, _updateInterval, _updateInterval);
+            }
+        }
+
+        public void Stop()
+        {
+            _timer.Dispose();
+            _timer = null;
         }
 
         private IHubConnectionContext<dynamic> Clients
@@ -46,21 +57,28 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         private void UpdatePerformanceCounters(object state)
         {
-            using (var database = new PerformanceCounterSampleContext(_connectionString))
+            if (!_updatingPerformanceCounters)
             {
-                try
+                lock (_updatePerformanceCounters)
                 {
-                    var currentData = database.PerformanceCounterSamples.LastOrDefault();
-                    if (currentData != null && currentData != _latestUpdate)
+                    _updatingPerformanceCounters = true;
+                    try
                     {
-                        _latestUpdate = currentData;
-                        Clients.All.updatePerfCounters(_latestUpdate);
+                        using (var database = new PerformanceCounterSampleContext(_connectionString))
+                        {
+                            var currentData = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).FirstOrDefault();
+                            if (currentData != null && currentData != _latestUpdate)
+                            {
+                                _latestUpdate = currentData;
+                                Clients.All.updatePerfCounters(_latestUpdate);
+                            }
+                        }
                     }
-
-                }
-                catch (DbUpdateException ex)
-                {
-                    Debug.WriteLine(ex.InnerException.Message);
+                    catch (DbUpdateException ex)
+                    {
+                        Debug.WriteLine(ex.InnerException.Message);
+                    }
+                    _updatingPerformanceCounters = false;
                 }
             }
         }
