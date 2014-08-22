@@ -76,8 +76,6 @@
     <Compile Include="PerformanceCounterSampleContext.cs" />
     <Compile Include="PerformanceCounterManagerDCrank.cs" />
     <Compile Include="DependencyResolverExtensions.cs" />
-    <Compile Include="DCrankHttpHandler.cs" />
-    <Compile Include="Info.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
