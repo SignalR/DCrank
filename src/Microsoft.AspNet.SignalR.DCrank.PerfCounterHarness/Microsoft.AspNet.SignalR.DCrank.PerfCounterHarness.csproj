@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DCrankExtensions.cs" />
+    <Compile Include="DCrankPerformanceCounterType.cs" />
     <Compile Include="PerformanceCounterConsumer.cs" />
     <Compile Include="PerformanceCounterDCrank.cs" />
     <Compile Include="PerformanceCounterInformation.cs" />

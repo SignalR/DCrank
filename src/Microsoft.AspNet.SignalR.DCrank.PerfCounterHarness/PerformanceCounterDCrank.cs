@@ -1,18 +1,32 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Infrastructure;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class PerformanceCounterDCrank : IPerformanceCounter
+    public class DCrankPerformanceCounter : IPerformanceCounter
     {
+        private readonly string _counterName;
         private long _counterValue;
-        private string _counterName;
 
-        public PerformanceCounterDCrank(string counterName)
+        // Only for per/sec counters
+        private long _latestCounterSample;
+        private long _counterRate;
+
+        private DCrankPerformanceCounterType _counterType;
+
+        public DCrankPerformanceCounter(string counterName, DCrankPerformanceCounterType perfCounterType)
         {
             _counterName = counterName;
+            _counterType = perfCounterType;
+
+            if (_counterType == DCrankPerformanceCounterType.PerSecRate)
+            {
+                UpdateCounterRate();
+            }
         }
-        
+
         public void Close()
         {
             throw new NotImplementedException();
@@ -25,17 +39,19 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public long Decrement()
         {
-            return --_counterValue;
+            Interlocked.Exchange(ref _counterValue, --_counterValue);
+            return _counterValue;
         }
 
         public long Increment()
         {
-            return ++_counterValue;
+            Interlocked.Exchange(ref _counterValue, ++_counterValue);
+            return _counterValue;
         }
 
         public long IncrementBy(long value)
         {
-            _counterValue += value;
+            Interlocked.Exchange(ref _counterValue, _counterValue + value);
             return _counterValue;
         }
 
@@ -48,7 +64,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
         {
             get
             {
-                return _counterValue;
+                if (_counterType == DCrankPerformanceCounterType.Total)
+                {
+                    return _counterValue;
+                }
+                else
+                {
+                    return _counterRate;
+                }
             }
             set
             {
@@ -59,6 +82,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
         public void RemoveInstance()
         {
             throw new NotImplementedException();
+        }
+
+        private void UpdateCounterRate()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Interlocked.Exchange(ref _counterRate, _counterValue - _latestCounterSample);
+                    Interlocked.Exchange(ref _latestCounterSample, _counterValue);
+
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+            });
         }
     }
 }

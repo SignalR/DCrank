@@ -15,16 +15,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public PerformanceCounterManagerDCrank()
         {
-            ConnectionMessagesReceivedPerSec = new PerformanceCounterDCrank("ConnectionMessagesReceivedPerSec");
-            ConnectionMessagesReceivedTotal = new PerformanceCounterDCrank("ConnectionMessagesReceivedTotal");
-            ConnectionMessagesSentPerSec = new PerformanceCounterDCrank("ConnectionMessagesSentPerSec");
-            ConnectionMessagesSentTotal = new PerformanceCounterDCrank("ConnectionMessagesSentTotal");
-            ConnectionsConnected = new PerformanceCounterDCrank("ConnectionsConnected");
-            ConnectionsCurrent = new PerformanceCounterDCrank("ConnectionsCurrent");
-            ConnectionsDisconnected = new PerformanceCounterDCrank("ConnectionsDisconnected");
-            ConnectionsReconnected = new PerformanceCounterDCrank("ConnectionsReconnected");
+            ConnectionMessagesReceivedPerSec = new DCrankPerformanceCounter("ConnectionMessagesReceivedPerSec", DCrankPerformanceCounterType.PerSecRate);
+            ConnectionMessagesReceivedTotal = new DCrankPerformanceCounter("ConnectionMessagesReceivedTotal", DCrankPerformanceCounterType.Total);
+            ConnectionMessagesSentPerSec = new DCrankPerformanceCounter("ConnectionMessagesSentPerSec", DCrankPerformanceCounterType.PerSecRate);
+            ConnectionMessagesSentTotal = new DCrankPerformanceCounter("ConnectionMessagesSentTotal", DCrankPerformanceCounterType.Total);
+            ConnectionsConnected = new DCrankPerformanceCounter("ConnectionsConnected", DCrankPerformanceCounterType.Total);
+            ConnectionsCurrent = new DCrankPerformanceCounter("ConnectionsCurrent", DCrankPerformanceCounterType.Total);
+            ConnectionsDisconnected = new DCrankPerformanceCounter("ConnectionsDisconnected", DCrankPerformanceCounterType.Total);
+            ConnectionsReconnected = new DCrankPerformanceCounter("ConnectionsReconnected", DCrankPerformanceCounterType.Total);
 
-            _testValue = new PerformanceCounterDCrank("TestValue");
+            _testValue = new DCrankPerformanceCounter("TestValue", DCrankPerformanceCounterType.Total);
         }
 
         public IPerformanceCounter ConnectionMessagesReceivedPerSec
@@ -77,50 +77,50 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public IPerformanceCounter ErrorsAllPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsAllTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsHubInvocationPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsHubInvocationTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsHubResolutionPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsHubResolutionTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsTransportPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter ErrorsTransportTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public void Initialize(string instanceName, CancellationToken hostShutdownToken)
@@ -135,93 +135,93 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public IPerformanceCounter MessageBusAllocatedWorkers
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusBusyWorkers
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusMessagesPublishedPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusMessagesPublishedTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusMessagesReceivedPerSec
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusMessagesReceivedTotal
         {
-            get {return _testValue;}
-            
+            get { return _testValue; }
+
         }
 
         public IPerformanceCounter MessageBusSubscribersCurrent
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter MessageBusSubscribersPerSec
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter MessageBusSubscribersTotal
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter MessageBusTopicsCurrent
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutErrorsPerSec
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutErrorsTotal
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutMessageBusMessagesReceivedPerSec
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutSendQueueLength
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutStreamCountBuffering
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutStreamCountOpen
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
 
         public IPerformanceCounter ScaleoutStreamCountTotal
         {
-            get {return _testValue;}
+            get { return _testValue; }
         }
     }
 }

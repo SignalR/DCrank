@@ -9,8 +9,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public class PerformanceCounterConsumer
     {
-        private IPerformanceCounterManager _perfCounterManager;
-        private string _connectionString;
+        private readonly IPerformanceCounterManager _perfCounterManager;
+        private readonly string _connectionString;
 
         public PerformanceCounterConsumer(IPerformanceCounterManager perfCounterManager, string connectionString, TimeSpan updateInterval)
         {
