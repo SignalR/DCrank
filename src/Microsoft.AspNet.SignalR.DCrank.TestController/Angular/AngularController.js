@@ -64,32 +64,31 @@ angularModule.service('signalRSvc', function ($rootScope) {
         this.proxy.invoke('killWorkers', agentId, numberOfWorkersToKill);
     };
 
-
     // Running a Test
     var setUpTest = function (targetAddress, numberOfConnections, agentIdList) {
         this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, agentIdList);
-    }
+    };
 
     var startTest = function (messageSize, messageRate) {
         this.proxy.invoke('startTest', messageSize, messageRate);
-    }
+    };
 
     var stopWorkers = function () {
         this.proxy.invoke('stopWorkers');
-    }
+    };
 
     var killConnections = function () {
         this.proxy.invoke('killConnections');
-    }
-
+    };
 
     // Displaying and updating the database information
     var connectToDatabase = function () {
         this.proxy.invoke('connectToDatabase');
-    }
+    };
+
     var getPerformanceData = function () {
         this.proxy.invoke('getPerformanceData');
-    }
+    };
 
     return {
         initialize: initialize,

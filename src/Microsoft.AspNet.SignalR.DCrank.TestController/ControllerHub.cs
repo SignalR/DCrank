@@ -13,7 +13,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     {
         private readonly string _uiGroup = "Dashboard";
         private const int _numberOfWorkersPerAgent = 3; // Default value - can be changed/made configurable as needed
-        private string _connectionString;
         private readonly PerformanceCounters _performanceCounters;
         private readonly string _dcrankEndpoint = "/_dcrank";
 
@@ -117,12 +116,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 {
                     var data = await response.Content.ReadAsStringAsync();
                     var jsonData = JObject.Parse(data);
-                    _connectionString = jsonData["DatabaseConnectionString"].ToObject<string>();
+                    var _connectionString = jsonData["DatabaseConnectionString"].ToObject<string>();
                     _performanceCounters.Start(_connectionString);
                 }
                 else
                 {
-                    Clients.All.updatePerfCounters(new { Performace_Counters_Unavailible = "404 Not Found Error" });
+                    Clients.All.updatePerfCounters(new { PerformaceCountersUnavailable = "404 Not Found Error" });
                 }
             }
         }

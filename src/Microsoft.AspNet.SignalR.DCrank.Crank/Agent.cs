@@ -180,6 +180,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                         LogAgent("Agent killed Worker {0}.", key);
                     }
                 }
+
                 _totalConnectionsRequested = 0;
                 _applyingLoad = false;
             });

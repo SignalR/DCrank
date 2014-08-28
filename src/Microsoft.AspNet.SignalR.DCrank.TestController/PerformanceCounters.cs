@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         private volatile bool _updatingPerformanceCounters = false;
 
         // Database as a list for the javascript
-        private PerformanceCounterSample _latestUpdate;
+        private PerformanceCounterSample _lastSample;
         private string _connectionString;
 
         private PerformanceCounters(IHubConnectionContext<dynamic> clients)
@@ -62,22 +63,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 lock (_updatePerformanceCounters)
                 {
                     _updatingPerformanceCounters = true;
-                    try
+
+                    using (var database = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        using (var database = new PerformanceCounterSampleContext(_connectionString))
+                        var currentData = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).FirstOrDefault();
+
+                        if (currentData != null && currentData != _lastSample)
                         {
-                            var currentData = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).FirstOrDefault();
-                            if (currentData != null && currentData != _latestUpdate)
-                            {
-                                _latestUpdate = currentData;
-                                Clients.All.updatePerfCounters(_latestUpdate);
-                            }
+                            _lastSample = currentData;
+                            Clients.All.updatePerfCounters(_lastSample);
                         }
                     }
-                    catch (DbUpdateException ex)
-                    {
-                        Debug.WriteLine(ex.InnerException.Message);
-                    }
+
                     _updatingPerformanceCounters = false;
                 }
             }
