@@ -83,7 +83,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                             _latestSampleTimestamp = samples.First().Timestamp;
                         }
 
-                        Clients.All.updatePerfCounters(PerformanceCounterParser.ReadCounters(samples));
+                        Clients.All.updatePerfCounters(PerformanceCounterParser.ReadCounters(samples), _latestSampleTimestamp);
                     }
 
                     _updatingPerformanceCounters = false;

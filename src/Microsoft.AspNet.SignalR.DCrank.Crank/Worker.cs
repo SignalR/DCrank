@@ -65,7 +65,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 var client = new Client();
 
-                client.OnMessage += OnMessage;
                 client.OnClosed += OnClosed;
 
                 await client.CreateAndStartConnection(connectArguments);
@@ -110,11 +109,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _sendStatusCts.Cancel();
             Log("Connections stopped succesfully");
             _targetConnectionCount = 0;
-        }
-
-        private void OnMessage(string message)
-        {
-            Log("Worker received following message from server: {0}", message);
         }
 
         private void OnClosed()

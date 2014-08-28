@@ -1,4 +1,5 @@
 ﻿var angularModule = angular.module('angularModule', []);
+var perfPlot;
 
 angularModule.service('signalRSvc', function ($rootScope) {
     var proxy = null;
@@ -31,8 +32,8 @@ angularModule.service('signalRSvc', function ($rootScope) {
             $rootScope.$emit('workersLog', agentId, workerId, message);
         });
 
-        this.proxy.on('updatePerfCounters', function (performanceData) {
-            $rootScope.$emit('updatePerfCounters', performanceData);
+        this.proxy.on('updatePerfCounters', function (performanceData, timestamp) {
+            $rootScope.$emit('updatePerfCounters', performanceData, timestamp);
         });
 
         connection.start();
@@ -144,7 +145,10 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
 
 
     // Running a test - performance data
-    $scope.performaceCounterData;
+    $scope.performanceCounterData;
+    $scope.performanceCounterTimestamp;
+    $scope.performanceGraphData = {};
+    $scope.selectedPerformanceCounter;
 
 
     // Agent and worker creation and upkeep
@@ -563,20 +567,72 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         }
     }
 
-
-    // Helps to display the signalR connection data
-    $scope.$parent.$on('updatePerfCounters', function (e, performanceData) {
-        $scope.$apply(function () {
-            var newPerformanceData = [];
-
-            for (var i = 0; i < performanceData.length; i++) {
-                var currentRow = [];
-                currentRow.push(performanceData[i].CounterName);
-                currentRow.push(performanceData[i].RawValue);
-                newPerformanceData.push(currentRow);
+    $scope.updatePlot = function() {
+        if ($scope.selectedPerformanceCounter !== undefined) {
+            if (perfPlot) {
+                perfPlot.destroy();
             }
 
-            $scope.performaceCounterData = newPerformanceData;
+            perfPlot = $.jqplot('perfPlot', [$scope.performanceGraphData[$scope.selectedPerformanceCounter]], {
+                series: [
+                    {
+                        markerOptions: {
+                            style: 'dimaond',
+                        }
+                    }
+                ],
+                axes: {
+                    xaxis: {
+                        label: 'Time',
+                        renderer: $.jqplot.DateAxisRenderer,
+                        tickOptions: { formatString: '%H:%M:%S' }
+                    },
+                    yaxis: {
+                        label: $scope.selectedPerformanceCounter,
+                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                    }
+                },
+                highlighter: {
+                    show: true
+                }
+            });
+        }
+    }
+
+    $scope.$watch('selectedPerformanceCounter', function(newVal, oldVal) {
+        $scope.updatePlot();
+    });
+
+    // Helps to display the signalR connection data
+    $scope.$parent.$on('updatePerfCounters', function (e, performanceData, timestamp) {
+        $scope.$apply(function () {
+            if ($scope.performanceCounterTimestamp !== undefined && $scope.performanceCounterTimestamp === timestamp) {
+                return;
+            }
+            $scope.performanceCounterTimestamp = timestamp;
+
+            var newPerformanceData = [];
+            var time = new Date(timestamp).getTime();
+
+            for (var i = 0; i < performanceData.length; i++) {
+                var name = performanceData[i].CounterName;
+                var value = performanceData[i].RawValue;
+
+                if ($scope.performanceGraphData[name] === undefined) {
+                    $scope.performanceGraphData[name] = [];
+                }
+                $scope.performanceGraphData[name].push([time, value]);
+
+                var currentProperty = {
+                    name: name,
+                    value: value
+                };
+                newPerformanceData.push(currentProperty);
+            }
+
+            $scope.performanceCounterData = newPerformanceData;
+
+            $scope.updatePlot();
         });
     });
 }
