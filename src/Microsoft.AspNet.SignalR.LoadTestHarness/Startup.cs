@@ -16,7 +16,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
         public void Configure(IBuilder app)
         {
             // Setup configuration sources
-            var configuration = new Configuration();
+            var configuration = new Framework.ConfigurationModel.Configuration();
             configuration.AddJsonFile("config.json");
             configuration.AddEnvironmentVariables();
 
@@ -32,13 +32,18 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
                 {
                     options.UseSqlServer(configuration.Get("Data:DefaultConnection:ConnectionString"));
                 });
-                
+
                 // Add Identity services to the services container
                 services.AddIdentitySqlServer<ApplicationDbContext, ApplicationUser>()
                     .AddAuthentication();
 
                 // Add MVC services to the services container
                 services.AddMvc();
+
+                // Add SignalR services to the services container
+                services.AddSignalR();
+
+                services.AddSingleton<TimerManager>();
             });
 
             // Enable Browser Link support
@@ -46,6 +51,10 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
 
             // Add static files to the request pipeline
             app.UseStaticFiles();
+
+            // Add SignalR to the request pipeline
+            app.UseSignalR<TestConnection>("/TestConnection");
+            app.UseSignalR();
 
             // Add cookie-based authentication to the request pipeline
             app.UseCookieAuthentication(new CookieAuthenticationOptions
@@ -58,7 +67,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default", 
+                    name: "default",
                     template: "{controller}/{action}/{id?}",
                     defaults: new { controller = "Home", action = "Index" });
 
