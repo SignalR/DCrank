@@ -71,10 +71,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DCrankExtensions.cs" />
+    <Compile Include="ParsePerformanceCounters.cs" />
+    <Compile Include="PerformanceCounterType.cs" />
+    <Compile Include="PerformanceCounterValues.cs" />
+    <Compile Include="PerformanceCounterConsumer.cs" />
+    <Compile Include="DCrankPerformanceCounter.cs" />
+    <Compile Include="PerformanceCounterDefinition.cs" />
     <Compile Include="PerformanceCounterInformation.cs" />
     <Compile Include="PerformanceCounterSample.cs" />
     <Compile Include="PerformanceCounterSampleContext.cs" />
-    <Compile Include="PerformanceCounterManagerDCrank.cs" />
+    <Compile Include="DCrankPerformanceCounterManager.cs" />
     <Compile Include="DependencyResolverExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

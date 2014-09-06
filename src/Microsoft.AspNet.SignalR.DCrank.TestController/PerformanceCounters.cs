@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Data.Entity.Infrastructure;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
@@ -66,13 +63,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
                     using (var database = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        var currentData = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).FirstOrDefault();
-
-                        if (currentData != null && currentData != _lastSample)
-                        {
-                            _lastSample = currentData;
-                            Clients.All.updatePerfCounters(_lastSample);
-                        }
+                        var samples = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
+                        Clients.All.updatePerfCounters(ParsePerformanceCounters.ParseCounters(samples));
                     }
 
                     _updatingPerformanceCounters = false;

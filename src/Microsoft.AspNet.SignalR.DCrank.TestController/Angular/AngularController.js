@@ -568,14 +568,14 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
     $scope.$parent.$on('updatePerfCounters', function (e, performanceData) {
         $scope.$apply(function () {
             var newPerformanceData = [];
-            for (var property in performanceData) {
+
+            for (var i = 0; i < performanceData.length; i++) {
                 var currentRow = [];
-                if (performanceData.hasOwnProperty(property)) {
-                    currentRow.push(property);
-                    currentRow.push(performanceData[property]);
-                    newPerformanceData.push(currentRow);
-                }
+                currentRow.push(performanceData[i].CounterName);
+                currentRow.push(performanceData[i].RawValue);
+                newPerformanceData.push(currentRow);
             }
+
             $scope.performaceCounterData = newPerformanceData;
         });
     });

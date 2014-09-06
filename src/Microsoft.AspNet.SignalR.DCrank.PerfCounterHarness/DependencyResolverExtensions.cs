@@ -1,19 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Infrastructure;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public static class DependencyResolverExtensions
     {
-        public static IDependencyResolver AddDCrankHarness(this IDependencyResolver resolver, string databaseConnectionString, int updateInterval = 5)
+        private static TimeSpan _defaultUpdateInterval = TimeSpan.FromSeconds(5);
+        public static IDependencyResolver AddDCrankHarness(this IDependencyResolver resolver, string databaseConnectionString, TimeSpan? updateInterval = null)
         {
-            var perfCounterManager = new PerformanceCounterManagerDCrank(databaseConnectionString, updateInterval);
+            if (updateInterval == null)
+            {
+                updateInterval = TimeSpan.FromSeconds(5);
+            };
+
+            var perfCounterManager = new DCrankPerformanceCounterManager();
             resolver.Register(typeof(IPerformanceCounterManager), () => perfCounterManager);
+
+            var perfCounterConsumer = new PerformanceCounterConsumer(perfCounterManager, databaseConnectionString, updateInterval.Value);
 
             PerformanceCounterInformation.ConnectionString = databaseConnectionString;
             Database.SetInitializer(new DropCreateDatabaseAlways<PerformanceCounterSampleContext>());
