@@ -14,7 +14,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                 updateInterval = TimeSpan.FromSeconds(5);
             };
 
-            var perfCounterManager = new PerformanceCounterManagerDCrank();
+            var perfCounterManager = new DCrankPerformanceCounterManager();
             resolver.Register(typeof(IPerformanceCounterManager), () => perfCounterManager);
 
             var perfCounterConsumer = new PerformanceCounterConsumer(perfCounterManager, databaseConnectionString, updateInterval.Value);

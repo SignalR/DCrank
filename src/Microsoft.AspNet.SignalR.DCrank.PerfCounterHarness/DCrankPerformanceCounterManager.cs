@@ -8,23 +8,23 @@ using Microsoft.AspNet.SignalR.Infrastructure;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class PerformanceCounterManagerDCrank : IPerformanceCounterManager
+    public class DCrankPerformanceCounterManager : IPerformanceCounterManager
     {
         // Only for now to avoid initializing all the counters
         private IPerformanceCounter _testValue;
 
-        public PerformanceCounterManagerDCrank()
+        public DCrankPerformanceCounterManager()
         {
-            ConnectionMessagesReceivedPerSec = new DCrankPerformanceCounter("ConnectionMessagesReceivedPerSec", DCrankPerformanceCounterType.PerSecRate);
-            ConnectionMessagesReceivedTotal = new DCrankPerformanceCounter("ConnectionMessagesReceivedTotal", DCrankPerformanceCounterType.Total);
-            ConnectionMessagesSentPerSec = new DCrankPerformanceCounter("ConnectionMessagesSentPerSec", DCrankPerformanceCounterType.PerSecRate);
-            ConnectionMessagesSentTotal = new DCrankPerformanceCounter("ConnectionMessagesSentTotal", DCrankPerformanceCounterType.Total);
-            ConnectionsConnected = new DCrankPerformanceCounter("ConnectionsConnected", DCrankPerformanceCounterType.Total);
-            ConnectionsCurrent = new DCrankPerformanceCounter("ConnectionsCurrent", DCrankPerformanceCounterType.Total);
-            ConnectionsDisconnected = new DCrankPerformanceCounter("ConnectionsDisconnected", DCrankPerformanceCounterType.Total);
-            ConnectionsReconnected = new DCrankPerformanceCounter("ConnectionsReconnected", DCrankPerformanceCounterType.Total);
+            ConnectionMessagesReceivedPerSec = new DCrankPerformanceCounter("ConnectionMessagesReceivedPerSec");
+            ConnectionMessagesReceivedTotal = new DCrankPerformanceCounter("ConnectionMessagesReceivedTotal");
+            ConnectionMessagesSentPerSec = new DCrankPerformanceCounter("ConnectionMessagesSentPerSec");
+            ConnectionMessagesSentTotal = new DCrankPerformanceCounter("ConnectionMessagesSentTotal");
+            ConnectionsConnected = new DCrankPerformanceCounter("ConnectionsConnected");
+            ConnectionsCurrent = new DCrankPerformanceCounter("ConnectionsCurrent");
+            ConnectionsDisconnected = new DCrankPerformanceCounter("ConnectionsDisconnected");
+            ConnectionsReconnected = new DCrankPerformanceCounter("ConnectionsReconnected");
 
-            _testValue = new DCrankPerformanceCounter("TestValue", DCrankPerformanceCounterType.Total);
+            _testValue = new DCrankPerformanceCounter("TestValue");
         }
 
         public IPerformanceCounter ConnectionMessagesReceivedPerSec

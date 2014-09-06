@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
 using Microsoft.AspNet.SignalR.Hubs;
+using Newtonsoft.Json;
 
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
@@ -62,22 +64,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 lock (_updatePerformanceCounters)
                 {
                     _updatingPerformanceCounters = true;
+
                     try
                     {
                         using (var database = new PerformanceCounterSampleContext(_connectionString))
                         {
-                            var currentData = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).FirstOrDefault();
-                            if (currentData != null && currentData != _latestUpdate)
-                            {
-                                _latestUpdate = currentData;
-                                Clients.All.updatePerfCounters(_latestUpdate);
-                            }
+                            var samples = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
+                            Clients.All.updatePerfCounters(ParsePerformanceCounters.ParseCounters(samples));
                         }
                     }
                     catch (DbUpdateException ex)
                     {
                         Debug.WriteLine(ex.InnerException.Message);
                     }
+
                     _updatingPerformanceCounters = false;
                 }
             }
