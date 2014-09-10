@@ -8,6 +8,8 @@ using Microsoft.Data.Entity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.AspNet.SignalR.LoadTestHarness.Models;
+using Microsoft.AspNet.SignalR.Infrastructure;
+using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
 
 namespace Microsoft.AspNet.SignalR.LoadTestHarness
 {
@@ -19,6 +21,13 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             var configuration = new Framework.ConfigurationModel.Configuration();
             configuration.AddJsonFile("config.json");
             configuration.AddEnvironmentVariables();
+            var connectionString = configuration.Get("Data:DefaultConnection:ConnectionString");
+
+            using (var context = new PerformanceCounterSampleContext(connectionString))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+            }
 
             // Set up application services
             app.UseServices(services =>
@@ -41,13 +50,21 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
                 services.AddMvc();
 
                 // Add SignalR services to the services container
-                services.AddSignalR();
+                services.AddSignalR().SetupOptions(options =>
+                {
+                    options.Transports.DisconnectTimeout = TimeSpan.FromSeconds(60);
+                });
+
+                var performanceCounterManager = new DCrankPerformanceCounterManager(connectionString, 5);
+                services.AddInstance<IPerformanceCounterManager>(performanceCounterManager);
+                services.AddInstance<PerformanceCounterConsumer>(new PerformanceCounterConsumer(performanceCounterManager, connectionString, TimeSpan.FromSeconds(5)));
+                PerformanceCounterInformation.ConnectionString = connectionString;
 
                 services.AddSingleton<TimerManager>();
             });
 
             // Enable Browser Link support
-            app.UseBrowserLink();
+            //app.UseBrowserLink();
 
             // Add static files to the request pipeline
             app.UseStaticFiles();
@@ -55,6 +72,8 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             // Add SignalR to the request pipeline
             app.UseSignalR<TestConnection>("/TestConnection");
             app.UseSignalR();
+
+            app.UseDCrankEndpoint();
 
             // Add cookie-based authentication to the request pipeline
             app.UseCookieAuthentication(new CookieAuthenticationOptions
