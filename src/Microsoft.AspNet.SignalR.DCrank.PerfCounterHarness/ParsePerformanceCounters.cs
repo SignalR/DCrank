@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class ParsePerformanceCounters
+    public static class ParsePerformanceCounters
     {
         public static List<DCrankPerformanceCounter> ParseCounters(List<PerformanceCounterSample> counterSamples)
         {
@@ -17,25 +17,25 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             {
                 var dummyObject = new { definitions = new List<PerformanceCounterDefinition>(), values = new List<PerformanceCounterValues>() };
 
-                var latestSmapleCounterValues = JsonConvert.DeserializeAnonymousType(latestCounterSample.PerformanceCounterJsonBlob, dummyObject);
-                var previousSmapleCounterValues = JsonConvert.DeserializeAnonymousType(previousCounterSample.PerformanceCounterJsonBlob, dummyObject);
+                var latestSampleCounterValues = JsonConvert.DeserializeAnonymousType(latestCounterSample.PerformanceCounterJsonBlob, dummyObject);
+                var previousSampleCounterValues = JsonConvert.DeserializeAnonymousType(previousCounterSample.PerformanceCounterJsonBlob, dummyObject);
 
                 // Creating dictionary to link perf counters to values
                 var latestPerfCounterValueDictionary = new Dictionary<int, long>();
                 var previousPerfCounterValueDictionary = new Dictionary<int, long>();
 
                 // Adding current and previous perf counter sample values to dictionaries
-                foreach (var perfCounterValue in latestSmapleCounterValues.values)
+                foreach (var perfCounterValue in latestSampleCounterValues.values)
                 {
                     latestPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
                 }
 
-                foreach (var perfCounterValue in previousSmapleCounterValues.values)
+                foreach (var perfCounterValue in previousSampleCounterValues.values)
                 {
                     previousPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
                 }
 
-                foreach (var perfCounterDefinition in latestSmapleCounterValues.definitions)
+                foreach (var perfCounterDefinition in latestSampleCounterValues.definitions)
                 {
                     var perfCounter = new DCrankPerformanceCounter(perfCounterDefinition.Name);
 
@@ -49,10 +49,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                     else if (perfCounterDefinition.Type == PerfCounterHarness.PerformanceCounterType.PerSecRate)
                     {
                         long latestValue, previousValue;
-                        latestPerfCounterValueDictionary.TryGetValue(perfCounterDefinition.ValueId, out latestValue);
-                        previousPerfCounterValueDictionary.TryGetValue(perfCounterDefinition.ValueId, out previousValue);
 
-                        perfCounter.RawValue = (latestValue - previousValue) / latestCounterSample.Timestamp.Subtract(previousCounterSample.Timestamp).Seconds;
+                        if (latestPerfCounterValueDictionary.TryGetValue(perfCounterDefinition.ValueId, out latestValue)
+                            && previousPerfCounterValueDictionary.TryGetValue(perfCounterDefinition.ValueId, out previousValue))
+                        {
+                            perfCounter.RawValue = (latestValue - previousValue) / latestCounterSample.Timestamp.Subtract(previousCounterSample.Timestamp).Seconds;
+                        }
                     }
 
                     counterList.Add(perfCounter);

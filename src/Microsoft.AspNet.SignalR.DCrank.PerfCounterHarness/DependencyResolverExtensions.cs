@@ -6,12 +6,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public static class DependencyResolverExtensions
     {
-        private static TimeSpan _defaultUpdateInterval = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan _defaultUpdateInterval = TimeSpan.FromSeconds(5);
         public static IDependencyResolver AddDCrankHarness(this IDependencyResolver resolver, string databaseConnectionString, TimeSpan? updateInterval = null)
         {
             if (updateInterval == null)
             {
-                updateInterval = TimeSpan.FromSeconds(5);
+                updateInterval = _defaultUpdateInterval;
             };
 
             var perfCounterManager = new DCrankPerformanceCounterManager();

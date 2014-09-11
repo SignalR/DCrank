@@ -10,9 +10,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public class DCrankPerformanceCounterManager : IPerformanceCounterManager
     {
-        // Only for now to avoid initializing all the counters
-        private IPerformanceCounter _testValue;
-
         public DCrankPerformanceCounterManager()
         {
             ConnectionMessagesReceivedPerSec = new DCrankPerformanceCounter("ConnectionMessagesReceivedPerSec");
@@ -24,7 +21,34 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             ConnectionsDisconnected = new DCrankPerformanceCounter("ConnectionsDisconnected");
             ConnectionsReconnected = new DCrankPerformanceCounter("ConnectionsReconnected");
 
-            _testValue = new DCrankPerformanceCounter("TestValue");
+            ErrorsAllPerSec = new DCrankPerformanceCounter("ErrorsAllPerSec");
+            ErrorsAllTotal = new DCrankPerformanceCounter("ErrorsAllTotal");
+            ErrorsHubInvocationPerSec = new DCrankPerformanceCounter("ErrorsHubInvocationPerSec");
+            ErrorsHubInvocationTotal = new DCrankPerformanceCounter("ErrorsHubInvocationTotal");
+
+            ErrorsHubResolutionPerSec = new DCrankPerformanceCounter("ErrorsHubResolutionPerSec");
+            ErrorsHubResolutionTotal = new DCrankPerformanceCounter("ErrorsHubResolutionTotal");
+            ErrorsTransportPerSec = new DCrankPerformanceCounter("ErrorsTransportPerSec");
+            ErrorsTransportTotal = new DCrankPerformanceCounter("ErrorsTransportTotal");
+
+            MessageBusAllocatedWorkers = new DCrankPerformanceCounter("MessageBusAllocatedWorkers");
+            MessageBusBusyWorkers = new DCrankPerformanceCounter("MessageBusBusyWorkers");
+            MessageBusMessagesPublishedPerSec = new DCrankPerformanceCounter("MessageBusMessagesPublishedPerSec");
+            MessageBusMessagesPublishedTotal = new DCrankPerformanceCounter("MessageBusMessagesPublishedTotal");
+            MessageBusMessagesReceivedPerSec = new DCrankPerformanceCounter("MessageBusMessagesReceivedPerSec");
+
+            MessageBusMessagesReceivedTotal = new DCrankPerformanceCounter("MessageBusMessagesReceivedTotal");
+            MessageBusSubscribersCurrent = new DCrankPerformanceCounter("MessageBusSubscribersCurrent");
+            MessageBusSubscribersPerSec = new DCrankPerformanceCounter("MessageBusSubscribersPerSec");
+            MessageBusSubscribersTotal = new DCrankPerformanceCounter("MessageBusSubscribersTotal");
+            MessageBusTopicsCurrent = new DCrankPerformanceCounter("MessageBusTopicsCurrent");
+            ScaleoutErrorsPerSec = new DCrankPerformanceCounter("ScaleoutErrorsPerSec");
+            ScaleoutErrorsTotal = new DCrankPerformanceCounter("ScaleoutErrorsTotal");
+            ScaleoutMessageBusMessagesReceivedPerSec = new DCrankPerformanceCounter("ScaleoutMessageBusMessagesReceivedPerSec");
+            ScaleoutSendQueueLength = new DCrankPerformanceCounter("ScaleoutSendQueueLength");
+            ScaleoutStreamCountBuffering = new DCrankPerformanceCounter("ScaleoutStreamCountBuffering");
+            ScaleoutStreamCountOpen = new DCrankPerformanceCounter("ScaleoutStreamCountOpen");
+            ScaleoutStreamCountTotal = new DCrankPerformanceCounter("ScaleoutStreamCountTotal");
         }
 
         public IPerformanceCounter ConnectionMessagesReceivedPerSec
@@ -77,50 +101,51 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public IPerformanceCounter ErrorsAllPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
 
         }
 
         public IPerformanceCounter ErrorsAllTotal
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsHubInvocationPerSec
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsHubInvocationTotal
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsHubResolutionPerSec
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsHubResolutionTotal
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsTransportPerSec
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter ErrorsTransportTotal
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public void Initialize(string instanceName, CancellationToken hostShutdownToken)
@@ -135,93 +160,108 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public IPerformanceCounter MessageBusAllocatedWorkers
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter MessageBusBusyWorkers
         {
-            get { return _testValue; }
-
+            get;
+            private set;
         }
 
         public IPerformanceCounter MessageBusMessagesPublishedPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
 
         }
 
         public IPerformanceCounter MessageBusMessagesPublishedTotal
         {
-            get { return _testValue; }
+            get;
+            private set;
 
         }
 
         public IPerformanceCounter MessageBusMessagesReceivedPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
 
         }
 
         public IPerformanceCounter MessageBusMessagesReceivedTotal
         {
-            get { return _testValue; }
+            get;
+            private set;
 
         }
 
         public IPerformanceCounter MessageBusSubscribersCurrent
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter MessageBusSubscribersPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter MessageBusSubscribersTotal
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter MessageBusTopicsCurrent
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutErrorsPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutErrorsTotal
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutMessageBusMessagesReceivedPerSec
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutSendQueueLength
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutStreamCountBuffering
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutStreamCountOpen
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
 
         public IPerformanceCounter ScaleoutStreamCountTotal
         {
-            get { return _testValue; }
+            get;
+            private set;
         }
     }
 }

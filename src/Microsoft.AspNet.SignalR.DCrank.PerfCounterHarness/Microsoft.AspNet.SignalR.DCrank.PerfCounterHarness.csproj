@@ -70,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DCrankErrorList.cs" />
     <Compile Include="DCrankExtensions.cs" />
     <Compile Include="ParsePerformanceCounters.cs" />
     <Compile Include="PerformanceCounterType.cs" />

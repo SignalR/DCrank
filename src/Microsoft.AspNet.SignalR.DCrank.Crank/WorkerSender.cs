@@ -57,6 +57,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     Command = method,
                     Value = parameters
                 }));
+
             await _outputStreamWriter.FlushAsync();
         }
     }

@@ -16,7 +16,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         private volatile bool _updatingPerformanceCounters = false;
 
         // Database as a list for the javascript
-        private PerformanceCounterSample _lastSample;
         private string _connectionString;
 
         private PerformanceCounters(IHubConnectionContext<dynamic> clients)
