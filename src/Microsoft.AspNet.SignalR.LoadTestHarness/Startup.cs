@@ -15,7 +15,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
 {
     public class Startup
     {
-        public void Configure(IBuilder app)
+        public void Configure(IApplicationBuilder app)
         {
             // Setup configuration sources
             var configuration = new Framework.ConfigurationModel.Configuration();
