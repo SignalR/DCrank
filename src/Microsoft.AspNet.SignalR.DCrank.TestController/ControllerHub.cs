@@ -103,8 +103,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             int numberOfAgents = agentIdList.Length;
             if (numberOfConnections != 0 && numberOfAgents != 0)
             {
-                int numberOfConnectionsPerWorker = numberOfConnections / (_numberOfWorkersPerAgent * numberOfAgents);
-                Clients.All.startWorkers(targetAddresss, _numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
+                int remainingConnections;
+                int numberOfConnectionsPerWorker = Math.DivRem(numberOfConnections, (numberOfWorkersPerAgent * numberOfAgents), out remainingConnections);
+
+                Clients.AllExcept(agentIdList[0]).startWorkers(targetAddresss, numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
+                
+                // Distributing the remaining connections across different workers
+                Clients.Client(agentIdList[0]).startWorkers(targetAddresss, numberOfWorkersPerAgent, numberOfConnectionsPerWorker + (remainingConnections / numberOfConnectionsPerWorker));
             }
 
             // Get connection string from the database
