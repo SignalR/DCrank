@@ -73,6 +73,8 @@
     <Compile Include="DCrankErrorList.cs" />
     <Compile Include="DCrankExtensions.cs" />
     <Compile Include="ParsePerformanceCounters.cs" />
+    <Compile Include="PerformanceCounterAttribute.cs" />
+    <Compile Include="PerformanceCounterJsonDefinition.cs" />
     <Compile Include="PerformanceCounterType.cs" />
     <Compile Include="PerformanceCounterValues.cs" />
     <Compile Include="PerformanceCounterConsumer.cs" />

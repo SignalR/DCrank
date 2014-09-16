@@ -13,13 +13,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                 {
                     map.Run(async context =>
                         {
-                            if (context.Request.QueryString.HasValue && context.Request.QueryString.Value.Contains("error"))
+                            if (context.Request.Query["info"] != null && context.Request.Query["info"].Contains("error"))
                             {
                                 var responseString = new StringBuilder();
 
                                 foreach (var item in DCrankErrorList.ErrorList)
                                 {
-                                    responseString.Append(String.Format("{0} : {1} \n", item.Item1, item.Item2));
+                                    responseString.AppendFormat("{0} : {1} {2}", item.Item1, item.Item2, Environment.NewLine);
                                 }
 
                                 await context.Response.WriteAsync(responseString.ToString());

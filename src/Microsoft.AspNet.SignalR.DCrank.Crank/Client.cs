@@ -30,7 +30,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        public async Task CreateConnection(CrankArguments arguments)
+        public async Task CreateAndStartConnection(CrankArguments arguments)
         {
             _connection = new Connection(arguments.Url + "TestConnection");
 

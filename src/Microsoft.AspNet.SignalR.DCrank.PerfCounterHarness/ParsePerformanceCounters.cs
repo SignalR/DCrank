@@ -4,38 +4,41 @@ using Newtonsoft.Json;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public static class ParsePerformanceCounters
+    public static class PerformanceCounterParser
     {
-        public static List<DCrankPerformanceCounter> ParseCounters(List<PerformanceCounterSample> counterSamples)
-        {
+        public static List<DCrankPerformanceCounter> ReadCounters(List<PerformanceCounterSample> counterSamples)
+        {         
+            if(counterSamples.Count < 2)
+            {
+                return null;
+            }
+
             var counterList = new List<DCrankPerformanceCounter>();
 
-            var latestCounterSample = counterSamples.ElementAt(0);
-            var previousCounterSample = counterSamples.ElementAt(1);
+            var latestCounterSample = counterSamples[0];
+            var previousCounterSample = counterSamples[1];
 
             if (latestCounterSample != null && previousCounterSample != null)
             {
-                var dummyObject = new { definitions = new List<PerformanceCounterDefinition>(), values = new List<PerformanceCounterValues>() };
-
-                var latestSampleCounterValues = JsonConvert.DeserializeAnonymousType(latestCounterSample.PerformanceCounterJsonBlob, dummyObject);
-                var previousSampleCounterValues = JsonConvert.DeserializeAnonymousType(previousCounterSample.PerformanceCounterJsonBlob, dummyObject);
+                var latestSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterJsonDefinition>(latestCounterSample.PerformanceCounterJsonBlob);
+                var previousSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterJsonDefinition>(previousCounterSample.PerformanceCounterJsonBlob);
 
                 // Creating dictionary to link perf counters to values
-                var latestPerfCounterValueDictionary = new Dictionary<int, long>();
-                var previousPerfCounterValueDictionary = new Dictionary<int, long>();
+                var latestPerfCounterValueDictionary = new Dictionary<string, long>();
+                var previousPerfCounterValueDictionary = new Dictionary<string, long>();
 
                 // Adding current and previous perf counter sample values to dictionaries
-                foreach (var perfCounterValue in latestSampleCounterValues.values)
+                foreach (var perfCounterValue in latestSampleCounterValues.Values)
                 {
                     latestPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
                 }
 
-                foreach (var perfCounterValue in previousSampleCounterValues.values)
+                foreach (var perfCounterValue in previousSampleCounterValues.Values)
                 {
                     previousPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
                 }
 
-                foreach (var perfCounterDefinition in latestSampleCounterValues.definitions)
+                foreach (var perfCounterDefinition in latestSampleCounterValues.Definitions)
                 {
                     var perfCounter = new DCrankPerformanceCounter(perfCounterDefinition.Name);
 

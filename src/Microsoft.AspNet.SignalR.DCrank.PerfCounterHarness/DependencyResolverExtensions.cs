@@ -18,6 +18,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             resolver.Register(typeof(IPerformanceCounterManager), () => perfCounterManager);
 
             var perfCounterConsumer = new PerformanceCounterConsumer(perfCounterManager, databaseConnectionString, updateInterval.Value);
+            perfCounterConsumer.StartWritingPerformanceCounters();
 
             PerformanceCounterInformation.ConnectionString = databaseConnectionString;
             Database.SetInitializer(new DropCreateDatabaseAlways<PerformanceCounterSampleContext>());

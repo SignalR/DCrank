@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class PerformanceCounterValues
+    public class PerformanceCounterAttribute : System.Attribute
     {
-        public string ValueId { get; set; }
-        public long Value { get; set; }
+        public string BaseCounterName { get; set; }
+        public PerformanceCounterType CounterType { get; set; }
     }
 }

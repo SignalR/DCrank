@@ -13,66 +13,81 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
     {
         private readonly IPerformanceCounterManager _perfCounterManager;
         private readonly string _connectionString;
+        private readonly TimeSpan _updateInterval;
 
         public PerformanceCounterConsumer(IPerformanceCounterManager perfCounterManager, string connectionString, TimeSpan updateInterval)
         {
             _perfCounterManager = perfCounterManager;
             _connectionString = connectionString;
-
-            Task.Run(() => UpdatePerformanceCounters(perfCounterManager, connectionString, updateInterval));
+            _updateInterval = updateInterval;
         }
 
-        private void UpdatePerformanceCounters(IPerformanceCounterManager perfCounterManager, string connectionString, TimeSpan updateInterval)
+        public void StartWritingPerformanceCounters()
         {
-            while (true)
+            Task.Run(() =>
             {
-                using (var database = new PerformanceCounterSampleContext(connectionString))
+                while (true)
                 {
-                    try
+                    using (var database = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        var definitionList = new List<PerformanceCounterDefinition>()
+                        try
                         {
-                          new PerformanceCounterDefinition() { Name = "ConnectionMessagesSentPerSec", Type = PerformanceCounterType.PerSecRate, ValueId = 0 },                        
-                          new PerformanceCounterDefinition() { Name = "ConnectionMessagesSentTotal", Type = PerformanceCounterType.Total, ValueId = 0 },
-                          new PerformanceCounterDefinition() { Name = "ConnectionsConnected", Type = PerformanceCounterType.Total, ValueId = 2 },
-                          new PerformanceCounterDefinition() { Name = "ConnectionsCurrent", Type = PerformanceCounterType.Total, ValueId = 3 },
-                          new PerformanceCounterDefinition() { Name = "ConnectionsReconnected", Type = PerformanceCounterType.Total, ValueId = 4 },
-                          new PerformanceCounterDefinition() { Name = "ConnectionsDisconnected", Type = PerformanceCounterType.Total, ValueId = 5 }
-                        };
+                            var properties = _perfCounterManager.GetType().GetProperties();
 
-                        var valueList = new List<PerformanceCounterValues>()
+                            var definitionList = new List<PerformanceCounterDefinition>();
+                            var valueList = new List<PerformanceCounterValues>();
+
+                            foreach (var property in properties)
+                            {
+                                var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
+
+                                // Constructing definition
+                                if (propertyAttributes.Length > 0)
+                                {
+                                    definitionList.Add(new PerformanceCounterDefinition()
+                                    {
+                                        Name = property.Name,
+                                        Type = propertyAttributes[0].CounterType,
+                                        ValueId = propertyAttributes[0].BaseCounterName
+                                    });
+
+                                    // Constructing value
+                                    if (propertyAttributes[0].CounterType == PerformanceCounterType.Total)
+                                    {
+                                        valueList.Add(new PerformanceCounterValues()
+                                        {
+                                            ValueId = (propertyAttributes[0]).BaseCounterName,
+                                            Value = ((IPerformanceCounter)property.GetValue(_perfCounterManager)).RawValue
+                                        });
+                                    }
+                                }
+                            }
+
+                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterJsonDefinition
+                            {
+                                Definitions = definitionList,
+                                Values = valueList
+                            });
+
+                            var perfCounterSample = new PerformanceCounterSample
+                            {
+                                Timestamp = DateTime.UtcNow,
+                                PerformanceCounterJsonBlob = perfCounterJsonValue
+                            };
+
+                            database.PerformanceCounterSamples.Add(perfCounterSample);
+                            database.SaveChanges();
+                        }
+                        catch (DbUpdateException ex)
                         {
-                            new PerformanceCounterValues() { ValueId = 0, Value = _perfCounterManager.ConnectionMessagesSentTotal.RawValue },
-                            new PerformanceCounterValues() { ValueId = 1, Value = _perfCounterManager.ConnectionMessagesReceivedTotal.RawValue },
-                            new PerformanceCounterValues() { ValueId = 2, Value = _perfCounterManager.ConnectionsConnected.RawValue },
-                            new PerformanceCounterValues() { ValueId = 3, Value = _perfCounterManager.ConnectionsCurrent.RawValue },
-                            new PerformanceCounterValues() { ValueId = 4, Value = _perfCounterManager.ConnectionsReconnected.RawValue },
-                            new PerformanceCounterValues() { ValueId = 5, Value = _perfCounterManager.ConnectionsDisconnected.RawValue },
-                        };
-
-                        var perfCounterJsonValue = JsonConvert.SerializeObject(new
-                        {
-                            definitions = definitionList,
-                            values = valueList
-                        });
-
-                        var perfCounterSample = new PerformanceCounterSample
-                        {
-                            Timestamp = DateTime.UtcNow,
-                            PerformanceCounterJsonBlob = perfCounterJsonValue
-                        };
-
-                        database.PerformanceCounterSamples.Add(perfCounterSample);
-                        database.SaveChanges();
+                            DCrankErrorList.AddError(ex);
+                        }
                     }
-                    catch (DbUpdateException ex)
-                    {
-                        DCrankErrorList.AddError(ex);
-                    }
+
+                    Thread.Sleep(_updateInterval);
                 }
+            });
 
-                Thread.Sleep(updateInterval);
-            }
         }
     }
 }

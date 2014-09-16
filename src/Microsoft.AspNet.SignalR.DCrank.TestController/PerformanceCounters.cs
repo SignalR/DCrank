@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
@@ -10,8 +11,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     {
         // Singleton instance
         private readonly static Lazy<PerformanceCounters> _performanceCounterInstance = new Lazy<PerformanceCounters>(() => new PerformanceCounters(GlobalHost.ConnectionManager.GetHubContext<ControllerHub>().Clients));
+
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(500);
         private Timer _timer;
+        private DateTimeOffset _latestSampleTimestamp;
         private readonly object _updatePerformanceCounters = new object();
         private volatile bool _updatingPerformanceCounters = false;
 
@@ -60,10 +63,27 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 {
                     _updatingPerformanceCounters = true;
 
-                    using (var database = new PerformanceCounterSampleContext(_connectionString))
+                    using (var context = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        var samples = database.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
-                        Clients.All.updatePerfCounters(ParsePerformanceCounters.ParseCounters(samples));
+                        List<PerformanceCounterSample> samples;
+
+                        if (_latestSampleTimestamp == null)
+                        {
+                            samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
+                        }
+                        else
+                        {
+                            samples = (from sample in context.PerformanceCounterSamples
+                                       where sample.Timestamp.CompareTo(_latestSampleTimestamp) >= 0
+                                       select sample).OrderByDescending(s => s.PerformanceCounterSampleId).ToList<PerformanceCounterSample>();
+                        }
+
+                        if (samples.Count > 0)
+                        {
+                            _latestSampleTimestamp = samples.First().Timestamp;
+                        }
+
+                        Clients.All.updatePerfCounters(PerformanceCounterParser.ReadCounters(samples));
                     }
 
                     _updatingPerformanceCounters = false;

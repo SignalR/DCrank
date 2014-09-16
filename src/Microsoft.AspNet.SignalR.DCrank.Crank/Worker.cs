@@ -66,7 +66,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 client.OnMessage += OnMessage;
                 client.OnClosed += OnClosed;
 
-                await client.CreateConnection(connectArguments);
+                await client.CreateAndStartConnection(connectArguments);
                 _clients.Add(client);
             }
 
