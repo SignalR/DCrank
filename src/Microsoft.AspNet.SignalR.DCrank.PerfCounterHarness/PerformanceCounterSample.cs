@@ -6,6 +6,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
     {
         public int PerformanceCounterSampleId { get; set; }
         public string PerformanceCounterJsonBlob { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
     }
 }
