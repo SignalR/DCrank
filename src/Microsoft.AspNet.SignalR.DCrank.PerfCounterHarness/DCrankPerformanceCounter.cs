@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.AspNet.SignalR.Infrastructure;
-using System.Diagnostics;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {

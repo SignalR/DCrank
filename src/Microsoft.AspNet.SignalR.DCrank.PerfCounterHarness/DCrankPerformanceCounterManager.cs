@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNet.SignalR.Infrastructure;
-using System.Threading;
+﻿using System.Threading;
+using Microsoft.AspNet.SignalR.Infrastructure;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
     public class DCrankPerformanceCounterManager : IPerformanceCounterManager
     {
-        public DCrankPerformanceCounterManager(string connectionString, int updateInterval)
+        public DCrankPerformanceCounterManager()
         {
             ConnectionMessagesReceivedPerSec = new DCrankPerformanceCounter("ConnectionMessagesReceivedPerSec");
             ConnectionMessagesReceivedTotal = new DCrankPerformanceCounter("ConnectionMessagesReceivedTotal");
@@ -46,54 +46,63 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             ScaleoutStreamCountTotal = new DCrankPerformanceCounter("ScaleoutStreamCountTotal");
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionMessagesReceived", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ConnectionMessagesReceivedPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionMessagesReceived", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionMessagesReceivedTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionMessagesSent", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ConnectionMessagesSentPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionMessagesSent", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionMessagesSentTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionsConnected", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionsConnected
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionsCurrent", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionsCurrent
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionsDisconnected", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionsDisconnected
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ConnectionsReconnected", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ConnectionsReconnected
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsAll", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ErrorsAllPerSec
         {
             get;
@@ -101,42 +110,49 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsAll", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ErrorsAllTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsHubInvocation", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ErrorsHubInvocationPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsHubInvocation", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ErrorsHubInvocationTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsHubResolution", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ErrorsHubResolutionPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsHubResolution", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ErrorsHubResolutionTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsTransport", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ErrorsTransportPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ErrorsTransport", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ErrorsTransportTotal
         {
             get;
@@ -148,111 +164,125 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         }
 
+
         public IPerformanceCounter LoadCounter(string categoryName, string counterName, string instanceName, bool isReadOnly)
         {
             return null;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusAllocatedWorkers", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusAllocatedWorkers
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusBusyWorkers", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusBusyWorkers
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusMessagesPublished", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter MessageBusMessagesPublishedPerSec
         {
             get;
             private set;
-
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusMessagesPublished", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusMessagesPublishedTotal
         {
             get;
             private set;
-
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusMessagesReceived", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter MessageBusMessagesReceivedPerSec
         {
             get;
             private set;
-
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusMessagesReceived", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusMessagesReceivedTotal
         {
             get;
             private set;
-
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusSubscribersCurrent", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusSubscribersCurrent
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusSubscribers", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter MessageBusSubscribersPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusSubscribers", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusSubscribersTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "MessageBusTopics", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter MessageBusTopicsCurrent
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutErrors", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ScaleoutErrorsPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutErrors", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ScaleoutErrorsTotal
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutMessageBusMessages", CounterType = PerformanceCounterType.PerSecRate)]
         public IPerformanceCounter ScaleoutMessageBusMessagesReceivedPerSec
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutSendQueueLength", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ScaleoutSendQueueLength
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutStreamCountBuffering", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ScaleoutStreamCountBuffering
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutStreamCountOpen", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ScaleoutStreamCountOpen
         {
             get;
             private set;
         }
 
+        [PerformanceCounterAttribute(BaseCounterName = "ScaleoutStreamCount", CounterType = PerformanceCounterType.Total)]
         public IPerformanceCounter ScaleoutStreamCountTotal
         {
             get;

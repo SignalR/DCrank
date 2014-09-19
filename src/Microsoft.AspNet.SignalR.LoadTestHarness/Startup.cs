@@ -4,12 +4,11 @@ using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Routing;
 using Microsoft.AspNet.Security.Cookies;
+using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
+using Microsoft.AspNet.SignalR.LoadTestHarness.Models;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.AspNet.SignalR.LoadTestHarness.Models;
-using Microsoft.AspNet.SignalR.Infrastructure;
-using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
 
 namespace Microsoft.AspNet.SignalR.LoadTestHarness
 {
@@ -22,12 +21,6 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             configuration.AddJsonFile("config.json");
             configuration.AddEnvironmentVariables();
             var connectionString = configuration.Get("Data:DefaultConnection:ConnectionString");
-
-            using (var context = new PerformanceCounterSampleContext(connectionString))
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-            }
 
             // Set up application services
             app.UseServices(services =>
@@ -55,10 +48,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
                     options.Transports.DisconnectTimeout = TimeSpan.FromSeconds(60);
                 });
 
-                var performanceCounterManager = new DCrankPerformanceCounterManager(connectionString, 5);
-                services.AddInstance<IPerformanceCounterManager>(performanceCounterManager);
-                services.AddInstance<PerformanceCounterConsumer>(new PerformanceCounterConsumer(performanceCounterManager, connectionString, TimeSpan.FromSeconds(5)));
-                PerformanceCounterInformation.ConnectionString = connectionString;
+                services.AddDCrankHarness(connectionString);
 
                 services.AddSingleton<TimerManager>();
             });
