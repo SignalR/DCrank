@@ -101,7 +101,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         public async Task SetUpTest(string targetAddresss, int numberOfConnections, string[] agentIdList)
         {
             int numberOfAgents = agentIdList.Length;
-            if (numberOfConnections != 0 && numberOfAgents != 0)
+            if (numberOfAgents != 0)
             {
                 int remainingConnections;
                 int numberOfConnectionsPerWorker = Math.DivRem(numberOfConnections, (_numberOfWorkersPerAgent * numberOfAgents), out remainingConnections);

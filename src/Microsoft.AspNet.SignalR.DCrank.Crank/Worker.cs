@@ -60,16 +60,28 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Url = targetAddress,
             };
 
-            _targetConnectionCount += numberOfConnections;
-            for (int count = 0; count < numberOfConnections; count++)
+            if (numberOfConnections == 0)
             {
-                var client = new Client();
+                while (true)
+                {
+                    try
+                    {
+                        _clients.Add(await CreateAndStartClient(connectArguments));
+                    }
+                    catch (Exception ex)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                _targetConnectionCount += numberOfConnections;
 
-                client.OnMessage += OnMessage;
-                client.OnClosed += OnClosed;
-
-                await client.CreateAndStartConnection(connectArguments);
-                _clients.Add(client);
+                for (int count = 0; count < numberOfConnections; count++)
+                {
+                    _clients.Add(await CreateAndStartClient(connectArguments));
+                }
             }
 
             Log("Connections connected succesfully");
@@ -110,6 +122,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _sendStatusCts.Cancel();
             Log("Connections stopped succesfully");
             _targetConnectionCount = 0;
+        }
+
+        private async Task<Client> CreateAndStartClient(CrankArguments connectArguments)
+        {
+            var client = new Client();
+
+            client.OnMessage += OnMessage;
+            client.OnClosed += OnClosed;
+
+            await client.CreateAndStartConnection(connectArguments);
+
+            return client;
         }
 
         private void OnMessage(string message)
