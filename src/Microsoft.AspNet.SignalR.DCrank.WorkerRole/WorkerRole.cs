@@ -21,7 +21,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.WorkerRole
             while (true)
             {
                 var path = Path.Combine(Environment.GetEnvironmentVariable("RoleRoot") + @"\", @"approot\crank.exe");
-                var arguments = string.Format("/Mode:agent /ControllerUrl{0}", _testManagerHost);
+                var arguments = string.Format("/Mode:agent /ControllerUrl:{0}", _testManagerHost);
 
                 var crankStartInfo = new ProcessStartInfo
                 {
