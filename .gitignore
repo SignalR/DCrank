@@ -1,5 +1,7 @@
 [Oo]bj/
 [Bb]in/
+csx/
+rcf/
 *.xap
 *.user
 /TestResults
