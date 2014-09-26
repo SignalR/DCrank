@@ -7,8 +7,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
     public static class PerformanceCounterParser
     {
         public static List<DCrankPerformanceCounter> ReadCounters(List<PerformanceCounterSample> counterSamples)
-        {         
-            if(counterSamples.Count < 2)
+        {
+            if (counterSamples.Count < 2)
             {
                 return null;
             }
@@ -24,19 +24,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                 var previousSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterJsonDefinition>(previousCounterSample.PerformanceCounterJsonBlob);
 
                 // Creating dictionary to link perf counters to values
-                var latestPerfCounterValueDictionary = new Dictionary<string, long>();
-                var previousPerfCounterValueDictionary = new Dictionary<string, long>();
+                var latestPerfCounterValueDictionary = latestSampleCounterValues.Values.ToDictionary<PerformanceCounterValues, string, long>
+                (
+                    counterValue => counterValue.ValueId,
+                    counterValue => counterValue.Value
+                );
 
-                // Adding current and previous perf counter sample values to dictionaries
-                foreach (var perfCounterValue in latestSampleCounterValues.Values)
-                {
-                    latestPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
-                }
-
-                foreach (var perfCounterValue in previousSampleCounterValues.Values)
-                {
-                    previousPerfCounterValueDictionary.Add(perfCounterValue.ValueId, perfCounterValue.Value);
-                }
+                var previousPerfCounterValueDictionary = previousSampleCounterValues.Values.ToDictionary<PerformanceCounterValues, string, long>
+                (
+                    counterValue => counterValue.ValueId,
+                    counterValue => counterValue.Value
+                );
 
                 foreach (var perfCounterDefinition in latestSampleCounterValues.Definitions)
                 {

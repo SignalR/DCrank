@@ -26,31 +26,40 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
         {
             Task.Run(() =>
             {
+                var properties = _perfCounterManager.GetType().GetProperties();
+
+                var definitionList = new List<PerformanceCounterDefinition>();
+
+                foreach (var property in properties)
+                {
+                    var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
+
+                    // Constructing definition
+                    if (propertyAttributes.Length > 0)
+                    {
+                        definitionList.Add(new PerformanceCounterDefinition()
+                        {
+                            Name = property.Name,
+                            Type = propertyAttributes[0].CounterType,
+                            ValueId = propertyAttributes[0].BaseCounterName
+                        });
+                    }
+                }
+
                 while (true)
                 {
                     using (var database = new PerformanceCounterSampleContext(_connectionString))
                     {
                         try
                         {
-                            var properties = _perfCounterManager.GetType().GetProperties();
-
-                            var definitionList = new List<PerformanceCounterDefinition>();
                             var valueList = new List<PerformanceCounterValues>();
 
                             foreach (var property in properties)
                             {
                                 var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
 
-                                // Constructing definition
                                 if (propertyAttributes.Length > 0)
                                 {
-                                    definitionList.Add(new PerformanceCounterDefinition()
-                                    {
-                                        Name = property.Name,
-                                        Type = propertyAttributes[0].CounterType,
-                                        ValueId = propertyAttributes[0].BaseCounterName
-                                    });
-
                                     // Constructing value
                                     if (propertyAttributes[0].CounterType == PerformanceCounterType.Total)
                                     {
