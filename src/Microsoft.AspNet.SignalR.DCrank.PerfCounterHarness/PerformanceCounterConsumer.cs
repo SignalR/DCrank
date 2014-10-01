@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Infrastructure;
@@ -27,6 +28,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             Task.Run(() =>
             {
                 var properties = _perfCounterManager.GetType().GetProperties();
+                var propertyDictionary = new Dictionary<string, PropertyInfo>();
 
                 var definitionList = new List<PerformanceCounterDefinition>();
 
@@ -43,6 +45,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                             Type = propertyAttributes[0].CounterType,
                             ValueId = propertyAttributes[0].BaseCounterName
                         });
+
+                        propertyDictionary.Add(property.Name, property);
                     }
                 }
 
@@ -53,26 +57,23 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                         try
                         {
                             var valueList = new List<PerformanceCounterValues>();
-
-                            foreach (var property in properties)
+                            
+                            foreach (var counterDefinition in definitionList)	
                             {
-                                var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
-
-                                if (propertyAttributes.Length > 0)
+                                if(counterDefinition.Type == PerformanceCounterType.Total)
                                 {
-                                    // Constructing value
-                                    if (propertyAttributes[0].CounterType == PerformanceCounterType.Total)
+                                    PropertyInfo property; 
+                                    propertyDictionary.TryGetValue(counterDefinition.Name, out  property);
+
+                                    valueList.Add(new PerformanceCounterValues()
                                     {
-                                        valueList.Add(new PerformanceCounterValues()
-                                        {
-                                            ValueId = (propertyAttributes[0]).BaseCounterName,
-                                            Value = ((IPerformanceCounter)property.GetValue(_perfCounterManager)).RawValue
-                                        });
-                                    }
+                                        ValueId = counterDefinition.ValueId,
+                                        Value = ((IPerformanceCounter) property.GetValue(_perfCounterManager)).RawValue
+                                    });
                                 }
                             }
 
-                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterJsonDefinition
+                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterDbDefinition
                             {
                                 Definitions = definitionList,
                                 Values = valueList

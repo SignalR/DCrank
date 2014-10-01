@@ -20,17 +20,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
             if (latestCounterSample != null && previousCounterSample != null)
             {
-                var latestSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterJsonDefinition>(latestCounterSample.PerformanceCounterJsonBlob);
-                var previousSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterJsonDefinition>(previousCounterSample.PerformanceCounterJsonBlob);
+                var latestSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterDbDefinition>(latestCounterSample.PerformanceCounterJsonBlob);
+                var previousSampleCounterValues = JsonConvert.DeserializeObject<PerformanceCounterDbDefinition>(previousCounterSample.PerformanceCounterJsonBlob);
 
                 // Creating dictionary to link perf counters to values
-                var latestPerfCounterValueDictionary = latestSampleCounterValues.Values.ToDictionary<PerformanceCounterValues, string, long>
+                var latestPerfCounterValueDictionary = latestSampleCounterValues.Values.ToDictionary
                 (
                     counterValue => counterValue.ValueId,
                     counterValue => counterValue.Value
                 );
 
-                var previousPerfCounterValueDictionary = previousSampleCounterValues.Values.ToDictionary<PerformanceCounterValues, string, long>
+                var previousPerfCounterValueDictionary = previousSampleCounterValues.Values.ToDictionary
                 (
                     counterValue => counterValue.ValueId,
                     counterValue => counterValue.Value

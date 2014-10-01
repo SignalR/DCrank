@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 {
-    public class PerformanceCounterJsonDefinition
+    public class PerformanceCounterDbDefinition
     {
         public List<PerformanceCounterDefinition> Definitions { get; set; }
         public List<PerformanceCounterValues> Values { get; set; }
