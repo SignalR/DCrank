@@ -21,9 +21,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             Task.Run(async () =>
             {
-                while (true)
+                var messageString = await _reader.ReadLineAsync();
+                while (messageString != null)
                 {
-                    var messageString = await _reader.ReadLineAsync();
                     try
                     {
                         var message = JsonConvert.DeserializeObject<Message>(messageString);
@@ -51,6 +51,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                     {
                         Trace.WriteLine(ex.Message);
                     }
+
+                    messageString = await _reader.ReadLineAsync();
                 }
             });
         }

@@ -1,34 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class AgentWorker
     {
         private readonly Process _workerProcess;
+        private readonly IAgent _agent;
 
-        public AgentWorker(ProcessStartInfo startInfo)
+        public AgentWorker(ProcessStartInfo startInfo, IAgent agent)
         {
             _workerProcess = new Process();
             _workerProcess.StartInfo = startInfo;
             _workerProcess.EnableRaisingEvents = true;
-            _workerProcess.OutputDataReceived += OnOutputDataReceived;
             _workerProcess.Exited += OnExited;
+            _agent = agent;
         }
 
         public int Id { get; private set; }
 
-        public int ConnectedCount { get; set; }
-
-        public int DisconnectedCount { get; set; }
-
-        public int ReconnectedCount { get; set; }
-
-        public int TargetConnectionCount { get; set; }
-
-        public Action<int, Message> OnMessage;
+        public StatusInformation StatusInformation { get; set; }
 
         public Action<int, Exception> OnError;
 
@@ -43,7 +34,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             if (success)
             {
                 Id = _workerProcess.Id;
-                _workerProcess.BeginOutputReadLine();
+
+                var receiver = new AgentReceiver(_workerProcess.StandardOutput, _agent);
+                receiver.Start();
                 _workerProcess.BeginErrorReadLine();
 
                 Worker = new WorkerSender(_workerProcess.StandardInput);
@@ -60,31 +53,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         private void OnExited(object sender, EventArgs args)
         {
             OnExit(Id);
-        }
-
-        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            var messageString = e.Data;
-
-            if (string.IsNullOrEmpty(messageString))
-            {
-                return;
-            }
-
-            try
-            {
-                var message = JsonConvert.DeserializeObject<Message>(messageString);
-
-                OnMessage(Id, message);
-            }
-            catch (Exception ex)
-            {
-                OnMessage(Id, new Message()
-                {
-                    Command = "log",
-                    Value = JToken.FromObject(messageString)
-                });
-            }
         }
     }
 }

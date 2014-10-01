@@ -9,8 +9,24 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class WorkerReceiverUnitTests
     {
+        private static StreamReader CreateMessageStream(params Message[] messages)
+        {
+            var stream = new MemoryStream();
+            var streamWriter = new StreamWriter(stream);
+
+            foreach (var message in messages)
+            {
+                streamWriter.WriteLine(JsonConvert.SerializeObject(message));
+            }
+
+            streamWriter.Flush();
+            stream.Position = 0;
+
+            return new StreamReader(stream);
+        }
+
         [Fact]
-        public void CallsPingMethodWhenPingMessageIsWrittenToStream()
+        public void DeserializesPingMessageAndCallsCallsPingMethodOnWorker()
         {
             // arrange
             var pingObject = new
@@ -24,37 +40,31 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(pingObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             var pingValue = 0;
-            var pingCts = new CancellationTokenSource();
+            var pingResetEvent = new ManualResetEventSlim();
 
             var worker = new Mock<IWorker>();
             worker.Setup(instance => instance.Ping(It.IsAny<int>()))
                 .Callback<int>(value =>
                 {
                     pingValue = value;
-                    pingCts.Cancel();
+                    pingResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var workerReceiver = new WorkerReceiver(streamReader, worker.Object);
 
             // act
             workerReceiver.Start();
 
             // assert
-            Assert.True(pingCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(pingResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(pingObject.Value, pingValue);
         }
 
         [Fact]
-        public void CallsConnectMethodWhenConnectMessageIsWrittenToStream()
+        public void DeserializesConnectMessageAndCallsConnectMethodOnWorker()
         {
             // arrange
             var connectObject = new
@@ -69,40 +79,34 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(connectObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             string connectTargetAddress = null;
             var connectNumberOfConnections = 0;
 
-            var connectCts = new CancellationTokenSource();
+            var connectResetEvent = new ManualResetEventSlim();
             var worker = new Mock<IWorker>();
             worker.Setup(instance => instance.Connect(It.IsAny<string>(), It.IsAny<int>()))
                 .Callback<string, int>((targetAddress, numberOfConnections) =>
                 {
                     connectTargetAddress = targetAddress;
                     connectNumberOfConnections = numberOfConnections;
-                    connectCts.Cancel();
+                    connectResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var workerReceiver = new WorkerReceiver(streamReader, worker.Object);
 
             // act
             workerReceiver.Start();
 
             // assert
-            Assert.True(connectCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(connectResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(connectObject.TargetAddress, connectTargetAddress);
             Assert.Equal(connectObject.NumberOfConnections, connectNumberOfConnections);
         }
 
         [Fact]
-        public void CallsStartTestMethodWhenStartTestMessageIsWrittenToStream()
+        public void DeserializesStartTestMessageAndCallsStartTestMethodOnWorker()
         {
             // arrange
             var startTestObject = new
@@ -117,40 +121,34 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(startTestObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             var startTestSendInterval = 0;
             var startTestSendBytes = 0;
 
-            var startTestCts = new CancellationTokenSource();
+            var startTestResetEvent = new ManualResetEventSlim();
             var worker = new Mock<IWorker>();
             worker.Setup(instance => instance.StartTest(It.IsAny<int>(), It.IsAny<int>()))
                 .Callback<int, int>((sendInterval, sendBytes) =>
                 {
                     startTestSendInterval = sendInterval;
                     startTestSendBytes = sendBytes;
-                    startTestCts.Cancel();
+                    startTestResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var workerReceiver = new WorkerReceiver(streamReader, worker.Object);
 
             // act
             workerReceiver.Start();
 
             // assert
-            Assert.True(startTestCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(startTestResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(startTestObject.SendInterval, startTestSendInterval);
             Assert.Equal(startTestObject.SendBytes, startTestSendBytes);
         }
 
         [Fact]
-        public void CallsStopMethodWhenStopMessageIsWrittenToStream()
+        public void DeserializesStopMessageAndCallsStopMethodOnWorker()
         {
             // arrange
             var message = new Message()
@@ -159,26 +157,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = null
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
+            var streamReader = CreateMessageStream(message);
 
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
-
-            var stopCts = new CancellationTokenSource();
+            var stopResetEvent = new ManualResetEventSlim();
             var worker = new Mock<IWorker>();
             worker.Setup(instance => instance.Stop())
-                .Callback(stopCts.Cancel);
+                .Callback(stopResetEvent.Set);
 
-            var streamReader = new StreamReader(stream);
             var workerReceiver = new WorkerReceiver(streamReader, worker.Object);
 
             // act
             workerReceiver.Start();
 
             // assert
-            Assert.True(stopCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(stopResetEvent.WaitHandle.WaitOne(1000));
         }
 
         [Fact]
@@ -202,39 +194,31 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(pingObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
+            var streamReader = CreateMessageStream(stopMessage, pingMessage);
 
-            streamWriter.WriteLine(JsonConvert.SerializeObject(stopMessage));
-            streamWriter.WriteLine(JsonConvert.SerializeObject(pingMessage));
-            streamWriter.Flush();
-            stream.Position = 0;
-
-            var stopCts = new CancellationTokenSource();
-            var pingCts = new CancellationTokenSource();
+            var stopResetEvent = new ManualResetEventSlim();
+            var pingResetEvent = new ManualResetEventSlim();
 
             var worker = new Mock<IWorker>();
 
-            var streamReader = new StreamReader(stream);
             var workerReceiver = new WorkerReceiver(streamReader, worker.Object);
 
             worker.Setup(instance => instance.Stop())
                 .Callback(() =>
                 {
                     workerReceiver.Stop();
-                    stopCts.Cancel();
+                    stopResetEvent.Set();
                 });
 
-            worker
-                .Setup(instance => instance.Ping(It.IsAny<int>()))
-                .Callback<int>(value => pingCts.Cancel());
+            worker.Setup(instance => instance.Ping(It.IsAny<int>()))
+                .Callback<int>(value => pingResetEvent.Set());
 
             // act
             workerReceiver.Start();
 
             // assert
-            Assert.True(stopCts.Token.WaitHandle.WaitOne(1000));
-            Assert.False(pingCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(stopResetEvent.WaitHandle.WaitOne(1000));
+            Assert.False(pingResetEvent.WaitHandle.WaitOne(1000));
         }
     }
 }

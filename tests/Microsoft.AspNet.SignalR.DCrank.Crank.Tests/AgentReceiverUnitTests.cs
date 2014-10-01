@@ -9,8 +9,20 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
     public class AgentReceiverUnitTests
     {
+        private static StreamReader CreateMessageStream(Message message)
+        {
+            var stream = new MemoryStream();
+            var streamWriter = new StreamWriter(stream);
+
+            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
+            streamWriter.Flush();
+            stream.Position = 0;
+
+            return new StreamReader(stream);
+        }
+
         [Fact]
-        public void CallsPongMethodWhenPongMessageIsWrittenToStream()
+        public void DeserializesPongMessageAndCallsPongMethodOnAgent()
         {
             // arrange
             var pongObject = new
@@ -25,16 +37,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(pongObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             var pongId = 0;
             var pongValue = 0;
-            var pongCts = new CancellationTokenSource();
+            var pongResetEvent = new ManualResetEventSlim();
 
             var agent = new Mock<IAgent>();
             agent.Setup(instance => instance.Pong(It.IsAny<int>(), It.IsAny<int>()))
@@ -42,23 +49,22 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     pongId = id;
                     pongValue = value;
-                    pongCts.Cancel();
+                    pongResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var agentReceiver = new AgentReceiver(streamReader, agent.Object);
 
             // act
             agentReceiver.Start();
 
             // assert
-            Assert.True(pongCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(pongResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(pongObject.Id, pongId);
             Assert.Equal(pongObject.Value, pongValue);
         }
 
         [Fact]
-        public void CallsLogMethodWhenLogMessageIsWrittenToStream()
+        public void DeserializesLogMessageAndCallsLogMethodOnAgent()
         {
             // arrange
             var logObject = new
@@ -73,16 +79,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(logObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             var logId = 0;
             var logText = "";
-            var logCts = new CancellationTokenSource();
+            var logResetEvent = new ManualResetEventSlim();
 
             var agent = new Mock<IAgent>();
             agent.Setup(instance => instance.Log(It.IsAny<int>(), It.IsAny<string>()))
@@ -90,23 +91,22 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     logId = id;
                     logText = text;
-                    logCts.Cancel();
+                    logResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var agentReceiver = new AgentReceiver(streamReader, agent.Object);
 
             // act
             agentReceiver.Start();
 
             // assert
-            Assert.True(logCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(logResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(logObject.Id, logId);
             Assert.Equal(logObject.Text, logText);
         }
 
         [Fact]
-        public void CallsStatusMethodWhenStatusMessageIsWrittenToStream()
+        public void DeserializesStatusMessageAndCallsStatusMethodOnAgent()
         {
             // arrange
             var statusObject = new
@@ -127,16 +127,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 Value = JToken.FromObject(statusObject)
             };
 
-            var stream = new MemoryStream();
-            var streamWriter = new StreamWriter(stream);
-
-            streamWriter.WriteLine(JsonConvert.SerializeObject(message));
-            streamWriter.Flush();
-            stream.Position = 0;
+            var streamReader = CreateMessageStream(message);
 
             var statusId = 0;
             StatusInformation statusInformation = null;
-            var statusCts = new CancellationTokenSource();
+            var statusResetEvent = new ManualResetEventSlim();
 
             var agent = new Mock<IAgent>();
             agent.Setup(instance => instance.Status(It.IsAny<int>(), It.IsAny<StatusInformation>()))
@@ -144,17 +139,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     statusId = id;
                     statusInformation = status;
-                    statusCts.Cancel();
+                    statusResetEvent.Set();
                 });
 
-            var streamReader = new StreamReader(stream);
             var agentReceiver = new AgentReceiver(streamReader, agent.Object);
 
             // act
             agentReceiver.Start();
 
             // assert
-            Assert.True(statusCts.Token.WaitHandle.WaitOne(1000));
+            Assert.True(statusResetEvent.WaitHandle.WaitOne(1000));
             Assert.Equal(statusObject.Id, statusId);
             Assert.Equal(JsonConvert.SerializeObject(statusObject.StatusInformation), JsonConvert.SerializeObject(statusInformation));
         }

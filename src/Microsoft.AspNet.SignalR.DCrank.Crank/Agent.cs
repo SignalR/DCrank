@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
 {
-    public class Agent
+    public class Agent : IAgent
     {
         private const string _fileName = "crank.exe";
         private const string _hubName = "ControllerHub";
@@ -61,10 +61,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                                     Workers = _workers.Values.Select(worker => new
                                     {
                                         Id = worker.Id,
-                                        ConnectedCount = worker.ConnectedCount,
-                                        DisconnectedCount = worker.DisconnectedCount,
-                                        ReconnectedCount = worker.ReconnectedCount,
-                                        TargetConnectionCount = worker.TargetConnectionCount
+                                        ConnectedCount = worker.StatusInformation.ConnectedCount,
+                                        DisconnectedCount = worker.StatusInformation.DisconnectedCount,
+                                        ReconnectedCount = worker.StatusInformation.ReconnectingCount,
+                                        TargetConnectionCount = worker.StatusInformation.TargetConnectionCount
                                     })
                                 });
 
@@ -99,11 +99,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 RedirectStandardError = true
             };
 
-            var worker = new AgentWorker(startInfo);
+            var worker = new AgentWorker(startInfo, this);
 
             worker.Start();
 
-            worker.OnMessage += OnMessage;
             worker.OnError += OnError;
             worker.OnExit += OnExit;
 
@@ -259,32 +258,26 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             });
         }
 
-        private void OnMessage(int id, Message message)
+        public async Task Pong(int id, int value)
         {
-            switch (message.Command.ToLowerInvariant())
+            await LogAgent("Agent received pong message from Worker {0} with value {1}.", id, value);
+            await InvokeController("pongWorker", id, value);
+        }
+
+        public async Task Log(int id, string text)
+        {
+            await LogWorker(id, text);
+        }
+
+        public async Task Status(
+            int id,
+            StatusInformation statusInformation)
+        {
+            await LogAgent("Agent received status message from Worker {0}.", id);
+            AgentWorker worker;
+            if (_workers.TryGetValue(id, out worker))
             {
-                case "ping":
-                    LogAgent("Agent received pong message from Worker {0} with value {1}.", id, message.Value);
-                    InvokeController("pongWorker", id, message.Value["Value"].ToObject<int>());
-                    break;
-
-                case "log":
-                    LogWorker(id, message.Value["Text"].ToObject<string>());
-                    break;
-
-                case "status":
-                    LogAgent("Agent received status message from Worker {0} with value {1}.", id, message.Value);
-                    AgentWorker worker;
-                    if (_workers.TryGetValue(id, out worker))
-                    {
-                        var statusInformation = message.Value["StatusInformation"].ToObject<StatusInformation>();
-
-                        worker.ConnectedCount = statusInformation.ConnectedCount;
-                        worker.DisconnectedCount = statusInformation.DisconnectedCount;
-                        worker.ReconnectedCount = statusInformation.ReconnectingCount;
-                        worker.TargetConnectionCount = statusInformation.TargetConnectionCount;
-                    }
-                    break;
+                worker.StatusInformation = statusInformation;
             }
         }
 
@@ -299,7 +292,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             _workers.TryRemove(workerId, out worker);
         }
 
-        private async void LogWorker(int workerId, string format, params object[] arguments)
+        private async Task LogWorker(int workerId, string format, params object[] arguments)
         {
             var prefix = string.Format("({0}, {1}) ", _connection.ConnectionId, workerId);
             var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
@@ -315,7 +308,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        private async void LogAgent(string format, params object[] arguments)
+        private async Task LogAgent(string format, params object[] arguments)
         {
             var prefix = string.Format("({0}) ", _connection.ConnectionId, DateTime.Now);
             var message = "[" + DateTime.Now.ToString() + "] " + string.Format(format, arguments);
