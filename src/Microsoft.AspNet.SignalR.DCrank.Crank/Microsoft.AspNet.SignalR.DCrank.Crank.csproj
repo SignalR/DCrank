@@ -54,8 +54,10 @@
   <ItemGroup>
     <Compile Include="Agent.cs" />
     <Compile Include="AgentReceiver.cs" />
+    <Compile Include="IRunner.cs" />
     <Compile Include="DCrankArguments.cs" />
     <Compile Include="AgentSender.cs" />
+    <Compile Include="HubRunner.cs" />
     <Compile Include="IAgent.cs" />
     <Compile Include="StatusInformation.cs" />
     <Compile Include="WorkerSender.cs" />

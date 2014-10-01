@@ -14,7 +14,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     case "agent":
                         var agent = new Agent();
-                        agent.Run(arguments.ControllerUrl).Wait();
+                        var runner = new HubRunner(agent, arguments.ControllerUrl);
+                        runner.Run().Wait();
                         break;
                     case "worker":
                         var worker = new Worker(arguments.ParentPid);
