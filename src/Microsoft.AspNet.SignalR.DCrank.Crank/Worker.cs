@@ -160,7 +160,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 );
 
                 // Sending once per 5 seconds to avoid overloading the Test Controller
-                await Task.Delay(5000, cancellationToken);
+                try
+                {
+                    await Task.Delay(5000, cancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                }
             }
         }
     }

@@ -173,7 +173,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        public void StopWorkers()
+        public async Task StopWorkers()
         {
             var keys = _workers.Keys.ToList();
 
@@ -182,12 +182,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 AgentWorker worker;
                 if (_workers.TryGetValue(key, out worker))
                 {
-                    worker.Worker.Stop();
-                    Runner.LogAgent("Agent stopped Worker {0}.", key);
+                    await worker.Worker.Stop();
+                    await Runner.LogAgent("Agent stopped Worker {0}.", key);
                 }
             }
             TotalConnectionsRequested = 0;
             ApplyingLoad = false;
+
+            // Wait for workers to terminate
+            while (_workers.Count > 0)
+            {
+                await Task.Delay(1000);
+            }
         }
 
         public async Task Pong(int id, int value)

@@ -12,14 +12,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 var arguments = CommandLine.Parse<DCrankArguments>();
                 switch (arguments.Mode.ToLowerInvariant())
                 {
+                    case "commandline":
+                        StartCommandLine(arguments);
+                        break;
                     case "agent":
-                        var agent = new Agent();
-                        var runner = new HubRunner(agent, arguments.ControllerUrl);
-                        runner.Run().Wait();
+                        StartAgent(arguments);
                         break;
                     case "worker":
-                        var worker = new Worker(arguments.ParentPid);
-                        worker.Run().Wait();
+                        StartWorker(arguments);
                         break;
                     default:
                         throw new ArgumentException(string.Format("Invalid value for Mode \"{0}\"", arguments.Mode));
@@ -34,6 +34,26 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void StartCommandLine(DCrankArguments arguments)
+        {
+            var agent = new Agent();
+            var runner = new Runner(agent, arguments);
+            runner.Run().Wait();
+        }
+
+        private static void StartAgent(DCrankArguments arguments)
+        {
+            var agent = new Agent();
+            var runner = new HubRunner(agent, arguments.ControllerUrl);
+            runner.Run().Wait();
+        }
+
+        private static void StartWorker(DCrankArguments arguments)
+        {
+            var worker = new Worker(arguments.ParentPid);
+            worker.Run().Wait();
         }
     }
 }
