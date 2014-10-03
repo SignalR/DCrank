@@ -26,44 +26,53 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
         {
             Task.Run(() =>
             {
+                var properties = _perfCounterManager.GetType().GetProperties();
+                var propertyDictionary = new Dictionary<string, PropertyInfo>();
+
+                var definitionList = new List<PerformanceCounterDefinition>();
+
+                foreach (var property in properties)
+                {
+                    var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
+
+                    // Constructing definition
+                    if (propertyAttributes.Length > 0)
+                    {
+                        definitionList.Add(new PerformanceCounterDefinition()
+                        {
+                            Name = property.Name,
+                            Type = propertyAttributes[0].CounterType,
+                            ValueId = propertyAttributes[0].BaseCounterName
+                        });
+
+                        propertyDictionary.Add(property.Name, property);
+                    }
+                }
+
                 while (true)
                 {
                     using (var database = new PerformanceCounterSampleContext(_connectionString))
                     {
                         try
                         {
-                            var properties = _perfCounterManager.GetType().GetProperties();
-
-                            var definitionList = new List<PerformanceCounterDefinition>();
                             var valueList = new List<PerformanceCounterValues>();
 
-                            foreach (var property in properties)
+                            foreach (var counterDefinition in definitionList)
                             {
-                                var propertyAttributes = (PerformanceCounterAttribute[])property.GetCustomAttributes(typeof(PerformanceCounterAttribute), false);
-
-                                // Constructing definition
-                                if (propertyAttributes.Length > 0)
+                                if (counterDefinition.Type == PerformanceCounterType.Total)
                                 {
-                                    definitionList.Add(new PerformanceCounterDefinition()
-                                    {
-                                        Name = property.Name,
-                                        Type = propertyAttributes[0].CounterType,
-                                        ValueId = propertyAttributes[0].BaseCounterName
-                                    });
+                                    PropertyInfo property;
+                                    propertyDictionary.TryGetValue(counterDefinition.Name, out property);
 
-                                    // Constructing value
-                                    if (propertyAttributes[0].CounterType == PerformanceCounterType.Total)
+                                    valueList.Add(new PerformanceCounterValues()
                                     {
-                                        valueList.Add(new PerformanceCounterValues()
-                                        {
-                                            ValueId = (propertyAttributes[0]).BaseCounterName,
-                                            Value = ((IPerformanceCounter)property.GetValue(_perfCounterManager)).RawValue
-                                        });
-                                    }
+                                        ValueId = counterDefinition.ValueId,
+                                        Value = ((IPerformanceCounter)property.GetValue(_perfCounterManager)).RawValue
+                                    });
                                 }
                             }
 
-                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterJsonDefinition
+                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterDbDefinition
                             {
                                 Definitions = definitionList,
                                 Values = valueList

@@ -1,9 +1,7 @@
 ﻿using System;
 using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Routing;
-using Microsoft.AspNet.Security.Cookies;
 using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
 using Microsoft.AspNet.SignalR.LoadTestHarness.Models;
 using Microsoft.Data.Entity;
@@ -36,8 +34,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
                 });
 
                 // Add Identity services to the services container
-                services.AddIdentitySqlServer<ApplicationDbContext, ApplicationUser>()
-                    .AddAuthentication();
+                services.AddDefaultIdentity<ApplicationDbContext, ApplicationUser, IdentityRole>(configuration);
 
                 // Add MVC services to the services container
                 services.AddMvc();
@@ -66,11 +63,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             app.UseDCrankEndpoint();
 
             // Add cookie-based authentication to the request pipeline
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationType = ClaimsIdentityOptions.DefaultAuthenticationType,
-                LoginPath = new PathString("/Account/Login"),
-            });
+            app.UseIdentity();
 
             // Add MVC to the request pipeline
             app.UseMvc(routes =>
