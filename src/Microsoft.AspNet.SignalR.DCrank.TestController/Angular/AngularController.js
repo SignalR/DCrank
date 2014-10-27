@@ -108,7 +108,9 @@ angularModule.service('signalRSvc', function ($rootScope) {
     };
 });
 
-function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
+angularModule.controller('SignalRAngularCtrl', [
+    '$scope', 'signalRSvc', '$rootScope',
+function ($scope, signalRSvc, $rootScope) {
     signalRSvc.initialize();
 
 
@@ -567,7 +569,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         }
     }
 
-    $scope.updatePlot = function() {
+    $scope.updatePlot = function () {
         if ($scope.selectedPerformanceCounter !== undefined) {
             if (perfPlot) {
                 perfPlot.destroy();
@@ -599,7 +601,7 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         }
     }
 
-    $scope.$watch('selectedPerformanceCounter', function(newVal, oldVal) {
+    $scope.$watch('selectedPerformanceCounter', function (newVal, oldVal) {
         $scope.updatePlot();
     });
 
@@ -636,3 +638,4 @@ function SignalRAngularCtrl($scope, signalRSvc, $rootScope) {
         });
     });
 }
+]);
