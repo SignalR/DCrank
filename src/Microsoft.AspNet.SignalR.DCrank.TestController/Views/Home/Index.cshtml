@@ -2,145 +2,48 @@
     ViewBag.Title = "Dashboard";
 }
 
-<html ng-app="angularModule" ng-controller="SignalRAngularCtrl">
-<head>
-    <title></title>
-    <script src="~/Scripts/angular/angular.js"></script>
-    <script src="~/Angular/AngularController.js"></script>
+<div ng-app="testControllerApp">
+    <div ng-controller="DashboardController as dashboard">
+        <div ui-view="top"></div>
+        <div ui-view="body"></div>
+    </div>
+</div>
+
+@section styles
+{
     <link rel="stylesheet" type="text/css" href="~/Content/HudStyle.css">
     <link rel="stylesheet" type="text/css" href="~/Scripts/jqPlot/jquery.jqplot.css">
-</head>
-<body class="container">
-    <h1>Hud</h1>
-    <div id="headingContainer">
-        <h3 id="title">Target Application</h3>
-        <div id="toggle" class="onoffswitch">
-            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" data-ng-model="autoTesting">
-            <label class="onoffswitch-label" for="myonoffswitch">
-                <span class="onoffswitch-inner"></span>
-                <span class="onoffswitch-switch"></span>
-            </label>
-        </div>
-    </div>
-    <div class="staticInput">
-        <form data-ng-show="setUpNeeded">
-            <div data-ng-show="autoTesting">Number of Connections<input id="numberOfConnections" class="staticTextBox" type="number" data-ng-model="numberOfConnections" /></div>
-            <div>Target URL<input id="targetURL" class="staticTextBox" type="url" data-ng-model="targetAddress" /></div>
-            <div><input id="settingUpConnections" class="btn btn-default btn-lg" type="submit" data-ng-click="spinUpConnections()" value="Set Up Connections" /></div>
-        </form>
-        <form data-ng-show="spinningUpConnections">
-            <div><input id="killConnections" class="btn btn-default btn-lg" type="submit" data-ng-click="killConnections()" value="Kill Connections" /></div>
-        </form>
-        <form data-ng-show="readyToStartTest">
-            <div>Messages Per Second Per Connection<input id="messageRate" class="staticTextBox" type="number" data-ng-model="messagesPerSecond" /></div>
-            <div>Mesage Size (Bytes)<input id="messageSize" class="staticTextBox" type="number" data-ng-model="messageSize" /></div>
-            <div><input id="startTest" class="btn btn-default btn-lg" type="submit" data-ng-click="startTest()" value="Start Test" /></div>
-            <div><input id="killConnections" class="btn btn-default btn-lg" type="button" data-ng-click="killConnections()" value="Kill Connections" /></div>
-        </form>
+}
 
-        <div id="perfPlot"></div>
-        <form data-ng-show="testRunning">
-            <div id="perfCounters">
-                <h1>Performance</h1>
-                <select ng-model="selectedPerformanceCounter" ng-options="performanceCounter.name as performanceCounter.name for performanceCounter in performanceCounterData"></select>
-                {{selectedPerformanceCounter}}
+@section scripts
+{
+    <!-- SignalR library. -->
+    <script type="text/javascript" src="~/Scripts/jquery.signalR-2.1.1.min.js"></script>
+    <!-- SignalR hub script. -->
+    <script type="text/javascript" src="~/signalr/hubs"></script>
 
-                <table>
-                    <tr data-ng-repeat="currentProperty in performanceCounterData track by $index">
-                        <td>{{currentProperty.name}}</td>
-                        <td>{{currentProperty.value}}</td>
-                    </tr>
-                </table>
-            </div>
-            <div><input id="forTestRun" class="btn btn-default btn-lg" type="submit" data-ng-click="stopWorkers()" value="Disconnect" /></div>
-            <div><input id="killConnections" class="btn btn-default btn-lg" type="button" data-ng-click="killConnections()" value="Kill Connections" /></div>
-        </form>
-    </div>
+    <!-- Angular -->
+    <script type="text/javascript" src="~/Scripts/angular/angular.js"></script>
 
-    <h3>Navigation</h3>
-    <div class="hud" data-ng-click="backOut()">
-        @* Permanent View *@
-        <div class="dashboard">
-            <h3 class="left">{{currentView}}</h3>
-            <h3 class="right">Connections: {{totalConnectionCount}}</h3>
-        </div>
+    <!--Angular ui router -->
+    <script type="text/javascript" src="~/Scripts/angular-ui-router/release/angular-ui-router.js"></script>
 
-        @* View 1: All Agents View *@
-        <div id="{{agent.state}}" class="col-md-4" data-ng-repeat="agent in agents" data-ng-click="toSingleAgentView()" data-ng-show="displayAllAgentsView && agent.allAgentsView">
-            <div class="agentNumber">{{agent.number}}</div>
-            <div class="numberOfWorkers">{{agent.numberOfWorkers}}</div>
-            <div class="machineName">{{agent.machineName}}</div>
-        </div>
+    <!-- TestController App -->
+    <script type="text/javascript" src="~/Scripts/test-controller/test.controller-app.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/model-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/model.update-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/hub-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/test.controller-router.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/dashboard-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/agent.menu-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/agent.detail-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/worker.detail-controller.js"></script>
 
-        @* View 2: All workers in 1 Agent *@
-        <div class="workerContainer" data-ng-repeat="agent in agents">
-            @* Displays the workers for a particular agent *@
-            <div class="col-md-4" id="{{worker.state}}" data-ng-click="toSingleWorkerView()" data-ng-repeat="worker in agent.workers" data-ng-show="agent.singleAgentView">
-                <div class="workerNumber">{{worker.id}}</div>
-                <div class="removeButtonContainer" onclick="kill()" data-ng-click="killWorker(agent.id)" data-ng-hide="autoTesting">
-                    <input type="checkbox" class="removeCheckbox">
-                    <div class="glyphicon glyphicon-remove"></div>
-                </div>
-                <div class="numberOfConnections">{{worker.numberOfConnections}}</div>
-                <div class="targetNumberOfConnections">{{worker.targetConnectionCount}}</div>
-            </div>
-
-            @* Start worker button *@
-            <div class="col-md-4" id="addAgentButton" data-ng-click="startWorker()" data-ng-show="agent.singleAgentView && !autoTesting">
-                <div class="glyphicon-plus"></div>
-            </div>
-        </div>
-
-        @* View 3: All logging for 1 worker *@
-        <div class="loggingContainer" data-ng-repeat="agent in agents">
-            <div class="col-md-6" id="logging" onclick="event.stopPropagation()" data-ng-repeat="worker in agent.workers" data-ng-show="worker.singleWorkerView">
-                <div class="workerId">{{worker.id}}</div>
-                <div class="currentConnections">{{worker.numberOfConnections}}</div>
-                <div class="log">
-                    <ul data-ng-repeat="workerLogging in worker.output track by $index">{{workerLogging}}</ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <h3>Output Area</h3>
-
-    <div class="jumbotron" style="max-height:400px; overflow:auto; min-width: 800px;">
-        <ul data-ng-repeat="messages in uiGeneralDisplay track by $index">{{messages}}</ul>
-    </div>
-
-
-    @section scripts
-    {
-        <!-- Reference the jqPlot library. -->
-        <script type="text/javascript" src="~/Scripts/jqPlot/jquery.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/jquery.jqplot.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasAxisLabelRenderer.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasTextRenderer.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.dateAxisRenderer.js"></script>
-        <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.highlighter.js"></script>
-
-
-        <!-- Reference the SignalR library. -->
-        <script src="~/Scripts/jquery.signalR-2.1.1.min.js"></script>
-        <!-- Reference the autogenerated SignalR hub script. -->
-        <script src="~/signalr/hubs"></script>
-
-        <script>
-            var controller = $.connection.controllerHub;
-
-            // Established a group for the UI so that it can be identified by the hub
-            $.connection.hub.qs = { UI: 1 };
-            $.connection.hub.start().done(function () {
-            });
-
-            function kill() {
-                event.stopPropagation();
-                var workerObject = event.target.parentNode.parentNode;
-                workerObject.classList.add("dyingWorker");
-            }
-        </script>
-    }
-</body>
-</html>
+    <!-- Reference the jqPlot library. -->
+    <script type="text/javascript" src="~/Scripts/jqPlot/jquery.jqplot.js"></script>
+    <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasAxisLabelRenderer.js"></script>
+    <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+    <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasTextRenderer.js"></script>
+    <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.dateAxisRenderer.js"></script>
+    <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.highlighter.js"></script>
+}

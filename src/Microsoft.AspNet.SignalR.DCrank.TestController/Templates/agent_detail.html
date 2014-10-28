@@ -1,0 +1,25 @@
+﻿<div class="row">
+    <div class="col-lg-6" ng-controller="AgentDetailController as agentDetail">
+        <a ui-sref="home">X</a>
+        <input ng-model="agentDetail.url" />
+        <input ng-model="agentDetail.connections" />
+        <button ng-click="agentDetail.StartWorker()">Start Worker</button>
+        <ul>
+            <li>Name: {{agentDetail.agent.machineName}}</li>
+            <li>ID: {{agentDetail.agent.id}}</li>
+            <li>Connections: {{agentDetail.agent.workers|sumOfProperty: 'connectedCount'}} / {{agentDetail.agent.totalConnectionCount}}</li>
+            <li>Pong Value: {{agentDetail.agent.pongValue}}</li>
+            <li>
+                <ul>
+                    <li ng-repeat="worker in agentDetail.agent.workers"><a ui-sref="home.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})">{{worker.id}}</a></li>
+                </ul>
+            </li>
+            <li>
+                <ul>
+                    <li ng-repeat="line in agentDetail.agent.output">{{line}}</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="col-lg-6" ui-view></div>
+</div>

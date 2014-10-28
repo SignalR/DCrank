@@ -1,0 +1,11 @@
+﻿<div ng-controller="WorkerDetailController as workerDetail">
+    <a ui-sref="home.agent({agentId:workerDetail.agentId})">X</a>
+    <ul>
+        <li>ID: {{workerDetail.worker.id}}</li>
+        <li>
+            <ul>
+                <li ng-repeat="line in workerDetail.worker.output">{{line}}</li>
+            </ul>
+        </li>
+    </ul>
+</div>
