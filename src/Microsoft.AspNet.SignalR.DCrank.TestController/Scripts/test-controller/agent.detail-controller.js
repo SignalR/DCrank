@@ -1,33 +1,26 @@
-﻿testControllerApp.filter('sumOfProperty', function() {
-    return function (array, key) {
-        if (array === undefined || array === null) {
-            return 0;
-        }
-
-        var sum = 0;
-        for (var index = 0; index < array.length; index++) {
-            sum += array[index][key];
-        }
-        return sum;
-    }
-});
-
-testControllerApp.controller("AgentDetailController", [
+﻿testControllerApp.controller("AgentDetailController", [
     '$stateParams', 'modelService', 'hubService', function ($stateParams, modelService, hubService) {
-        modelService.bindAgent(this, 'agent', $stateParams.agentId);
+        var vm = this;
+        modelService.bindAgent(vm, 'agent', $stateParams.agentId);
 
-        this.url = 'http://localhost:24037/';
-        this.connections = 3;
+        vm.url = 'http://localhost:24037/';
+        vm.connections = 3;
+        vm.pingValue = 0;
 
-        this.currentConnections = function() {
-            var sum = 0;
-            for (var index = 0; index < agent.workers.lenght; index++) {
-                sum += agent.workers[index].connectionConnected;
+        vm.selectedClass = function (index) {
+            var selectedWorkerId = Number($stateParams.workerId);
+            if ((vm.agent != null) && (vm.agent.workers[index].id === selectedWorkerId)) {
+                return 'selected-row';
             }
+            return '';
+        };
+
+        vm.StartWorker = function () {
+            hubService.setUpTest(vm.url, vm.connections, [vm.agent.id]);
         }
 
-        this.StartWorker = function () {
-            hubService.setUpTest(this.url, this.connections, [this.agent.id]);
+        vm.Ping = function () {
+            hubService.pingAgent(vm.agent.id, vm.pingValue);
         }
     }
 ]);

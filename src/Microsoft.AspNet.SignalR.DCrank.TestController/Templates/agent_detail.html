@@ -1,25 +1,90 @@
-﻿<div class="row">
-    <div class="col-lg-6" ng-controller="AgentDetailController as agentDetail">
-        <a ui-sref="home">X</a>
-        <input ng-model="agentDetail.url" />
-        <input ng-model="agentDetail.connections" />
-        <button ng-click="agentDetail.StartWorker()">Start Worker</button>
-        <ul>
-            <li>Name: {{agentDetail.agent.machineName}}</li>
-            <li>ID: {{agentDetail.agent.id}}</li>
-            <li>Connections: {{agentDetail.agent.workers|sumOfProperty: 'connectedCount'}} / {{agentDetail.agent.totalConnectionCount}}</li>
-            <li>Pong Value: {{agentDetail.agent.pongValue}}</li>
-            <li>
-                <ul>
-                    <li ng-repeat="worker in agentDetail.agent.workers"><a ui-sref="home.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})">{{worker.id}}</a></li>
-                </ul>
-            </li>
-            <li>
-                <ul>
-                    <li ng-repeat="line in agentDetail.agent.output">{{line}}</li>
-                </ul>
-            </li>
-        </ul>
+﻿<div class="col-lg-8 col-md-8 blade-col">
+    <div class="blade" ng-controller="AgentDetailController as agentDetail">
+        <!-- Toolbar -->
+        <div class="blade-title-bar">
+            <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
+                <span class="glyphicon glyphicon-remove"
+                      ui-sref="home"></span>
+            </div>
+        </div>
+
+        <!-- Blade header -->
+        <div class="blade-header">Agent: {{agentDetail.agent.id}}</div>
+
+        <!-- Blade contents -->
+        <div class="blade-body dark">
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- Console tile -->
+                    <div class="console-tile" ng-controller="AgentConsoleController as console">
+                        <div class="console-title-bar">
+                            <div class="console-title-bar-item  tool-tip" tool-tip="Pin">
+                                <span class=" glyphicon glyphicon-pushpin {{console.pinnedClass()}}"
+                                      ng-click="console.togglePin()"></span>
+                            </div>
+                            <div class="console-title-bar-item  tool-tip" tool-tip="Auto scroll">
+                                <span class=" glyphicon glyphicon-arrow-down {{console.autoScrollClass()}}"
+                                      ng-click="console.toggleAutoScroll()"></span>
+                            </div>
+                            Agent: {{agentDetail.agent.id}}
+                        </div>
+                        <div class="console-body"
+                             id="{{console.consoleId}}"
+                             ng-click="console.disableautoscroll()">
+                            <div on-repeat ng-repeat="line in console.agent.output track by $index">{{line}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-6 blade-tile-col">
+                    <!-- Info tile -->
+                    <div class="blade-tile">
+                        <ul>
+                            <li>Name: {{agentDetail.agent.machineName}}</li>
+                            <li>ID: {{agentDetail.agent.id}}</li>
+                            <li>Connections: {{agentDetail.agent.currentConnections}} / {{agentDetail.agent.totalConnectionCount}}</li>
+                            <li>Pong Value: {{agentDetail.agent.pongValue}}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6 blade-tile-col">
+                    <!-- control tile -->
+                    <div class="blade-tile">
+                        <ul>
+                            <li><input ng-model="agentDetail.url" /></li>
+                            <li><input ng-model="agentDetail.connections" /></li>
+                            <li><button ng-click="agentDetail.StartWorker()">Start Worker</button></li>
+                            <li><div><p>Ping: <input ng-model="agentDetail.pingValue" /></p></div></li>
+                            <li><button ng-click="agentDetail.Ping()">Ping</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row blade-tile-row">
+                <div class="colg-lg-12 blade-tile-col">
+                    <!-- Worker list tile -->
+                    <div class="grid-tile">
+                        <div class="row grid-row">
+                            <div class="col-lg-6 grid-col">Worker</div>
+                            <div class="col-lg-6 grid-col">Connections</div>
+                        </div>
+
+                        <div ng-repeat="worker in agentDetail.agent.workers"
+                             class="row grid-row {{agentDetail.selectedClass($index)}}"
+                             ui-sref="home.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})">
+                            <div class="col-lg-6 grid-col">{{worker.id}}</div>
+                            <div class="col-lg-6 grid-col">{{worker.connectedCount}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-lg-6" ui-view></div>
+</div>
+<div class="col-lg-4 col-md-4 blade-col">
+    <div class="row blade-row" ui-view></div>
 </div>

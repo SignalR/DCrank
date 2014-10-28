@@ -10,6 +10,9 @@
             agent.totalConnectionCount = heartbeatInformation.TotalConnectionsRequested;
             agent.applyingLoad = heartbeatInformation.ApplyingLoad;
 
+            // Reset accumulated agent data
+            agent.currentConnections = 0;
+
             // Mark all workers out of date
             for (var index = 0; index < agent.workers.length; index++) {
                 agent.workers[index].updated = false;
@@ -28,16 +31,31 @@
                 worker.disconnectedCount = workerInformation.DisconnectedCount;
                 worker.reconnectingCount = workerInformation.ReconnectedCount;
                 worker.targetConnectionCount = workerInformation.TargetConnectionCount;
+
+                // Update accumulated agent data
+                agent.currentConnections += workerInformation.ConnectedCount;
             }
         },
         agentLog: function (agentId, message) {
             var agent = modelService.getCreateAgent(agentId);
-            agent.output.push(message);
+            var output = agent.output;
+
+            output.push(message);
+            if (output.length > 200) {
+                // Periodically trim the log for performance
+                output.splice(0, 50);
+            }
         },
         workerLog: function (agentId, workerId, message) {
             var agent = modelService.getCreateAgent(agentId);
             var worker = modelService.getCreateWorker(agent, workerId);
-            worker.output.push(message);
+            var output = worker.output;
+
+            output.push(message);
+            if (output.length > 200) {
+                // Periodically trim the log for performance
+                output.splice(0, 50);
+            }
         },
         agentPong: function (agentId, value) {
             var agent = modelService.tryGetAgent(agentId);

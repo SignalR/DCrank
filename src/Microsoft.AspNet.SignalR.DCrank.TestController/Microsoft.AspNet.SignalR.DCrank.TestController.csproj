@@ -151,6 +151,7 @@
     <Content Include="Scripts\angular-animate\bower.json" />
     <Content Include="Scripts\angular-animate\package.json" />
     <Content Include="Scripts\angular-animate\README.md" />
+    <Content Include="Content\dashboard.less" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jqPlot\changes.txt" />
     <Content Include="Scripts\jqPlot\copyright.txt" />
@@ -238,6 +239,7 @@
     <Content Include="Scripts\less\dist\less.min.js" />
     <Content Include="Scripts\less\index.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\test-controller\agent.console-controller.js" />
     <Content Include="Scripts\test-controller\agent.detail-controller.js" />
     <Content Include="Scripts\test-controller\agent.menu-controller.js" />
     <Content Include="Scripts\test-controller\dashboard-controller.js" />
@@ -246,6 +248,7 @@
     <Content Include="Scripts\test-controller\model.update-service.js" />
     <Content Include="Scripts\test-controller\test.controller-app.js" />
     <Content Include="Scripts\test-controller\test.controller-router.js" />
+    <Content Include="Scripts\test-controller\worker.console-controller.js" />
     <Content Include="Scripts\test-controller\worker.detail-controller.js" />
     <Content Include="Templates\agent_detail.html" />
     <Content Include="Templates\agent_menu.html" />

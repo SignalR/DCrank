@@ -5,13 +5,15 @@
 <div ng-app="testControllerApp">
     <div ng-controller="DashboardController as dashboard">
         <div ui-view="top"></div>
-        <div ui-view="body"></div>
+        <div class="container blade-container">
+            <div class="row blade-row" ui-view="body"></div>
+        </div>
     </div>
 </div>
 
 @section styles
 {
-    <link rel="stylesheet" type="text/css" href="~/Content/HudStyle.css">
+    <link rel="stylesheet/less" href="~/Content/dashboard.less" />
     <link rel="stylesheet" type="text/css" href="~/Scripts/jqPlot/jquery.jqplot.css">
 }
 
@@ -25,8 +27,14 @@
     <!-- Angular -->
     <script type="text/javascript" src="~/Scripts/angular/angular.js"></script>
 
-    <!--Angular ui router -->
+    <!-- Angular Animate -->
+    <script type="text/javascript" src="~/Scripts/angular-animate/angular-animate.js"></script>
+
+    <!-- Angular ui router -->
     <script type="text/javascript" src="~/Scripts/angular-ui-router/release/angular-ui-router.js"></script>
+
+    <!-- Less -->
+    <script type="text/javascript" src="~/Scripts/less/dist/less.js"></script>
 
     <!-- TestController App -->
     <script type="text/javascript" src="~/Scripts/test-controller/test.controller-app.js"></script>
@@ -37,7 +45,9 @@
     <script type="text/javascript" src="~/Scripts/test-controller/dashboard-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/agent.menu-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/agent.detail-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/agent.console-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/worker.detail-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/worker.console-controller.js"></script>
 
     <!-- Reference the jqPlot library. -->
     <script type="text/javascript" src="~/Scripts/jqPlot/jquery.jqplot.js"></script>

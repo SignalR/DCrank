@@ -42,6 +42,9 @@
         pingAgent: function (agentId, value) {
             this.proxy.invoke('pingAgent', agentId, value);
         },
+        pingWorker: function (agentId, workerId, value) {
+            this.proxy.invoke('pingWorker', agentId, workerId, value);
+        },
         killWorker: function (agentId, workerId) {
             this.proxy.invoke('killWorker', agentId, workerId);
         },

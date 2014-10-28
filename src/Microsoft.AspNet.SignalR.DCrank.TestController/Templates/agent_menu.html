@@ -1,16 +1,37 @@
-﻿<div class="row">
-    <div class="col-lg-4" ng-controller="AgentMenuController as agentMenu">
-        <div><p>Ping: <input ng-model="agentMenu.pingValue" /></p></div>
-        <div ng-repeat="agent in agentMenu.agents">
-            <ul>
-                <li>Name: {{agent.machineName}}</li>
-                <li>ID: <a ui-sref="home.agent({agentId:agent.id})">{{agent.id}}</a></li>
-                <li>Workers: {{agent.workers.length}}</li>
-                <li>Connections: {{agent.totalConnectionCount}}</li>
-                <li>Pong Value: {{agent.pongValue}}</li>
-            </ul>
-            <button ng-click="agentMenu.Ping($index)">Ping</button>
+﻿<div class="col-lg-4 col-md-4 blade-col">
+    <div class="blade" ng-controller="AgentMenuController as agentMenu">
+        <!-- Toolbar -->
+        <div class="blade-title-bar"></div>
+
+        <!-- Blade header -->
+        <div class="blade-header">Agents</div>
+
+        <!-- Blade contents -->
+        <div class="blade-body">
+
+            <div class="row blade-tile-row">
+                <div class="colg-lg-12 blade-tile-col">
+                    <!-- Agent list grid -->
+                    <div class="grid-tile">
+                        <div class="row grid-row">
+                            <div class="col-lg-3 grid-col">Name</div>
+                            <div class="col-lg-5 grid-col">ID</div>
+                            <div class="col-lg-4 grid-col">Connections</div>
+                        </div>
+
+                        <div ng-repeat="agent in agentMenu.agents"
+                             class="row grid-row {{agentMenu.selectedClass($index)}}"
+                             ui-sref="home.agent({agentId:agent.id})">
+                            <div class="col-lg-3 grid-col">{{agent.machineName}}</div>
+                            <div class="col-lg-5 grid-col">{{agent.id}}</div>
+                            <div class="col-lg-4 grid-col">{{agent.totalConnectionCount}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-lg-8" ui-view></div>
+</div>
+<div class="col-lg-8 col-md-8 blade-col">
+    <div class="row blade-row" ui-view></div>
 </div>

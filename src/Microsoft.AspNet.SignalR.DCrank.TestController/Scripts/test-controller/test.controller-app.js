@@ -1,1 +1,1 @@
-﻿var testControllerApp = angular.module('testControllerApp', ['ui.router']);
+﻿var testControllerApp = angular.module('testControllerApp', ['ngAnimate', 'ui.router']);

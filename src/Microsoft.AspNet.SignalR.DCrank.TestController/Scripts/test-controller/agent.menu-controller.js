@@ -1,11 +1,14 @@
 ﻿testControllerApp.controller('AgentMenuController', [
-    'modelService', 'hubService', function(modelService, hubService) {
-        this.agents = modelService.getAgents();
+    '$stateParams', 'modelService', function ($stateParams, modelService) {
+        var vm = this;
 
-        this.pingValue = 0;
+        vm.agents = modelService.getAgents();
 
-        this.Ping = function(index) {
-            hubService.pingAgent(this.agents[index].id, this.pingValue);
-        }
+        vm.selectedClass = function (index) {
+            if ($stateParams.agentId === vm.agents[index].id) {
+                return 'selected-row';
+            }
+            return '';
+        };
     }
 ]);

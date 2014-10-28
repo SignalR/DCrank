@@ -1,11 +1,59 @@
-﻿<div ng-controller="WorkerDetailController as workerDetail">
-    <a ui-sref="home.agent({agentId:workerDetail.agentId})">X</a>
-    <ul>
-        <li>ID: {{workerDetail.worker.id}}</li>
-        <li>
-            <ul>
-                <li ng-repeat="line in workerDetail.worker.output">{{line}}</li>
-            </ul>
-        </li>
-    </ul>
+﻿<div class="col-lg-10 col-md-10 blade-col">
+    <div class="blade" ng-controller="WorkerDetailController as workerDetail">
+        <!-- Toolbar -->
+        <div class="blade-title-bar">
+            <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
+                <span class="glyphicon glyphicon-remove"
+                      ui-sref="home.agent({agentId:workerDetail.agentId})"></span>
+            </div>
+        </div>
+
+        <!-- Blade header -->
+        <div class="blade-header">Worker: {{workerDetail.worker.id}}</div>
+
+        <!-- Blade contents -->
+        <div class="blade-body dark">
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- Console tile -->
+                    <div class="console-tile" ng-controller="WorkerConsoleController as console">
+                        <div class="console-title-bar">
+                            <div class="console-title-bar-item  tool-tip" tool-tip="Pin">
+                                <span class=" glyphicon glyphicon-pushpin {{console.pinnedClass()}}"
+                                      ng-click="console.togglePin()"></span>
+                            </div>
+                            <div class="console-title-bar-item  tool-tip" tool-tip="Auto scroll">
+                                <span class=" glyphicon glyphicon-arrow-down {{console.autoScrollClass()}}"
+                                      ng-click="console.toggleAutoScroll()"></span>
+                            </div>
+                            Worker: {{workerDetail.worker.id}}
+                        </div>
+                        <div class="console-body"
+                             id="{{console.consoleId}}"
+                             ng-click="console.disableAutoScroll()">
+                            <div on-repeat ng-repeat="line in console.worker.output track by $index">{{line}}</div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- control tile -->
+                    <div class="blade-tile">
+                        <ul>
+                            <li><div><p>Ping: <input ng-model="workerDetail.pingValue" /></p></div></li>
+                            <li><button ng-click="workerDetail.Ping()">Ping</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-2 col-md-2 blade-col">
+    <div class="row blade-row" ui-view></div>
 </div>
