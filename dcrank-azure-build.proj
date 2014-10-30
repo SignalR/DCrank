@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets = "Compile"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
+
+    <PropertyGroup>
+        <CrankWorkerSrcDir>.\src\Microsoft.AspNet.SignalR.DCrank.Crank</CrankWorkerSrcDir>
+        <CrankDashboardSrcDir>.\src\Microsoft.AspNet.SignalR.DCrank.TestController</CrankDashboardSrcDir>
+        <CrankWorkerServiceProject>.\azure-packages\CrankWorkerServiceProject\CrankWorker</CrankWorkerServiceProject>
+        <CrankDashboardServiceProject>.\azure-packages\CrankDashboardServiceProject\Microsoft.AspNet.SignalR.DCrank.TestController</CrankDashboardServiceProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Projects Include="$(CrankWorkerSrcDir)\Microsoft.AspNet.SignalR.DCrank.Crank.csproj"></Projects>
+        <Projects Include="$(CrankDashboardSrcDir)\Microsoft.AspNet.SignalR.DCrank.TestController.csproj"></Projects>
+    </ItemGroup>
+
+    <Target Name = "Build">
+        <MSBuild Projects = "@(Projects)"
+                 Properties="OutputPath=.\artifacts">
+        </MSBuild>
+
+        <ItemGroup>
+            <CrankWorkerBinaries Include="$(CrankWorkerSrcDir)\artifacts\*.*"/>
+            <CrankDashboardBinaries Include="$(CrankDashboardSrcDir)\artifacts\*.*"/>
+            <CrankDashboardFiles Include="$(CrankDashboardSrcDir)\**\*.*"
+                                 Exclude="$(CrankDashboardSrcDir)\bin"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(CrankWorkerBinaries)" DestinationFolder="$(CrankWorkerServiceProject)"/>
+        <Copy SourceFiles="@(CrankDashboardBinaries)" DestinationFolder="$(CrankDashboardServiceProject)\bin"/>
+        <Copy SourceFiles="@(CrankDashboardFiles)" DestinationFiles="@(CrankDashboardFiles->'$(CrankDashboardServiceProject)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+
+    </Target>
+</Project>

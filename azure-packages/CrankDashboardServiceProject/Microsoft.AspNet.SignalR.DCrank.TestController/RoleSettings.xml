@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*">
+  <Role name="Microsoft.AspNet.SignalR.DCrank.TestController">
+    <Instances count="1" />
+    <ConfigurationSettings />
+    <Certificates />
+  </Role>
+</ServiceConfiguration>
