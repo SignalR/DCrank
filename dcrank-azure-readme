@@ -1,12 +1,11 @@
-1. Run msbuild .\dcrank-azure-build.proj /t:Build from the root directory. Ensure that you have MSBUILD installed and added to the path.
+1. Run msbuild .\dcrank-azure-build.proj from the root directory. Ensure that you have MSBUILD installed and added to the path.
 2. Download the AzurePublishSettingsFile associated with your subscription from the Azure portal. You'll need to pass the file's location as a parameter later on.
 3. Create a storage account in Azure if you don't already have one. You'll need to pass the storage account name as a parameter later on. 
 4. Run azure-packages/CrankDashboardServiceProject/dcrank-dashboard.ps1 with the following command line parameters:
 	(a) AzurePublishSettingsFile
 	(b) StorageAccountName
 	(c) AffinityGroup
-	(d) Location
-	(e) ServiceName
+	(d) ServiceName
 5. You'll need to modify the following parameters manually before you can deploy the agents to Azure 
 	(a) Number of agents: Set Instances count in dcrank-azure-packages/CrankWorkerServiceProject/ServiceConfiguration.Cloud.csfg
 	(b) Dashboard URL: Set Controller URL in dcrank-azure-packages/CrankWorkerServiceProject/ServiceDefinition.csdef
@@ -14,7 +13,6 @@
 	(a) AzurePublishSettingsFile
 	(b) StorageAccountName
 	(c) AffinityGroup
-	(d) Location
-	(e) ServiceName
+	(d) ServiceName
 
 
