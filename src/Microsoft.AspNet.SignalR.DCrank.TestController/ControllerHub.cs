@@ -16,11 +16,17 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         private readonly PerformanceCounters _performanceCounters;
         private readonly string _dcrankEndpoint = "/_dcrank";
 
+        private int _runId;
+        private int _phaseId;
+        private int _connectionString;
+
         public ControllerHub() : this(PerformanceCounters.Instance) { }
 
         public ControllerHub(PerformanceCounters PerformanceCounters)
         {
             _performanceCounters = PerformanceCounters;
+            _runId = 0;
+            _phaseId = 0;
         }
 
         public override async Task OnConnected()
@@ -84,6 +90,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void StopWorkers()
         {
+            // Increment Phase
             Clients.All.stopWorkers();
             _performanceCounters.Stop();
         }
@@ -103,11 +110,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             int numberOfAgents = agentIdList.Length;
             if (numberOfConnections != 0 && numberOfAgents != 0)
             {
+                // Increment Phase
+                IncrementPhase();
+                
                 int remainingConnections;
                 int numberOfConnectionsPerWorker = Math.DivRem(numberOfConnections, (_numberOfWorkersPerAgent * numberOfAgents), out remainingConnections);
 
                 Clients.AllExcept(agentIdList[0]).startWorkers(targetAddresss, _numberOfWorkersPerAgent, numberOfConnectionsPerWorker);
-                
+
                 // Distributing the remaining connections across different workers
                 Clients.Client(agentIdList[0]).startWorkers(targetAddresss, _numberOfWorkersPerAgent, numberOfConnectionsPerWorker + (remainingConnections / numberOfConnectionsPerWorker));
             }
@@ -133,6 +143,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void StartTest(int messageSize, int messageRate)
         {
+            // Increment Phase
+            IncrementPhase();
+
             Clients.All.startTest(messageSize, messageRate);
         }
 
@@ -140,6 +153,24 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         {
             Clients.All.killConnections();
             _performanceCounters.Stop();
+        }
+
+        private async void IncrementRun()
+        {
+        
+        }
+
+        private async void IncrementPhase()
+        {
+            using (var database = new RunPhaseEntryContext(_connectionString))
+            {
+
+            }
+        }
+
+        private async void ResetPhase()
+        {
+
         }
     }
 }

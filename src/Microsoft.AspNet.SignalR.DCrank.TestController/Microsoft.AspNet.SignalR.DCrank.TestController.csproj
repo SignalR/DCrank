@@ -225,6 +225,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunPhaseSample.cs" />
+    <Compile Include="RunPhaseSampleContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
