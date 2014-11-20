@@ -100,6 +100,8 @@
     <Content Include="wcat\settings.ubr" />
     <Content Include="wcat\testconnection.ubr" />
     <Content Include="wcat\wcat.bat" />
+    <None Include="Properties\PublishProfiles\SignalRHarness.pubxml" />
+    <None Include="Properties\PublishProfiles\SignalRLoadTestHarness.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
