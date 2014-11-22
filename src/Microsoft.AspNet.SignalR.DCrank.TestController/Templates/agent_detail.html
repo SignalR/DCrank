@@ -4,7 +4,7 @@
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="home"></span>
+                      ui-sref="agents"></span>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
             </div>
 
             <div class="row blade-tile-row">
-                <div class="col-lg-6 blade-tile-col">
+                <div class="col-lg-12 blade-tile-col">
                     <!-- Info tile -->
                     <div class="blade-tile">
                         <ul>
@@ -50,16 +50,33 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-lg-6 blade-tile-col">
-                    <!-- control tile -->
+            </div>
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- Ping tile -->
                     <div class="blade-tile">
-                        <ul>
-                            <li><input ng-model="agentDetail.url" /></li>
-                            <li><input ng-model="agentDetail.connections" /></li>
-                            <li><button ng-click="agentDetail.StartWorker()">Start Worker</button></li>
-                            <li><div><p>Ping: <input ng-model="agentDetail.pingValue" /></p></div></li>
-                            <li><button ng-click="agentDetail.Ping()">Ping</button></li>
-                        </ul>
+                        <form name="agentPingForm" ng-submit="agentDetail.Ping()" class="form-horizontal">
+                            <div class="form-group" ng-class="{ 'has-error' : agentPingForm.agentPingValue.$invalid && agentPingForm.agentPingValue.$touched}">
+                                <label for="agentPingValue" class="col-lg-4 control-label">Value</label>
+                                <div class="col-lg-4">
+                                    <input type="number"
+                                           class="form-control"
+                                           id="agentPingValue"
+                                           name="agentPingValue"
+                                           placeholder="Value"
+                                           ng-model="agentDetail.pingValue"
+                                           required />
+                                </div>
+                                <div class="col-lg-4">
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            ng-disabled="agentPingForm.$invalid">
+                                        Ping
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -74,8 +91,9 @@
                         </div>
 
                         <div ng-repeat="worker in agentDetail.agent.workers"
-                             class="row grid-row {{agentDetail.selectedClass($index)}}"
-                             ui-sref="home.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})">
+                             class="row grid-row"
+                             ui-sref="agents.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})"
+                             ui-sref-active="selected-row">
                             <div class="col-lg-6 grid-col">{{worker.id}}</div>
                             <div class="col-lg-6 grid-col">{{worker.connectedCount}}</div>
                         </div>

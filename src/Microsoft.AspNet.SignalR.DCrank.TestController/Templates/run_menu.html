@@ -1,1 +1,40 @@
-﻿<div class="jumbotron"><p>run_menu.html</p></div>
+﻿<!-- Current blade -->
+<div class="col-lg-2 col-md-2 blade-col">
+    <div class="blade" ng-controller="RunMenuController as runMenu">
+        <!-- Toolbar -->
+        <div class="blade-title-bar">
+            <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
+                <span class="glyphicon glyphicon-remove"
+                      ui-sref="home"></span>
+            </div>
+        </div>
+
+        <!-- Blade header -->
+        <div class="blade-header">Runs</div>
+
+        <!-- Blade contents -->
+        <div class="blade-body">
+
+            <div class="row blade-tile-row">
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- Run list tile -->
+                    <div class="grid-tile">
+                        <div class="row grid-row">
+                            <div class="col-lg-12 grid-col">New Run</div>
+                        </div>
+
+                        <div class="row grid-row" ui-sref="run.manual" ui-sref-active="selected-row">
+                            <div class="col-lg-12 grid-col">
+                                Manual
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Next blade -->
+<div class="col-lg-10 col-md-10 blade-col">
+    <div class="row blade-row" ui-view></div>
+</div>

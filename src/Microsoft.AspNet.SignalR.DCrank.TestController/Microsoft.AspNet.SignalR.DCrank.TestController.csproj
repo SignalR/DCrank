@@ -244,14 +244,18 @@
     <Content Include="Scripts\test-controller\agent.menu-controller.js" />
     <Content Include="Scripts\test-controller\dashboard-controller.js" />
     <Content Include="Scripts\test-controller\hub-service.js" />
+    <Content Include="Scripts\test-controller\manual.run-controller.js" />
     <Content Include="Scripts\test-controller\model-service.js" />
     <Content Include="Scripts\test-controller\model.update-service.js" />
+    <Content Include="Scripts\test-controller\run-service.js" />
+    <Content Include="Scripts\test-controller\run.menu-controller.js" />
     <Content Include="Scripts\test-controller\test.controller-app.js" />
     <Content Include="Scripts\test-controller\test.controller-router.js" />
     <Content Include="Scripts\test-controller\worker.console-controller.js" />
     <Content Include="Scripts\test-controller\worker.detail-controller.js" />
     <Content Include="Templates\agent_detail.html" />
     <Content Include="Templates\agent_menu.html" />
+    <Content Include="Templates\manual_run.html" />
     <Content Include="Templates\run_menu.html" />
     <Content Include="Templates\worker_detail.html" />
     <Content Include="Web.config" />
@@ -259,6 +263,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\RunController.cs" />
+    <Compile Include="Models\RunDefinition.cs" />
+    <Compile Include="Models\RunParameter.cs" />
     <Compile Include="PerformanceCounters.cs" />
     <Compile Include="ControllerHub.cs" />
     <Compile Include="ControllerStartup.cs" />
@@ -289,7 +296,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness\Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness.csproj">

@@ -1,10 +1,10 @@
-﻿<div class="col-lg-10 col-md-10 blade-col">
+﻿<div class="col-lg-12 col-md-12 blade-col">
     <div class="blade" ng-controller="WorkerDetailController as workerDetail">
         <!-- Toolbar -->
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="home.agent({agentId:workerDetail.agentId})"></span>
+                      ui-sref="agents.agent({agentId:workerDetail.agentId})"></span>
             </div>
         </div>
 
@@ -53,7 +53,4 @@
 
         </div>
     </div>
-</div>
-<div class="col-lg-2 col-md-2 blade-col">
-    <div class="row blade-row" ui-view></div>
 </div>

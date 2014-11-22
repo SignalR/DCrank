@@ -1,7 +1,13 @@
-﻿<div class="col-lg-4 col-md-4 blade-col">
+﻿<!-- Current blade -->
+<div class="col-lg-4 col-md-4 blade-col">
     <div class="blade" ng-controller="AgentMenuController as agentMenu">
         <!-- Toolbar -->
-        <div class="blade-title-bar"></div>
+        <div class="blade-title-bar">
+            <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
+                <span class="glyphicon glyphicon-remove"
+                      ui-sref="home"></span>
+            </div>
+        </div>
 
         <!-- Blade header -->
         <div class="blade-header">Agents</div>
@@ -20,8 +26,9 @@
                         </div>
 
                         <div ng-repeat="agent in agentMenu.agents"
-                             class="row grid-row {{agentMenu.selectedClass($index)}}"
-                             ui-sref="home.agent({agentId:agent.id})">
+                             class="row grid-row"
+                             ui-sref="agents.agent({agentId:agent.id})"
+                             ui-sref-active="selected-row">
                             <div class="col-lg-3 grid-col">{{agent.machineName}}</div>
                             <div class="col-lg-5 grid-col">{{agent.id}}</div>
                             <div class="col-lg-4 grid-col">{{agent.totalConnectionCount}}</div>
@@ -32,6 +39,7 @@
         </div>
     </div>
 </div>
+<!-- Next blade -->
 <div class="col-lg-8 col-md-8 blade-col">
     <div class="row blade-row" ui-view></div>
 </div>

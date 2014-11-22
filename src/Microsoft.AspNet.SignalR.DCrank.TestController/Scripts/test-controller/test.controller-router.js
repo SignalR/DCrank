@@ -3,26 +3,32 @@
     $urlRouterProvider.when('', 'home');
 
     $stateProvider
-        // Top level UI state
         .state('home', {
-            url: '/home',
-            views: {
-                'top': {
-                    templateUrl: '/Templates/run_menu.html',
-                },
-                'body': {
-                    templateUrl: '/Templates/agent_menu.html'
-                }
-            }
+            url: '/home'
+        })
+        // Agent management
+        .state('agents', {
+            url: '/agents',
+            templateUrl: '/Templates/agent_menu.html'
         })
         // Agent level blade
-        .state('home.agent', {
+        .state('agents.agent', {
             url: '/agent/:agentId',
             templateUrl: '/Templates/agent_detail.html'
         })
         // Worker level blade
-        .state('home.agent.worker', {
+        .state('agents.agent.worker', {
             url: '/worker/:workerId',
             templateUrl: '/Templates/worker_detail.html'
+        })
+        // Run management
+        .state('run', {
+            url: '/runs',
+            templateUrl: '/Templates/run_menu.html'
+        })
+        // New manual run
+        .state('run.manual', {
+            url: '/manual',
+            templateUrl: '/Templates/manual_run.html'
         });
 });

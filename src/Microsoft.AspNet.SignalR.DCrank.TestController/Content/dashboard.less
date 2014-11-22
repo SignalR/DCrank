@@ -10,9 +10,17 @@
 /** General **/
 @backgroundColor: @colorWhite;
 @textColor: @colorBlack;
+@dashboardColor: @colorBlue;
 @toolTipBackgroundColor: @colorBlack;
 @toolTipTextColor: @colorWhite;
 @toolTipBorderColor: @colorGray;
+
+/** Home menu **/
+@homeMenuBackgroundColor: @colorBlack;
+@homeMenuTextColor: @colorGray;
+@homeMenuSelectedBackgroundColor: @colorLightBlue;
+@homeMenuSelectedTextColor: @colorBlack;
+@homeMenuHeight: 50px;
 
 /** Blades **/
 @bladeTitleBackgroundColor: @colorBlack;
@@ -39,7 +47,8 @@
 /** Grids **/
 @gridBackgroundColor: @colorWhite;
 @gridDividerColor: @colorGray;
-@gridSelectedColor: @colorLightBlue;
+@gridSelectedBackgroundColor: @colorLightBlue;
+@gridSelectedTextColor: @colorBlack;
 
 /*** Mixins ***/
 /* Transitions */
@@ -68,9 +77,32 @@ body {
     content: attr(tool-tip);
 }
 
+.dashboard {
+    height: @bladeHeight;
+    background-color: @dashboardColor;
+}
+
+/** Home menu **/
+.row.home-menu-row {
+    height: @homeMenuHeight;
+    background-color: @homeMenuBackgroundColor;
+    color: @homeMenuTextColor;
+    border-bottom: @bladeBorderSize solid lighten(@homeMenuBackgroundColor, 10%);
+}
+
+.menu-item {
+    height: @homeMenuHeight - 1;
+    border-right: @bladeBorderSize solid lighten(@homeMenuBackgroundColor, 10%);
+    cursor: pointer;
+
+    &.selected {
+        background-color: @homeMenuSelectedBackgroundColor;
+        color: @homeMenuSelectedTextColor;
+    }
+}
+
 /** Blades **/
 .container.blade-container {
-    background-color: @colorBlue; /* TODO: use in 'desktop' div */
     /* remove bootstrap gutters */
     padding-left: 0px;
     padding-right: 0px;
@@ -148,6 +180,7 @@ body {
     &.dark {
         background-color: @bladeBodybackgroundColorDark;
         border-right: @bladeBorderSize solid darken(@bladeBodybackgroundColorDark, 10%);
+        border-bottom: @bladeBorderSize solid darken(@bladeBodybackgroundColorDark, 10%);
     }
 }
 
@@ -186,7 +219,7 @@ body {
 
 .console-title-bar-item {
     height: @consoleTitleHeight;
-    padding-right:5px;
+    padding-right: 5px;
     float: right;
     top: 10%;
     position: relative;
@@ -224,13 +257,15 @@ body {
     }
 
     &:not(:first-of-type):hover {
-        background-color: @gridSelectedColor;
+        background-color: @gridSelectedBackgroundColor;
+        color: @gridSelectedTextColor;
         cursor: pointer;
     }
 }
 
 .row.grid-row.selected-row {
-    background-color: @gridSelectedColor;
+    background-color: @gridSelectedBackgroundColor;
+    color: @gridSelectedTextColor;
 }
 
 [class*='col-'].grid-col {
