@@ -1,11 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Microsoft.AspNet.SignalR.DCrank.Crank;
+using Microsoft.AspNet.SignalR.DCrank.TestController.Models;
 using Newtonsoft.Json.Linq;
 namespace Microsoft.AspNet.SignalR.DCrank.TestController
 {
@@ -62,8 +59,9 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             Clients.All.workersLog(Context.ConnectionId, workerId, message);
         }
 
-        public void AgentHeartbeat(object heartbeatInformation)
+        public void AgentHeartbeat(AgentHeartbeatInformation heartbeatInformation)
         {
+            StateModel.Instance.AddHeartbeatInformation(Context.ConnectionId, heartbeatInformation);
             Clients.All.agentConnected(Context.ConnectionId, heartbeatInformation);
         }
 

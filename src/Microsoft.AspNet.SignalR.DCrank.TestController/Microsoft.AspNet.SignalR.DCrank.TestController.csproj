@@ -243,30 +243,48 @@
     <Content Include="Scripts\test-controller\agent.console-controller.js" />
     <Content Include="Scripts\test-controller\agent.detail-controller.js" />
     <Content Include="Scripts\test-controller\agent.menu-controller.js" />
+    <Content Include="Scripts\test-controller\ajax-service.js" />
+    <Content Include="Scripts\test-controller\current.run-controller.js" />
     <Content Include="Scripts\test-controller\dashboard-controller.js" />
     <Content Include="Scripts\test-controller\hub-service.js" />
-    <Content Include="Scripts\test-controller\manual.run-controller.js" />
+    <Content Include="Scripts\test-controller\new.run-controller.js" />
     <Content Include="Scripts\test-controller\model-service.js" />
     <Content Include="Scripts\test-controller\model.update-service.js" />
+    <Content Include="Scripts\test-controller\performance.model-service.js" />
+    <Content Include="Scripts\test-controller\performance.update-service.js" />
     <Content Include="Scripts\test-controller\run-service.js" />
+    <Content Include="Scripts\test-controller\run.detail-controller.js" />
     <Content Include="Scripts\test-controller\run.menu-controller.js" />
+    <Content Include="Scripts\test-controller\run.update-service.js" />
     <Content Include="Scripts\test-controller\test.controller-app.js" />
     <Content Include="Scripts\test-controller\test.controller-router.js" />
     <Content Include="Scripts\test-controller\worker.console-controller.js" />
     <Content Include="Scripts\test-controller\worker.detail-controller.js" />
     <Content Include="Templates\agent_detail.html" />
     <Content Include="Templates\agent_menu.html" />
-    <Content Include="Templates\manual_run.html" />
+    <Content Include="Templates\current_run.html" />
+    <Content Include="Templates\dashboard.html" />
+    <Content Include="Templates\new_run.html" />
+    <Content Include="Templates\run_detail.html" />
     <Content Include="Templates\run_menu.html" />
     <Content Include="Templates\worker_detail.html" />
     <Content Include="Web.config" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Microsoft.AspNet.SignalR.DCrank.Crank\AgentHeartbeatInformation.cs">
+      <Link>Models\AgentHeartbeatInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Microsoft.AspNet.SignalR.DCrank.Crank\WorkerHeartbeatInformation.cs">
+      <Link>Models\WorkerHeartbeatInformation.cs</Link>
+    </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\RunController.cs" />
+    <Compile Include="Models\AgentState.cs" />
     <Compile Include="Models\RunDefinition.cs" />
     <Compile Include="Models\RunParameter.cs" />
+    <Compile Include="Models\RunState.cs" />
+    <Compile Include="Models\StateModel.cs" />
     <Compile Include="PerformanceCounters.cs" />
     <Compile Include="ControllerHub.cs" />
     <Compile Include="ControllerStartup.cs" />

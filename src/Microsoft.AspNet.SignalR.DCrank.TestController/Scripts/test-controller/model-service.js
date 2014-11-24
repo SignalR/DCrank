@@ -15,7 +15,7 @@ function Worker(workerId) {
     this.output = [];
 }
 
-testControllerApp.service('modelService', ['$rootScope', function ($rootScope) {
+testControllerApp.service('modelService', [function () {
     var model = new Model();
 
     var service = {
@@ -56,11 +56,11 @@ testControllerApp.service('modelService', ['$rootScope', function ($rootScope) {
             }
             return worker;
         },
-        bindAgent: function (target, property, agentId) {
+        bindAgent: function (target, property, agentId, $scope) {
             target[property] = service.tryGetAgent(agentId);
 
             if (target[property] === null) {
-                var unwatchAgent = $rootScope.$watch(
+                var unwatchAgent = $scope.$watch(
                     function () {
                         return service.tryGetAgent(agentId);
                     },
@@ -72,7 +72,7 @@ testControllerApp.service('modelService', ['$rootScope', function ($rootScope) {
                     });
             }
         },
-        bindWorker: function (target, property, agentId, workerId) {
+        bindWorker: function (target, property, agentId, workerId, $scope) {
             var agent = service.tryGetAgent(agentId);
 
             if (agent !== null) {
@@ -82,7 +82,7 @@ testControllerApp.service('modelService', ['$rootScope', function ($rootScope) {
             }
 
             if (target[property] === null) {
-                var unwatchWorker = $rootScope.$watch(
+                var unwatchWorker = $scope.$watch(
                     function () {
                         agent = service.tryGetAgent(agentId);
                         if (agent !== null) {

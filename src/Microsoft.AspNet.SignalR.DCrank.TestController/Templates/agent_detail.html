@@ -4,12 +4,12 @@
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="agents"></span>
+                      ui-sref="^"></span>
             </div>
         </div>
 
         <!-- Blade header -->
-        <div class="blade-header">Agent: {{agentDetail.agent.id}}</div>
+        <div class="blade-header">Agent: {{agentDetail.agent.id | limitTo:5}}</div>
 
         <!-- Blade contents -->
         <div class="blade-body dark">
@@ -27,7 +27,7 @@
                                 <span class=" glyphicon glyphicon-arrow-down {{console.autoScrollClass()}}"
                                       ng-click="console.toggleAutoScroll()"></span>
                             </div>
-                            Agent: {{agentDetail.agent.id}}
+                            Agent: {{agentDetail.agent.id | limitTo:5}}
                         </div>
                         <div class="console-body"
                              id="{{console.consoleId}}"
@@ -44,7 +44,8 @@
                     <div class="blade-tile">
                         <ul>
                             <li>Name: {{agentDetail.agent.machineName}}</li>
-                            <li>ID: {{agentDetail.agent.id}}</li>
+                            <li>ID: {{agentDetail.agent.id | limitTo:5}}</li>
+                            <li>Status: {{agentDetail.agent.status}}</li>
                             <li>Connections: {{agentDetail.agent.currentConnections}} / {{agentDetail.agent.totalConnectionCount}}</li>
                             <li>Pong Value: {{agentDetail.agent.pongValue}}</li>
                         </ul>
@@ -86,16 +87,19 @@
                     <!-- Worker list tile -->
                     <div class="grid-tile">
                         <div class="row grid-row">
-                            <div class="col-lg-6 grid-col">Worker</div>
-                            <div class="col-lg-6 grid-col">Connections</div>
+                            <div class="col-lg-4 grid-col">Worker</div>
+                            <div class="col-lg-4 grid-col">Connections</div>
+                            <div class="col-lg-4 grid-col">Running</div>
                         </div>
 
                         <div ng-repeat="worker in agentDetail.agent.workers"
                              class="row grid-row"
-                             ui-sref="agents.agent.worker({agentId:agentDetail.agent.id, workerId:worker.id})"
+                             ng-class="{ 'inactive-row' : worker.updated !== true}"
+                             ui-sref=".worker({workerId:worker.id})"
                              ui-sref-active="selected-row">
-                            <div class="col-lg-6 grid-col">{{worker.id}}</div>
-                            <div class="col-lg-6 grid-col">{{worker.connectedCount}}</div>
+                            <div class="col-lg-4 grid-col">{{worker.id}}</div>
+                            <div class="col-lg-4 grid-col">{{worker.connectedCount}}</div>
+                            <div class="col-lg-4 grid-col">{{worker.updated}}</div>
                         </div>
                     </div>
                 </div>

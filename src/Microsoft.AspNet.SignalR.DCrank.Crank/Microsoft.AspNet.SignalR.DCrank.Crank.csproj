@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Agent.cs" />
     <Compile Include="AgentReceiver.cs" />
+    <Compile Include="AgentHeartbeatInformation.cs" />
     <Compile Include="IRunner.cs" />
     <Compile Include="DCrankArguments.cs" />
     <Compile Include="AgentSender.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="IAgent.cs" />
     <Compile Include="Runner.cs" />
     <Compile Include="StatusInformation.cs" />
+    <Compile Include="WorkerHeartbeatInformation.cs" />
     <Compile Include="WorkerSender.cs" />
     <Compile Include="WorkerReceiver.cs" />
     <Compile Include="Client.cs" />

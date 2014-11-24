@@ -1,62 +1,41 @@
 ﻿@{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "DCrank Dashboard";
 }
 
-<div ng-app="testControllerApp">
-    <div ng-controller="DashboardController as dashboard">
-
-        <div class="container">
-            <div class="row home-menu-row">
-                <div class="col-lg-2 menu-item" ui-sref="agents" ui-sref-active="selected">
-                    Agents
-                </div>
-                <div class="col-lg-2 menu-item" ui-sref="run" ui-sref-active="selected">
-                    Runs
-                </div>
-                <div class="col-lg-8"></div>
-            </div>
-        </div>
-
-        <div class="dashboard">
-            <div class="container blade-container">
-                <div class="row blade-row" ui-view></div>
-            </div>
-        </div>
-    </div>
-</div>
+<div ng-app="testControllerApp" ui-view></div>
 
 @section styles
 {
     <link rel="stylesheet/less" href="~/Content/dashboard.less" />
     <link rel="stylesheet" type="text/css" href="~/Scripts/jqPlot/jquery.jqplot.css">
 }
-
 @section scripts
 {
     <!-- SignalR library. -->
     <script type="text/javascript" src="~/Scripts/jquery.signalR-2.1.1.min.js"></script>
     <!-- SignalR hub script. -->
     <script type="text/javascript" src="~/signalr/hubs"></script>
-
     <!-- Angular -->
     <script type="text/javascript" src="~/Scripts/angular/angular.js"></script>
-
     <!-- Angular Animate -->
     <script type="text/javascript" src="~/Scripts/angular-animate/angular-animate.js"></script>
-
     <!-- Angular ui router -->
     <script type="text/javascript" src="~/Scripts/angular-ui-router/release/angular-ui-router.js"></script>
-
     <!-- Less -->
     <script type="text/javascript" src="~/Scripts/less/dist/less.js"></script>
-
     <!-- TestController App -->
     <script type="text/javascript" src="~/Scripts/test-controller/test.controller-app.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/test.controller-router.js"></script>
+    <!-- TestController Services -->
     <script type="text/javascript" src="~/Scripts/test-controller/model-service.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/model.update-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/performance.model-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/performance.update-service.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/run-service.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/run.update-service.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/hub-service.js"></script>
-    <script type="text/javascript" src="~/Scripts/test-controller/test.controller-router.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/ajax-service.js"></script>
+    <!-- TestController Controllers -->
     <script type="text/javascript" src="~/Scripts/test-controller/dashboard-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/agent.menu-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/agent.detail-controller.js"></script>
@@ -64,8 +43,9 @@
     <script type="text/javascript" src="~/Scripts/test-controller/worker.detail-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/worker.console-controller.js"></script>
     <script type="text/javascript" src="~/Scripts/test-controller/run.menu-controller.js"></script>
-    <script type="text/javascript" src="~/Scripts/test-controller/manual.run-controller.js"></script>
-
+    <script type="text/javascript" src="~/Scripts/test-controller/new.run-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/current.run-controller.js"></script>
+    <script type="text/javascript" src="~/Scripts/test-controller/run.detail-controller.js"></script>
     <!-- Reference the jqPlot library. -->
     <script type="text/javascript" src="~/Scripts/jqPlot/jquery.jqplot.js"></script>
     <script type="text/javascript" src="~/Scripts/jqPlot/plugins/jqplot.canvasAxisLabelRenderer.js"></script>

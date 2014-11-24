@@ -5,7 +5,7 @@
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="home"></span>
+                      ui-sref="^"></span>
             </div>
         </div>
 
@@ -21,17 +21,20 @@
                     <div class="grid-tile">
                         <div class="row grid-row">
                             <div class="col-lg-3 grid-col">Name</div>
-                            <div class="col-lg-5 grid-col">ID</div>
-                            <div class="col-lg-4 grid-col">Connections</div>
+                            <div class="col-lg-3 grid-col">ID</div>
+                            <div class="col-lg-3 grid-col">Status</div>
+                            <div class="col-lg-3 grid-col">Connections</div>
                         </div>
 
                         <div ng-repeat="agent in agentMenu.agents"
                              class="row grid-row"
-                             ui-sref="agents.agent({agentId:agent.id})"
+                             ng-class="{ 'inactive-row' : agent.status !== 'active'}"
+                             ui-sref=".agent({agentId:agent.id})"
                              ui-sref-active="selected-row">
                             <div class="col-lg-3 grid-col">{{agent.machineName}}</div>
-                            <div class="col-lg-5 grid-col">{{agent.id}}</div>
-                            <div class="col-lg-4 grid-col">{{agent.totalConnectionCount}}</div>
+                            <div class="col-lg-3 grid-col">{{agent.id | limitTo:5}}</div>
+                            <div class="col-lg-3 grid-col">{{agent.status}}</div>
+                            <div class="col-lg-3 grid-col">{{agent.totalConnectionCount}}</div>
                         </div>
                     </div>
                 </div>

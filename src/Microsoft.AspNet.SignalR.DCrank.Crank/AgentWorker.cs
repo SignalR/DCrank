@@ -27,6 +27,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public IWorker Worker { get; private set; }
 
+        public WorkerHeartbeatInformation GetHeartbeatInformation()
+        {
+            return new WorkerHeartbeatInformation
+            {
+                Id = Id,
+                ConnectedCount = StatusInformation.ConnectedCount,
+                DisconnectedCount = StatusInformation.DisconnectedCount,
+                ReconnectingCount = StatusInformation.ReconnectingCount,
+                TargetConnectionCount = StatusInformation.TargetConnectionCount
+            };
+        }
+
         public bool Start()
         {
             bool success = _workerProcess.Start();

@@ -1,4 +1,6 @@
-﻿testControllerApp.service('hubService', ['$rootScope', 'modelUpdateService', function ($rootScope, modelUpdateService) {
+﻿testControllerApp.service('hubService', [
+    '$rootScope', 'modelUpdateService', 'performanceUpdateService',
+    function ($rootScope, modelUpdateService, performanceUpdateService) {
     return {
         initialize: function () {
             var connection = $.hubConnection();
@@ -29,7 +31,7 @@
             });
 
             proxy.on('updatePerfCounters', function (performanceData, timestamp) {
-                $rootScope.$apply(modelUpdateService.updatePerformanceData(performanceData, timestamp));
+                $rootScope.$apply(performanceUpdateService.updatePerformanceData(performanceData, timestamp));
             });
 
             connection.start();

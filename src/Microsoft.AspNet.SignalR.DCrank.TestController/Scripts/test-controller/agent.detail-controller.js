@@ -1,7 +1,8 @@
 ﻿testControllerApp.controller("AgentDetailController", [
-    '$stateParams', 'modelService', 'hubService', function ($stateParams, modelService, hubService) {
+    '$scope', '$stateParams', 'modelService', 'hubService',
+    function ($scope, $stateParams, modelService, hubService) {
         var vm = this;
-        modelService.bindAgent(vm, 'agent', $stateParams.agentId);
+        modelService.bindAgent(vm, 'agent', $stateParams.agentId, $scope);
 
         vm.pingValue = 0;
 

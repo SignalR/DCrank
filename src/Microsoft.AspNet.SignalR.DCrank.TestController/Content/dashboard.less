@@ -47,6 +47,8 @@
 /** Grids **/
 @gridBackgroundColor: @colorWhite;
 @gridDividerColor: @colorGray;
+@gridInactiveBackgroundColor: @colorLightGray;
+@gridInactiveTextColor: @colorGray;
 @gridSelectedBackgroundColor: @colorLightBlue;
 @gridSelectedTextColor: @colorBlack;
 
@@ -114,7 +116,7 @@ body {
     margin-right: 0px;
 
     &.ng-enter {
-        .Transition;
+        /*.Transition;*/
         position: absolute;
         opacity: 0;
     }
@@ -124,7 +126,7 @@ body {
     }
 
     &.ng-leave {
-        .Transition;
+        /*.Transition;*/
         opacity: 1;
     }
 
@@ -261,6 +263,11 @@ body {
         color: @gridSelectedTextColor;
         cursor: pointer;
     }
+}
+
+.row.grid-row.inactive-row {
+    background-color: @gridInactiveBackgroundColor;
+    color: @gridInactiveTextColor;
 }
 
 .row.grid-row.selected-row {

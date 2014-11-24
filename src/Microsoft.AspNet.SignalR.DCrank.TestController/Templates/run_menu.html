@@ -5,7 +5,7 @@
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="home"></span>
+                      ui-sref="^"></span>
             </div>
         </div>
 
@@ -17,15 +17,38 @@
 
             <div class="row blade-tile-row">
                 <div class="col-lg-12 blade-tile-col">
-                    <!-- Run list tile -->
+                    <!-- New run list tile -->
                     <div class="grid-tile">
                         <div class="row grid-row">
                             <div class="col-lg-12 grid-col">New Run</div>
                         </div>
 
-                        <div class="row grid-row" ui-sref="run.manual" ui-sref-active="selected-row">
+                        <div class="row grid-row"
+                             ng-repeat="definition in runMenu.runDefinitions"
+                             ui-sref=".new({runType:definition.Type})"
+                             ui-sref-active="selected-row">
                             <div class="col-lg-12 grid-col">
-                                Manual
+                                {{definition.Type}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row blade-tile-row" >
+                <div class="col-lg-12 blade-tile-col">
+                    <!-- Current list tile -->
+                    <div class="grid-tile">
+                        <div class="row grid-row">
+                            <div class="col-lg-12 grid-col">Run Details</div>
+                        </div>
+
+                        <div class="row grid-row"
+                             ng-if="runMenu.isRunning()"
+                             ui-sref=".current"
+                             ui-sref-active="selected-row">
+                            <div class="col-lg-12 grid-col">
+                                Current
                             </div>
                         </div>
                     </div>

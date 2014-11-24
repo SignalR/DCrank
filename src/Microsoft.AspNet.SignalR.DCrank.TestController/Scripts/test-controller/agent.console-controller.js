@@ -18,7 +18,7 @@ testControllerApp.controller("AgentConsoleController", [
     '$scope', '$location', '$anchorScroll', '$stateParams', 'modelService',
     function ($scope, $location, $anchorScroll, $stateParams, modelService) {
         var vm = this;
-        modelService.bindAgent(vm, 'agent', $stateParams.agentId);
+        modelService.bindAgent(vm, 'agent', $stateParams.agentId, $scope);
 
         vm.consoleId = 'console-' + $scope.$id;
         var pinned = false;

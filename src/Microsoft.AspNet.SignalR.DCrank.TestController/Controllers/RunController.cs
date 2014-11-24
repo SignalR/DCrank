@@ -8,41 +8,59 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Controllers
 {
     public class RunController : Controller
     {
-        // POST: LoadDefinition
-        public ActionResult LoadDefinition(string runType)
+        // POST: LoadDefinitions
+        public ActionResult LoadDefinitions(string runType)
         {
-            var runDefinition = new RunDefinition
+            // ToDo: Generate definitions from POCO with attributes?
+            var runDefinitions = new List<RunDefinition>
             {
-                Type = "manual",
-                RunParameters = new List<RunParameter>
+                new RunDefinition
                 {
-                    new RunParameter
+                    Type = "Auto",
+                    RunParameters = new List<RunParameter>
                     {
-                        Label = "Target URL",
-                        Type = "url",
-                        Placeholder = "URL",
-                        Value = "http://localhost:24037/"
-                    },
-                    new RunParameter
-                    {
-                        Label = "Agents",
-                        Type = "number",
-                        Placeholder = "Number of agents",
-                        Value = 1
-                    },
-                    new RunParameter
-                    {
-                        Label = "Connections",
-                        Type = "number",
-                        Placeholder = "Number of connections",
-                        Value = 3
-                    },
-                    new RunParameter
-                    {
-                        Label = "Message Size",
-                        Type = "number",
-                        Placeholder = "Bytes per message",
-                        Value = 32
+                        new RunParameter
+                        {
+                            Label = "Target URL",
+                            Type = "url",
+                            Placeholder = "URL",
+                            Value = "http://localhost:24037/"
+                        },
+                        new RunParameter
+                        {
+                            Label = "Connections",
+                            Type = "number",
+                            Placeholder = "Number of connections",
+                            Value = 3
+                        },
+                        new RunParameter
+                        {
+                            Label = "Workers per agent",
+                            Type = "number",
+                            Placeholder = "Number of workers",
+                            Value = 3
+                        },
+                        new RunParameter
+                        {
+                            Label = "Message Size",
+                            Type = "number",
+                            Placeholder = "Bytes per message",
+                            Value = 32
+                        },
+                        new RunParameter
+                        {
+                            Label = "Send Interval",
+                            Type = "number",
+                            Placeholder = "Seconds between sends",
+                            Value = 1
+                        },
+                        new RunParameter
+                        {
+                            Label = "Send Duration",
+                            Type = "number",
+                            Placeholder = "Send phase duration in seconds",
+                            Value = 300
+                        }
                     }
                 }
             };
@@ -50,18 +68,54 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Controllers
             return new ContentResult
             {
                 ContentType = "application/json",
-                Content = JsonConvert.SerializeObject(runDefinition),
+                Content = JsonConvert.SerializeObject(runDefinitions),
                 ContentEncoding = Encoding.UTF8
             };
         }
+
+        // POST: LoadStatus
+        public ActionResult LoadStatus()
+        {
+            return new ContentResult
+            {
+                ContentType = "application/json",
+                Content = JsonConvert.SerializeObject(new
+                {
+                    State = StateModel.Instance.GetRunState().ToString(),
+                    ActiveRun = StateModel.Instance.GetRunDefinition()
+                }),
+                ContentEncoding = Encoding.UTF8
+            };
+        }
+
 
         // POST: Start
         [HttpPost]
         public ActionResult Start(RunDefinition runDefinition)
         {
-            var x = runDefinition;
+            return new ContentResult
+            {
+                ContentType = "application/json",
+                Content = JsonConvert.SerializeObject(new
+                {
+                    Started = StateModel.Instance.StartRun(runDefinition)
+                }),
+                ContentEncoding = Encoding.UTF8
+            };
+        }
 
-            return null;
+        [HttpPost]
+        public ActionResult Terminate()
+        {
+            return new ContentResult
+            {
+                ContentType = "application/json",
+                Content = JsonConvert.SerializeObject(new
+                {
+                    Terminated = StateModel.Instance.TerminateRun()
+                }),
+                ContentEncoding = Encoding.UTF8
+            };
         }
     }
 }

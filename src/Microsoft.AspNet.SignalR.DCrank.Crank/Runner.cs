@@ -28,8 +28,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             _agent.Runner = this;
 
-            var connectionsPerWorker = _numberOfConnections / _numberOfWorkers;
-            _agent.StartWorkers(_targetUrl, _numberOfWorkers, connectionsPerWorker);
+            _agent.StartWorkers(_targetUrl, _numberOfWorkers, _numberOfConnections);
 
             // Begin writing worker status information
             var writeStatusCts = new CancellationTokenSource();

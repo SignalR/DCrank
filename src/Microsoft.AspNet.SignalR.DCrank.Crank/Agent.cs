@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.DCrank.Crank
@@ -10,12 +11,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class Agent : IAgent
     {
         private const string _fileName = "crank.exe";
+        private readonly string _hostName;
 
         private readonly ConcurrentDictionary<int, AgentWorker> _workers;
 
         public Agent()
         {
             Trace.Listeners.Add(new ConsoleTraceListener());
+
+            _hostName = Dns.GetHostName();
 
             _workers = new ConcurrentDictionary<int, AgentWorker>();
 
@@ -29,6 +33,18 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         public int TotalConnectionsRequested { get; private set; }
 
         public bool ApplyingLoad { get; private set; }
+
+        public AgentHeartbeatInformation GetHeartbeatInformation()
+        {
+            return new AgentHeartbeatInformation
+            {
+                HostName = _hostName,
+                TargetAddress = TargetAddress,
+                TotalConnectionsRequested = TotalConnectionsRequested,
+                ApplyingLoad = ApplyingLoad,
+                Workers = _workers.Select(worker => worker.Value.GetHeartbeatInformation()).ToList()
+            };
+        }
 
         public Dictionary<int, StatusInformation> GetWorkerStatus()
         {
@@ -73,10 +89,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        public void StartWorkers(string targetAddress, int numberOfWorkers, int numberOfConnectionsPerWorker)
+        public void StartWorkers(string targetAddress, int numberOfWorkers, int numberOfConnections)
         {
             TargetAddress = targetAddress;
-            TotalConnectionsRequested = numberOfWorkers * numberOfConnectionsPerWorker;
+            TotalConnectionsRequested = numberOfConnections;
+
+            var connectionsPerWorker = numberOfConnections / numberOfWorkers;
+            var remainingConnections = numberOfConnections % numberOfWorkers;
 
             Task.Run(() =>
             {
@@ -84,7 +103,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 {
                     var worker = CreateWorker();
 
-                    await StartWorker(worker.Id, targetAddress, numberOfConnectionsPerWorker);
+                    if (index == 0)
+                    {
+                        await StartWorker(worker.Id, targetAddress, connectionsPerWorker + remainingConnections);
+                    }
+                    else
+                    {
+                        await StartWorker(worker.Id, targetAddress, connectionsPerWorker);
+                    }
 
                     await Runner.LogAgent("Agent started listening to worker {0} ({1} of {2}).", worker.Id, index, numberOfWorkers);
                 });
@@ -150,16 +176,15 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             }
         }
 
-        public void StartTest(int messageSize, int messagesPerSecond)
+        public void StartTest(int messageSize, int sendIntervalMiliseconds)
         {
             ApplyingLoad = true;
-            var sendInterval = (1000 / messagesPerSecond);
 
             Task.Run(() =>
             {
                 foreach (var worker in _workers.Values)
                 {
-                    worker.Worker.StartTest(sendInterval, messageSize);
+                    worker.Worker.StartTest(sendIntervalMiliseconds, messageSize);
                 }
             });
         }

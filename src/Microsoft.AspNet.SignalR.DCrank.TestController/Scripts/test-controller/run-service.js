@@ -1,36 +1,47 @@
 ﻿testControllerApp.service('runService', [
-    '$rootScope', function ($rootScope) {
+    function () {
+        var runModel = {
+            runDefinitions: [],
+            runStatus: {
+                controllerState: 'Unknown',
+                startRequested: false,
+                activeRun: null
+            }
+        };
+
+        var tryGetDefinition = function (type) {
+            for (var index = 0; index < runModel.runDefinitions.length; index++) {
+                if (runModel.runDefinitions[index].Type === type) {
+                    return runModel.runDefinitions[index];
+                }
+            }
+            return null;
+        };
+
         var service = {
-            getRunTypes: function () {
-                // ToDo: get list from server
-                return ['manual'];
+            getRunDefinitions: function () {
+                return runModel.runDefinitions;
             },
-            bindRunDefinition: function (target, property, runType) {
-                $.ajax({
-                    type: 'post',
-                    cache: false,
-                    url: 'run/LoadDefinition',
-                    dataType:'json',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(runType),
-                    success:function(data) {
-                        $rootScope.$apply(function() {
-                            target[property] = data;
+            bindRunDefinition: function (target, property, type, $scope) {
+                target[property] = tryGetDefinition(type);
+
+                if (target[property] === null) {
+                    var unwatchDefinition = $scope.$watch(
+                        function () {
+                            return tryGetDefinition(type);
+                        },
+                        function (newValue, oldValue) {
+                            if (newValue !== null) {
+                                target[property] = newValue;
+                                unwatchDefinition();
+                            }
                         });
-                    }
-                });
+                }
             },
-            startRun: function (run) {
-                $.ajax({
-                    type: 'post',
-                    cache: false,
-                    url: 'run/Start',
-                    dataType: 'json',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(run)
-                });
+            getRunStatus: function () {
+                return runModel.runStatus;
             }
         };
         return service;
     }
-])
+]);

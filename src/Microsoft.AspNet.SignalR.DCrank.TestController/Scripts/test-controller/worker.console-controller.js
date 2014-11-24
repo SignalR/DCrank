@@ -3,7 +3,7 @@ testControllerApp.controller("WorkerConsoleController", [
     '$scope', '$location', '$anchorScroll', '$stateParams', 'modelService',
     function ($scope, $location, $anchorScroll, $stateParams, modelService) {
         var vm = this;
-        modelService.bindWorker(vm, 'worker', $stateParams.agentId, Number($stateParams.workerId));
+        modelService.bindWorker(vm, 'worker', $stateParams.agentId, Number($stateParams.workerId), $scope);
 
         vm.consoleId = 'console-' + $scope.$id;
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
@@ -14,7 +12,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         private readonly Agent _agent;
         private readonly string _controllerUrl;
-        private readonly string _hostName;
         private HubConnection _connection;
         private IHubProxy _proxy;
 
@@ -22,7 +19,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
         {
             _agent = agent;
             _controllerUrl = controllerUrl;
-            _hostName = Dns.GetHostName();
 
             _agent.Runner = this;
         }
@@ -48,22 +44,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
                             while (_connection.State == ConnectionState.Connected)
                             {
-                                await InvokeController("agentHeartbeat", new
-                                {
-                                    HostName = _hostName,
-                                    TargetAddress = _agent.TargetAddress,
-                                    TotalConnectionsRequested = _agent.TotalConnectionsRequested,
-                                    ApplyingLoad = _agent.ApplyingLoad,
-                                    Workers = _agent.GetWorkerStatus().Select(kvp => new
-                                    {
-                                        Id = kvp.Key,
-                                        ConnectedCount = kvp.Value.ConnectedCount,
-                                        DisconnectedCount = kvp.Value.DisconnectedCount,
-                                        ReconnectedCount = kvp.Value.ReconnectingCount,
-                                        TargetConnectionCount = kvp.Value.TargetConnectionCount
-                                    }).ToList()
-                                });
-
+                                await InvokeController("agentHeartbeat", _agent.GetHeartbeatInformation());
                                 await Task.Delay(1000);
                             }
                         }
@@ -90,10 +71,14 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 InvokeController("pongAgent", value);
             });
 
-            _proxy.On<string, int, int>("startWorkers", (targetAddress, numberOfWorkers, numberOfConnectionsPerWorker) =>
+            _proxy.On<string, int, int>("startWorkers", (targetAddress, numberOfWorkers, numberOfConnections) =>
             {
-                LogAgent("Agent received startWorker command for target {0} with {1} workers and {2} connections per worker.", targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
-                _agent.StartWorkers(targetAddress, numberOfWorkers, numberOfConnectionsPerWorker);
+                LogAgent("Agent received startWorker command for target {0} with {1} workers and {2} connections.", targetAddress, numberOfWorkers, numberOfConnections);
+
+                if (numberOfWorkers > 0 && numberOfConnections > 0)
+                {
+                    _agent.StartWorkers(targetAddress, numberOfWorkers, numberOfConnections);
+                }
             });
 
             _proxy.On<int>("killWorker", workerId =>
@@ -121,10 +106,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
                 _agent.PingWorker(workerId, value);
             });
 
-            _proxy.On<int, int>("startTest", (messageSize, messagesPerSecond) =>
+            _proxy.On<int, double>("startTest", (messageSize, sendIntervalSeconds) =>
             {
-                LogAgent("Agent received test information with message size: {0}, and messages sent per second: {1}.", messageSize, messagesPerSecond);
-                _agent.StartTest(messageSize, messagesPerSecond);
+                LogAgent("Agent received test information with message size: {0}, and send interval: {1}.", messageSize, sendIntervalSeconds);
+                _agent.StartTest(messageSize, (int)(1000 * sendIntervalSeconds));
             });
 
             _proxy.On<int>("stopWorker", workerId =>

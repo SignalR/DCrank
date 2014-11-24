@@ -1,15 +1,16 @@
-﻿<div class="col-lg-5 col-md-5 blade-col">
-    <div class="blade" ng-controller="ManualRunController as manualRun">
+﻿<!-- Current blade -->
+<div class="col-lg-5 col-md-5 blade-col">
+    <div class="blade" ng-controller="NewRunController as newRun">
         <!-- Toolbar -->
         <div class="blade-title-bar">
             <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
                 <span class="glyphicon glyphicon-remove"
-                      ui-sref="run"></span>
+                      ui-sref="^"></span>
             </div>
         </div>
 
         <!-- Blade header -->
-        <div class="blade-header">Manual Run</div>
+        <div class="blade-header">{{newRun.runType}} Run</div>
 
         <!-- Blade contents -->
         <div class="blade-body dark">
@@ -18,9 +19,9 @@
                 <div class="col-lg-12 blade-tile-col">
                     <!-- control tile -->
                     <div class="blade-tile">
-                        <form name="runForm" ng-submit="manualRun.startRun()" class="form-horizontal">
-                            <div class="form-group" ng-repeat="input in manualRun.run.RunParameters"
-                                 ng-class="{ 'has-error' : runForm['input'+$index].$invalid && runForm['input'+$index].$touched}">
+                        <form name="newRunForm" ng-submit="newRun.startRun()" class="form-horizontal">
+                            <div class="form-group" ng-repeat="input in newRun.run.RunParameters"
+                                 ng-class="{ 'has-error' : newRunForm['input'+$index].$invalid && newRunForm['input'+$index].$touched}">
                                 <label for="input{{$index}}"
                                        class="col-lg-4 control-label">{{input.Label}}</label>
                                 <div class="col-lg-8">
@@ -30,6 +31,7 @@
                                            name="input{{$index}}"
                                            placeholder="{{input.Placeholder}}"
                                            ng-model="input.Value"
+                                           ng-disabled="!newRun.canStart()"
                                            required />
                                 </div>
                             </div>
@@ -37,7 +39,7 @@
                                 <div class="col-lg-offset-4 col-lg-8">
                                     <button class="btn btn-primary"
                                             type="submit"
-                                            ng-disabled="runForm.$invalid">
+                                            ng-disabled="newRunForm.$invalid || !newRun.canStart()">
                                         Start
                                     </button>
                                 </div>
@@ -49,6 +51,7 @@
         </div>
     </div>
 </div>
+<!-- Next blade -->
 <div class="col-lg-7 col-md-7 blade-col">
     <div class="row blade-row" ui-view></div>
 </div>

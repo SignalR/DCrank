@@ -1,5 +1,6 @@
 ﻿testControllerApp.controller('DashboardController', [
-    'hubService', function (hubService) {
+    'hubService', 'ajaxService', function (hubService, ajaxService) {
         hubService.initialize();
+        ajaxService.initialize();
     }
 ]);
