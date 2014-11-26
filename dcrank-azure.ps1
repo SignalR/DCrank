@@ -24,7 +24,6 @@ $node.count = $NumberOfAgents
 $xml.Save('.\ServiceConfiguration.Cloud.cscfg');
 #>
 
-Write-Output $(Get-Location)
 Publish-AzureServiceProject -ServiceName $ServiceName -AffinityGroup $AffinityGroupName -StorageAccountName $StorageAccountName
 cd ..
 cd ..
