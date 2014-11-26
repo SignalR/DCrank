@@ -15,7 +15,7 @@ _ReSharper.*
 *[Rr]e[Ss]harper.user
 _ReSharper.*/
 packages/*
-artifacts/*
+artifacts/
 msbuild.log
 PublishProfiles/
 *.psess

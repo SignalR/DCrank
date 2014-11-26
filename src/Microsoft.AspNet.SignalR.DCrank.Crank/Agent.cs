@@ -15,10 +15,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public Agent()
         {
-            Trace.Listeners.Add(new ConsoleTraceListener());
+            //Trace.Listeners.Add(new ConsoleTraceListener());
+            Trace.Listeners.Add(new CrankListener());
 
             _workers = new ConcurrentDictionary<int, AgentWorker>();
-
             Trace.WriteLine("Agent created");
         }
 

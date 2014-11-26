@@ -1,0 +1,14 @@
+NOTE: All the following commands must be run from Azure PowerShell
+
+1. Run msbuild .\dcrank-azure-build.proj from the root directory. Ensure that you have MSBUILD installed and added to the path.
+2. Download the AzurePublishSettingsFile associated with your subscription by running the Get-AzurePublishSettingsFile cmdlet. You'll need to pass the file's location as a parameter later on.
+3. Using the Azure portal, create a storage account if you don't already have one. You'll need to pass the storage account name as a parameter later on. 
+4. Run dcrank-azure.ps1 with the following command line parameters:
+	(a) AzurePublishSettingsFile: location of the file downloaded in Step 2. This file is used by Azure to authenticate and authorize you
+	(b) StorageAccountName: name of the storage account you created in Step 3. This account is used to temporarily store your applications while they are deployed to Azure. 
+	(c) Prefix: unique prefix used to name the cloud services for your dashboard and agent.
+	(d) Location: the datacenter location where you want to host your dashboard and agents. Refer to http://azure.microsoft.com/en-us/regions/ for valid location values.
+5. Navigate to .\azure-packages\CrankService. In the the ServiceConfiguration.Cloud.scfg file, for the WorkerRole element, modify the count in Instances to the number of agents you want
+6. Using the Azure portal, create a SQL Azure database. When deploying your target application, pass the connection string of this database to the application. This database stores performance counters for your target application.
+
+
