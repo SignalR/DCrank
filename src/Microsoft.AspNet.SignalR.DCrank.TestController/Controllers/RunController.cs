@@ -24,7 +24,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Controllers
                             Label = "Target URL",
                             Type = "url",
                             Placeholder = "URL",
-                            Value = "http://localhost:24037/"
+                            Value = "http://localhost:24037/TestConnection"
                         },
                         new RunParameter
                         {

@@ -32,7 +32,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public async Task CreateAndStartConnection(CrankArguments arguments)
         {
-            _connection = new Connection(arguments.Url + "TestConnection");
+            _connection = new Connection(arguments.Url);
 
             _sendCts = new CancellationTokenSource();
 
