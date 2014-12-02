@@ -265,12 +265,26 @@ body {
     }
 }
 
-.row.grid-row.inactive-row {
+.agent-list tr {
+    border-bottom: 1px solid @gridDividerColor;
+
+    &:first-of-type {
+        font-weight: bold;
+    }
+
+    &:not(:first-of-type):hover {
+        background-color: @gridSelectedBackgroundColor;
+        color: @gridSelectedTextColor;
+        cursor: pointer;
+    }
+}
+
+.inactive-row {
     background-color: @gridInactiveBackgroundColor;
     color: @gridInactiveTextColor;
 }
 
-.row.grid-row.selected-row {
+.selected-row {
     background-color: @gridSelectedBackgroundColor;
     color: @gridSelectedTextColor;
 }
