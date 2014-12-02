@@ -11,7 +11,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
     {
         public void Configuration(IAppBuilder app)
         {
-            app.MapSignalR();
+            var config = new HubConfiguration { EnableDetailedErrors = true };
+            app.MapSignalR(config);
         }
     }
 }

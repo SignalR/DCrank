@@ -45,8 +45,11 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void Stop()
         {
-            _timer.Dispose();
-            _timer = null;
+            if (_timer != null)
+            {
+                _timer.Dispose();
+                _timer = null;
+            }
         }
 
         private IHubConnectionContext<dynamic> Clients
