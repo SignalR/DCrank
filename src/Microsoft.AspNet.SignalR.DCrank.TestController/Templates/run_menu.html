@@ -1,16 +1,13 @@
 ﻿<!-- Current blade -->
 <div class="col-lg-2 col-md-2 blade-col">
     <div class="blade" ng-controller="RunMenuController as runMenu">
-        <!-- Toolbar -->
-        <div class="blade-title-bar">
-            <div class="blade-title-bar-item  tool-tip" tool-tip="Close">
-                <span class="glyphicon glyphicon-remove"
-                      ui-sref="^"></span>
-            </div>
-        </div>
-
         <!-- Blade header -->
-        <div class="blade-header">Runs</div>
+        <div class="blade-header">
+            Runs
+            <a class="pull-right" ui-sref="^">
+                <span class="glyphicon glyphicon-remove"></span>
+            </a>
+        </div>
 
         <!-- Blade contents -->
         <div class="blade-body">

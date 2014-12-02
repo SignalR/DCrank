@@ -9,7 +9,7 @@
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="~/Scripts/modernizr-2.6.2.js"></script>
 </head>
-<body>
+<body ng-app="testControllerApp">
     <div class="container-fluid">
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-header">
@@ -19,9 +19,17 @@
                     <span class="icon-bar"></span>
                 </button>
                 @Html.ActionLink("D-Crank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav"></ul>
+                <ul class="nav navbar-nav">
+                    <li ui-sref-active="active">
+                        <a ui-sref="root.run">Runs</a>
+                    </li>
+                    <li ui-sref-active="active">
+                        <a ui-sref="root.agents">Agents</a>
+                    </li>
+                </ul>
             </div>
         </div>
 
