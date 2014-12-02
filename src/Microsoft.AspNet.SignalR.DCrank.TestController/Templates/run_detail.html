@@ -19,7 +19,7 @@
                 <div class=" col-lg-12 blade-tile-col">
                     <!-- Counter selection tile -->
                     <div class="blade-tile">
-                        <select multiple
+                        <select class="form-control" multiple
                                 ng-model="runDetail.selectedCounter"
                                 ng-options="counter.dataSeries as counter.name for counter in runDetail.performanceCounters"></select>
                     </div>
@@ -27,7 +27,7 @@
             </div>
 
             <div class="row blade-tile-row">
-                <div class=" col-lg-12 blade-tile-col">
+                <div class="col-lg-12 blade-tile-col">
                     <!-- Counter plot tile -->
                     <div class="blade-tile">
                         <div id="{{runDetail.plotId}}"></div>
