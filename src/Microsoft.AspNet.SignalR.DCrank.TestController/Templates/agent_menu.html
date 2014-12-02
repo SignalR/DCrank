@@ -14,29 +14,30 @@
 
         <!-- Blade contents -->
         <div class="blade-body">
-
             <div class="row blade-tile-row">
                 <div class="colg-lg-12 blade-tile-col">
                     <!-- Agent list grid -->
-                    <div class="grid-tile">
-                        <div class="row grid-row">
-                            <div class="col-lg-3 grid-col">Name</div>
-                            <div class="col-lg-3 grid-col">ID</div>
-                            <div class="col-lg-3 grid-col">Status</div>
-                            <div class="col-lg-3 grid-col">Connections</div>
-                        </div>
-
-                        <div ng-repeat="agent in agentMenu.agents"
-                             class="row grid-row"
-                             ng-class="{ 'inactive-row' : agent.status !== 'active'}"
-                             ui-sref=".agent({agentId:agent.id})"
-                             ui-sref-active="selected-row">
-                            <div class="col-lg-3 grid-col">{{agent.machineName}}</div>
-                            <div class="col-lg-3 grid-col">{{agent.id | limitTo:5}}</div>
-                            <div class="col-lg-3 grid-col">{{agent.status}}</div>
-                            <div class="col-lg-3 grid-col">{{agent.totalConnectionCount}}</div>
-                        </div>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Connections</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="agent in agentMenu.agents"
+                                ng-class="{ 'inactive-row' : agent.status !== 'active'}"
+                                ui-sref=".agent({agentId:agent.id})"
+                                ui-sref-active="selected-row">
+                                <td class="col-lg-3 grid-col">{{agent.machineName}}</td>
+                                <td class="col-lg-3 grid-col">{{agent.id | limitTo:5}}</td>
+                                <td class="col-lg-3 grid-col">{{agent.status}}</td>
+                                <td class="col-lg-3 grid-col">{{agent.totalConnectionCount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

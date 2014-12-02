@@ -20,11 +20,11 @@
                     <div class="console-tile" ng-controller="AgentConsoleController as console">
                         <div class="console-title-bar">
                             <div class="console-title-bar-item  tool-tip" tool-tip="Pin">
-                                <span class=" glyphicon glyphicon-pushpin {{console.pinnedClass()}}"
+                                <span class="glyphicon glyphicon-pushpin {{console.pinnedClass()}}"
                                       ng-click="console.togglePin()"></span>
                             </div>
                             <div class="console-title-bar-item  tool-tip" tool-tip="Auto scroll">
-                                <span class=" glyphicon glyphicon-arrow-down {{console.autoScrollClass()}}"
+                                <span class="glyphicon glyphicon-arrow-down {{console.autoScrollClass()}}"
                                       ng-click="console.toggleAutoScroll()"></span>
                             </div>
                             Agent: {{agentDetail.agent.id | limitTo:5}}
