@@ -70,7 +70,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                     {
                         List<PerformanceCounterSample> samples;
 
-                        if (_latestSampleTimestamp == null)
+                        if (_latestSampleTimestamp == default(DateTimeOffset))
                         {
                             samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).Take(2).ToList();
                         }

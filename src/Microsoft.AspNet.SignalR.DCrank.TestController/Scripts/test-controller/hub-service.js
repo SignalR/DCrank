@@ -6,7 +6,7 @@
             var connection = $.hubConnection();
             var proxy = connection.createHubProxy('controllerHub');
 
-            connection.logging = true;
+            //connection.logging = true;
 
             // Register hub callbacks to update the modelService, ensuring that
             // angular will be notified of the changes.

@@ -97,7 +97,6 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                     Thread.Sleep(_updateInterval);
                 }
             });
-
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
     public static class DependencyResolverExtensions
     {
         private static readonly TimeSpan _defaultUpdateInterval = TimeSpan.FromSeconds(5);
+
         public static IDependencyResolver AddDCrankHarness(this IDependencyResolver resolver, string databaseConnectionString, TimeSpan? updateInterval = null)
         {
             if (updateInterval == null)

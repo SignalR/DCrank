@@ -16,7 +16,7 @@
                 vm.plot.destroy();
             }
 
-            if (vm.plotData.length > 0) {
+            if (vm.plotData && vm.plotData.length && vm.plotData.length > 0) {
                 vm.plot = $.jqplot(vm.plotId, vm.plotData, {
                     series: [
                         {
