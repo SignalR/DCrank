@@ -9,9 +9,12 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
     public class AgentSender : IAgent
     {
         private readonly StreamWriter _outputStreamWriter;
+        private Task _lastQueuedTask;
+        private readonly object _obj = new object();
 
         public AgentSender(StreamWriter outputStreamWriter)
         {
+            _lastQueuedTask = Task.FromResult(true);
             _outputStreamWriter = outputStreamWriter;
         }
 
@@ -50,14 +53,24 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
             await Send("status", JToken.FromObject(parameters)); ;
         }
 
-        private async Task Send(string method, JToken parameters)
+        private Task Send(string method, JToken parameters)
+        {
+            lock (_obj)
+            {
+                var task = _lastQueuedTask.ContinueWith(t => SendCore(method, parameters)).Unwrap();
+                _lastQueuedTask = task;
+                return task;
+            }
+        }
+
+        private async Task SendCore(string method, JToken parameters)
         {
             await _outputStreamWriter.WriteLineAsync(
-                JsonConvert.SerializeObject(new Message()
-                {
-                    Command = method,
-                    Value = parameters
-                }));
+                            JsonConvert.SerializeObject(new Message()
+                            {
+                                Command = method,
+                                Value = parameters
+                            }));
             await _outputStreamWriter.FlushAsync();
         }
     }
