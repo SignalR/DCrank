@@ -4,6 +4,8 @@ using Microsoft.Owin;
 using Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness;
 using Owin;
 using System.Configuration;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -21,6 +23,15 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             app.MapSignalR();
 
             app.UseDCrankEndpoint();
+
+            app.Map("/kill", map =>
+            {
+                map.Run(ctx =>
+                {
+                    Process.GetCurrentProcess().Kill();
+                    return Task.FromResult(true);
+                });
+            });
 
             Dashboard.Init();
         }
