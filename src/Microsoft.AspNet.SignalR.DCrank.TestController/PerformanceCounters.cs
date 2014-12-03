@@ -54,6 +54,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
                 using (var context = new PerformanceCounterSampleContext(_connectionString))
                 {
                     context.Database.Delete();
+                    context.Database.Create();
                 }
             }
             catch (Exception ex)

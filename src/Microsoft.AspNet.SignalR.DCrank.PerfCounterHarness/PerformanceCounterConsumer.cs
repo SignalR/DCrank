@@ -54,45 +54,46 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                 {
                     using (var context = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        context.Database.CreateIfNotExists();
-
-                        try
+                        if (context.Database.Exists())
                         {
-                            var valueList = new List<PerformanceCounterValues>();
-                            
-                            foreach (var counterDefinition in definitionList)	
+                            try
                             {
-                                if(counterDefinition.Type == PerformanceCounterType.Total)
+                                var valueList = new List<PerformanceCounterValues>();
+
+                                foreach (var counterDefinition in definitionList)
                                 {
-                                    PropertyInfo property; 
-                                    propertyDictionary.TryGetValue(counterDefinition.Name, out  property);
-
-                                    valueList.Add(new PerformanceCounterValues()
+                                    if (counterDefinition.Type == PerformanceCounterType.Total)
                                     {
-                                        ValueId = counterDefinition.ValueId,
-                                        Value = ((IPerformanceCounter) property.GetValue(_perfCounterManager)).RawValue
-                                    });
+                                        PropertyInfo property;
+                                        propertyDictionary.TryGetValue(counterDefinition.Name, out property);
+
+                                        valueList.Add(new PerformanceCounterValues()
+                                        {
+                                            ValueId = counterDefinition.ValueId,
+                                            Value = ((IPerformanceCounter)property.GetValue(_perfCounterManager)).RawValue
+                                        });
+                                    }
                                 }
+
+                                var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterDbDefinition
+                                {
+                                    Definitions = definitionList,
+                                    Values = valueList
+                                });
+
+                                var perfCounterSample = new PerformanceCounterSample
+                                {
+                                    Timestamp = DateTimeOffset.UtcNow,
+                                    PerformanceCounterJsonBlob = perfCounterJsonValue
+                                };
+
+                                context.PerformanceCounterSamples.Add(perfCounterSample);
+                                context.SaveChanges();
                             }
-
-                            var perfCounterJsonValue = JsonConvert.SerializeObject(new PerformanceCounterDbDefinition
+                            catch (DbUpdateException ex)
                             {
-                                Definitions = definitionList,
-                                Values = valueList
-                            });
-
-                            var perfCounterSample = new PerformanceCounterSample
-                            {
-                                Timestamp = DateTimeOffset.UtcNow,
-                                PerformanceCounterJsonBlob = perfCounterJsonValue
-                            };
-
-                            context.PerformanceCounterSamples.Add(perfCounterSample);
-                            context.SaveChanges();
-                        }
-                        catch (DbUpdateException ex)
-                        {
-                            DCrankErrorList.AddError(ex);
+                                DCrankErrorList.AddError(ex);
+                            }
                         }
                     }
 
