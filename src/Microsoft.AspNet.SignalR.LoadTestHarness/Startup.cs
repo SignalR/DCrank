@@ -6,6 +6,7 @@ using Owin;
 using System.Configuration;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Web;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -28,7 +29,7 @@ namespace Microsoft.AspNet.SignalR.LoadTestHarness
             {
                 map.Run(ctx =>
                 {
-                    Process.GetCurrentProcess().Kill();
+                    HttpRuntime.UnloadAppDomain();
                     return Task.FromResult(true);
                 });
             });
