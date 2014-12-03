@@ -38,9 +38,27 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
         {
             _latestSampleTimestamp = DateTimeOffset.UtcNow;
             _connectionString = connectionString;
+
+            TryReset();
+
             if (_timer == null)
             {
                 _timer = new Timer(UpdatePerformanceCounters, null, _updateInterval, _updateInterval);
+            }
+        }
+
+        private void TryReset()
+        {
+            try
+            {
+                using (var context = new PerformanceCounterSampleContext(_connectionString))
+                {
+                    context.Database.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Trace?
             }
         }
 
@@ -65,30 +83,41 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
             {
                 lock (_updatePerformanceCounters)
                 {
-                    _updatingPerformanceCounters = true;
-
-                    using (var context = new PerformanceCounterSampleContext(_connectionString))
+                    try
                     {
-                        //if (_latestSampleTimestamp == default(DateTimeOffset))
-                        //{
-                        //    samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).Take(2).ToList();
-                        //}
-                        //else
-                        //{
-                        var samples = (from sample in context.PerformanceCounterSamples
-                                       where sample.Timestamp.CompareTo(_latestSampleTimestamp) >= 0
-                                       select sample).OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
-                        //}
+                        _updatingPerformanceCounters = true;
 
-                        if (samples.Count > 0)
+                        using (var context = new PerformanceCounterSampleContext(_connectionString))
                         {
-                            _latestSampleTimestamp = samples.First().Timestamp;
+                            context.Database.CreateIfNotExists();
+
+                            //if (_latestSampleTimestamp == default(DateTimeOffset))
+                            //{
+                            //    samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).Take(2).ToList();
+                            //}
+                            //else
+                            //{
+                            var samples = (from sample in context.PerformanceCounterSamples
+                                           where sample.Timestamp.CompareTo(_latestSampleTimestamp) >= 0
+                                           select sample).OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
+                            //}
+
+                            if (samples.Count > 0)
+                            {
+                                _latestSampleTimestamp = samples.First().Timestamp;
+                            }
+
+                            Clients.All.updatePerfCounters(PerformanceCounterParser.ReadCounters(samples), _latestSampleTimestamp);
                         }
-
-                        Clients.All.updatePerfCounters(PerformanceCounterParser.ReadCounters(samples), _latestSampleTimestamp);
                     }
-
-                    _updatingPerformanceCounters = false;
+                    catch (Exception ex)
+                    {
+                        // Trace
+                    }
+                    finally
+                    {
+                        _updatingPerformanceCounters = false;
+                    }
                 }
             }
         }
