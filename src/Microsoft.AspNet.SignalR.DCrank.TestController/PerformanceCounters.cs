@@ -69,18 +69,16 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
                     using (var context = new PerformanceCounterSampleContext(_connectionString))
                     {
-                        List<PerformanceCounterSample> samples;
-
-                        if (_latestSampleTimestamp == default(DateTimeOffset))
-                        {
-                            samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).Take(2).ToList();
-                        }
-                        else
-                        {
-                            samples = (from sample in context.PerformanceCounterSamples
+                        //if (_latestSampleTimestamp == default(DateTimeOffset))
+                        //{
+                        //    samples = context.PerformanceCounterSamples.OrderByDescending(s => s.PerformanceCounterSampleId).Take(2).ToList();
+                        //}
+                        //else
+                        //{
+                        var samples = (from sample in context.PerformanceCounterSamples
                                        where sample.Timestamp.CompareTo(_latestSampleTimestamp) >= 0
-                                       select sample).OrderByDescending(s => s.PerformanceCounterSampleId).ToList<PerformanceCounterSample>();
-                        }
+                                       select sample).OrderByDescending(s => s.PerformanceCounterSampleId).ToList();
+                        //}
 
                         if (samples.Count > 0)
                         {
