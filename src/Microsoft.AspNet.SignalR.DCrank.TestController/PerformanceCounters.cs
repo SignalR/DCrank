@@ -36,7 +36,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController
 
         public void Start(string connectionString)
         {
-            _latestSampleTimestamp = DateTimeOffset.Now;
+            _latestSampleTimestamp = DateTimeOffset.UtcNow;
             _connectionString = connectionString;
             if (_timer == null)
             {

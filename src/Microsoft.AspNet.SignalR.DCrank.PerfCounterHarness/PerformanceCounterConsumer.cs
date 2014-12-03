@@ -81,7 +81,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
                             var perfCounterSample = new PerformanceCounterSample
                             {
-                                Timestamp = DateTime.UtcNow,
+                                Timestamp = DateTimeOffset.UtcNow,
                                 PerformanceCounterJsonBlob = perfCounterJsonValue
                             };
 

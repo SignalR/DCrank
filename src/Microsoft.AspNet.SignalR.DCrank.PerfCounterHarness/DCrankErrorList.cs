@@ -14,7 +14,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
         public static void AddError(Exception ex)
         {
-            ErrorList.Add(new Tuple<DateTimeOffset, string>(DateTime.UtcNow, ex.ToString()));
+            ErrorList.Add(new Tuple<DateTimeOffset, string>(DateTimeOffset.UtcNow, ex.ToString()));
         }
     }
 }
