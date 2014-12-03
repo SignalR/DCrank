@@ -14,9 +14,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
             {
                 updateInterval = _defaultUpdateInterval;
             };
-
-            Database.SetInitializer(new DropCreateDatabaseAlways<PerformanceCounterSampleContext>());
-
+            
             var perfCounterManager = new DCrankPerformanceCounterManager();
             resolver.Register(typeof(IPerformanceCounterManager), () => perfCounterManager);
 

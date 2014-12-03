@@ -52,8 +52,10 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
 
                 while (true)
                 {
-                    using (var database = new PerformanceCounterSampleContext(_connectionString))
+                    using (var context = new PerformanceCounterSampleContext(_connectionString))
                     {
+                        context.Database.CreateIfNotExists();
+
                         try
                         {
                             var valueList = new List<PerformanceCounterValues>();
@@ -85,8 +87,8 @@ namespace Microsoft.AspNet.SignalR.DCrank.PerfCounterHarness
                                 PerformanceCounterJsonBlob = perfCounterJsonValue
                             };
 
-                            database.PerformanceCounterSamples.Add(perfCounterSample);
-                            database.SaveChanges();
+                            context.PerformanceCounterSamples.Add(perfCounterSample);
+                            context.SaveChanges();
                         }
                         catch (DbUpdateException ex)
                         {
