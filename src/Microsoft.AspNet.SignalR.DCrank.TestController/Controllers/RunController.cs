@@ -28,6 +28,13 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Controllers
                         },
                         new RunParameter
                         {
+                            Label = "Base URL",
+                            Type = "url",
+                            Placeholder = "BaseURL",
+                            Value = "http://localhost:24037/"
+                        },
+                        new RunParameter
+                        {
                             Label = "Connections",
                             Type = "number",
                             Placeholder = "Number of connections",

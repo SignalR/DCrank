@@ -75,6 +75,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Models
                 var numberOfAgents = liveAgents.Count;
 
                 var targetAddress = (string)runDefinition.RunParameters.First(parameter => parameter.Label.Equals("Target URL")).Value;
+                var baseAddress = (string)runDefinition.RunParameters.First(parameter => parameter.Label.Equals("Base URL")).Value;
                 var workersPerAgent = (int)runDefinition.RunParameters.First(parameter => parameter.Label.Equals("Workers per agent")).Value;
                 var numberOfConnections = (int)runDefinition.RunParameters.First(parameter => parameter.Label.Equals("Connections")).Value;
 
@@ -93,7 +94,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.TestController.Models
                     // Get connection string from the database
                     using (var client = new HttpClient())
                     {
-                        var response = await client.GetAsync(targetAddress + _dcrankEndpoint);
+                        var response = await client.GetAsync(baseAddress + _dcrankEndpoint);
 
                         if (response.IsSuccessStatusCode)
                         {
