@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.DCrank.Crank;
 using Microsoft.AspNet.SignalR.Hubs;

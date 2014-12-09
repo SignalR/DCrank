@@ -38,41 +38,11 @@
 
             this.proxy = proxy;
         },
-        startWorker: function (agentId, numberOfWorkers, numberOfConnections) {
-            this.proxy.invoke('startWorker', agentId, numberOfWorkers, numberOfConnections);
-        },
         pingAgent: function (agentId, value) {
             this.proxy.invoke('pingAgent', agentId, value);
         },
         pingWorker: function (agentId, workerId, value) {
             this.proxy.invoke('pingWorker', agentId, workerId, value);
-        },
-        killWorker: function (agentId, workerId) {
-            this.proxy.invoke('killWorker', agentId, workerId);
-        },
-        stopWorker: function (agentId, workerId) {
-            this.proxy.invoke('stopWorker', agentId, workerId);
-        },
-        killWorkers: function (agentId, numberOfWorkersToKill) {
-            this.proxy.invoke('killWorkers', agentId, numberOfWorkersToKill);
-        },
-        setUpTest: function (targetAddress, numberOfConnections, agentIdList) {
-            this.proxy.invoke('setUpTest', targetAddress, numberOfConnections, agentIdList);
-        },
-        startTest: function (messageSize, messageRate) {
-            this.proxy.invoke('startTest', messageSize, messageRate);
-        },
-        stopWorkers: function () {
-            this.proxy.invoke('stopWorkers');
-        },
-        killConnections: function () {
-            this.proxy.invoke('killConnections');
-        },
-        connectToDatabase: function () {
-            this.proxy.invoke('connectToDatabase');
-        },
-        getPerformanceData: function () {
-            this.proxy.invoke('getPerformanceData');
         }
     }
 }]);

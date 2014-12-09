@@ -10,8 +10,8 @@
                 if (agent.timeout !== undefined) {
                     clearTimeout(agent.timeout);
                 }
-                agent.timeout = setTimeout(function() {
-                     agent.status = 'inactive';
+                agent.timeout = setTimeout(function () {
+                    agent.status = 'inactive';
                 }, 5000);
 
                 // Update the agent data
@@ -73,6 +73,16 @@
 
                 if (agent !== null) {
                     agent.pongValue = value;
+                }
+            },
+            workerPong: function (agentId, workerId, value) {
+                var agent = modelService.tryGetAgent(agentId);
+
+                if (agent !== null) {
+                    var worker = modelService.tryGetWorker(agent, workerId);
+                    if (worker !== null) {
+                        worker.pongValue = value;
+                    }
                 }
             }
         };

@@ -127,7 +127,7 @@ namespace Microsoft.AspNet.SignalR.DCrank.Crank
 
         public async Task PongWorker(int workerId, int value)
         {
-            InvokeController("pong", workerId, value);
+            InvokeController("pongWorker", workerId, value);
         }
 
         public async Task LogWorker(int workerId, string format, params object[] arguments)
